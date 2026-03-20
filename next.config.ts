@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/check/:path*",
-        destination: "https://theviabilityindex.com/:path*",
+        source: "/check/spain",
+        destination: "https://theviabilityindex.com/",
       },
     ];
   },
