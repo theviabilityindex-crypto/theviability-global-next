@@ -66,7 +66,7 @@ const jsonLd = {
           name: "Can savings replace income for the Spain Digital Nomad Visa?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "No. Spain requires consistent monthly income that meets the SMI-based threshold. Lump sum savings alone are not sufficient for approval.",
+            text: "Savings alone cannot fully replace qualifying income, but documented bank savings may support applications where income is close to the threshold. Spain’s UGE reviews the overall financial picture, and applicants with a shortfall may use a structured savings-bridge approach where appropriate.",
           },
         },
         {
@@ -322,9 +322,9 @@ export default function Page() {
                 Can savings replace income for the Spain Digital Nomad Visa?
               </h3>
               <p className="text-slate-600">
-                No. Spain requires consistent monthly income that meets the SMI-based threshold.
-                Lump sum savings alone are not sufficient for approval.
-              </p>
+  Savings alone cannot fully replace qualifying income, but documented bank savings may support applications where income is close to the threshold.  Spain’s UGE reviews the overall financial picture, and applicants with a
+  shortfall may use a structured savings-bridge approach where appropriate.
+</p>
             </div>
 
             <div>
