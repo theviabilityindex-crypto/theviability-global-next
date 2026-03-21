@@ -15,12 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: "https://theviabilityindex.com/check/spain",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
+ 
       url: "https://theviabilityindex.com/api/rules/spain.json",
       lastModified: new Date(),
       changeFrequency: "monthly",
