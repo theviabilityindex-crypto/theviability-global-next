@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
       <div className="mx-auto max-w-4xl px-6 py-16">
-        {/* Header */}
+        {/* Header + Summary Block */}
         <section className="mb-12">
           <p className="text-sm uppercase tracking-wide text-slate-500 mb-3">
             2026 Spain DNV Protocol | Source-Backed Rule Logic
@@ -23,13 +23,35 @@ export default function Page() {
             official 2026 Spanish law.
           </p>
 
-          <p className="text-sm text-slate-500 mt-4">
+          <p className="text-sm text-slate-500 mt-4 mb-8">
             Last Verified: March 2026 | Source: Royal Decree 126/2026
           </p>
 
+          <h2 className="text-2xl font-semibold mb-4">Summary</h2>
+
+          <p className="mb-4 text-lg">
+            The Spain Digital Nomad Visa income requirement for 2026 is{" "}
+            <span className="font-semibold">€2,849/month</span> for a single
+            applicant.
+          </p>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-6">
+            <ul className="space-y-2">
+              <li>
+                <span className="font-medium">Single applicant:</span> €2,849/month
+              </li>
+              <li>
+                <span className="font-medium">Couple (1 dependent):</span> €3,917/month
+              </li>
+              <li>
+                <span className="font-medium">Family (3 dependents):</span> €4,629/month
+              </li>
+            </ul>
+          </div>
+
           <a
             href="/check/spain"
-            className="inline-block mt-6 bg-slate-900 text-white px-6 py-3 rounded-lg text-sm font-medium"
+            className="inline-block bg-slate-900 text-white px-6 py-3 rounded-lg text-sm font-medium"
           >
             Check your exact eligibility instantly
           </a>
