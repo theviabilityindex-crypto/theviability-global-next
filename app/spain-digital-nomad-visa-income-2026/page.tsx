@@ -1,7 +1,19 @@
 export const metadata = {
+  metadataBase: new URL("https://theviabilityindex.com"),
   title: "Spain Digital Nomad Visa Income Requirements 2026 | The Viability Index",
   description:
     "Exact 2026 Spain Digital Nomad Visa income thresholds, dependent calculations, and official formula breakdown based on Royal Decree 126/2026.",
+  alternates: {
+    canonical: "/spain-digital-nomad-visa-income-2026",
+  },
+  openGraph: {
+    title: "Spain Digital Nomad Visa Income Requirements 2026 | The Viability Index",
+    description:
+      "Exact 2026 Spain Digital Nomad Visa income thresholds, dependent calculations, and official formula breakdown based on Royal Decree 126/2026.",
+    url: "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026",
+    siteName: "The Viability Index",
+    type: "article",
+  },
 };
 
 const jsonLd = {
