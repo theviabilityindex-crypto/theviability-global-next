@@ -4,9 +4,95 @@ export const metadata = {
     "Exact 2026 Spain Digital Nomad Visa income thresholds, dependent calculations, and official formula breakdown based on Royal Decree 126/2026.",
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://theviabilityindex.com/#organization",
+      name: "The Viability Index",
+      url: "https://theviabilityindex.com",
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026#webpage",
+      url: "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026",
+      name: "Spain Digital Nomad Visa Income Requirements 2026",
+      description:
+        "Exact 2026 Spain Digital Nomad Visa income thresholds, dependent calculations, and official formula breakdown based on Royal Decree 126/2026.",
+      isPartOf: {
+        "@id": "https://theviabilityindex.com/#organization",
+      },
+      inLanguage: "en",
+      dateModified: "2026-03-21",
+    },
+    {
+      "@type": "Dataset",
+      "@id": "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026#dataset",
+      name: "Spain Digital Nomad Visa Income Thresholds 2026",
+      description:
+        "Machine-readable 2026 Spain Digital Nomad Visa income thresholds, dependent adjustments, and formula logic.",
+      url: "https://theviabilityindex.com/api/rules/spain.json",
+      creator: {
+        "@id": "https://theviabilityindex.com/#organization",
+      },
+      keywords: [
+        "Spain Digital Nomad Visa",
+        "Spain DNV income requirements",
+        "SMI",
+        "Spain visa thresholds 2026",
+      ],
+      inLanguage: "en",
+      dateModified: "2026-03-21",
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026#faq",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Can savings replace income for the Spain Digital Nomad Visa?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No. Spain requires consistent monthly income that meets the SMI-based threshold. Lump sum savings alone are not sufficient for approval.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What income qualifies for the Spain Digital Nomad Visa?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Qualifying income must come from employment or business activity outside Spain. Remote work for a non-Spanish company or foreign clients is typically accepted.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Do dependents increase the required income?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. The first dependent increases the requirement by 75% of Spain’s SMI, and each additional dependent adds 25% of SMI to the total requirement.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Why do different websites show different income requirements?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Some websites use the base monthly SMI, while others use the annualised SMI divided by 12 months. Spanish visa authorities use the annualised calculation, which results in higher required income figures.",
+          },
+        },
+      ],
+    },
+  ],
+};
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto max-w-4xl px-6 py-16">
         {/* Header + Summary Block */}
         <section className="mb-12">
@@ -123,7 +209,6 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Formula Block */}
         {/* Rule Explanation (Authority Layer) */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
@@ -148,6 +233,7 @@ export default function Page() {
           </p>
         </section>
 
+        {/* Formula Block */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Formula used for Spain Digital Nomad Visa income calculations
@@ -163,7 +249,7 @@ export default function Page() {
           </div>
         </section>
 
-                {/* Worked Examples */}
+        {/* Worked Examples */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Worked examples of Spain Digital Nomad Visa income requirements
@@ -211,7 +297,7 @@ export default function Page() {
           </p>
         </section>
 
-                {/* FAQ */}
+        {/* FAQ */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Spain Digital Nomad Visa income FAQ (2026)
@@ -223,7 +309,7 @@ export default function Page() {
                 Can savings replace income for the Spain Digital Nomad Visa?
               </h3>
               <p className="text-slate-600">
-                No. Spain requires consistent monthly income that meets the SMI-based threshold. 
+                No. Spain requires consistent monthly income that meets the SMI-based threshold.
                 Lump sum savings alone are not sufficient for approval.
               </p>
             </div>
@@ -233,7 +319,7 @@ export default function Page() {
                 What income qualifies for the Spain Digital Nomad Visa?
               </h3>
               <p className="text-slate-600">
-                Qualifying income must come from employment or business activity outside Spain. 
+                Qualifying income must come from employment or business activity outside Spain.
                 Remote work for a non-Spanish company or foreign clients is typically accepted.
               </p>
             </div>
@@ -243,7 +329,7 @@ export default function Page() {
                 Do dependents increase the required income?
               </h3>
               <p className="text-slate-600">
-                Yes. The first dependent increases the requirement by 75% of Spain’s SMI, and 
+                Yes. The first dependent increases the requirement by 75% of Spain’s SMI, and
                 each additional dependent adds 25% of SMI to the total requirement.
               </p>
             </div>
@@ -253,8 +339,8 @@ export default function Page() {
                 Why do different websites show different income requirements?
               </h3>
               <p className="text-slate-600">
-                Some websites use the base monthly SMI, while others use the annualised SMI divided 
-                by 12 months. Spanish visa authorities use the annualised calculation, which results 
+                Some websites use the base monthly SMI, while others use the annualised SMI divided
+                by 12 months. Spanish visa authorities use the annualised calculation, which results
                 in higher required income figures.
               </p>
             </div>
@@ -268,22 +354,21 @@ export default function Page() {
           </h2>
 
           <p className="mb-3">
-            The income thresholds shown on this page are derived from Spain’s minimum wage (SMI) 
+            The income thresholds shown on this page are derived from Spain’s minimum wage (SMI)
             and calculated using the official methodology applied to Digital Nomad Visa applications.
           </p>
 
           <p className="mb-3">
-            The 2026 figures are based on the updated SMI level and legal framework defined under 
-            Royal Decree 126/2026, which establishes the baseline used by immigration authorities 
+            The 2026 figures are based on the updated SMI level and legal framework defined under
+            Royal Decree 126/2026, which establishes the baseline used by immigration authorities
             when assessing income eligibility.
           </p>
 
           <p>
-            Because SMI is subject to periodic government updates, applicants should verify the 
+            Because SMI is subject to periodic government updates, applicants should verify the
             latest thresholds before applying, as requirements may change in future years.
           </p>
         </section>
-
 
         {/* Bottom CTA */}
         <section className="text-center mt-16">
