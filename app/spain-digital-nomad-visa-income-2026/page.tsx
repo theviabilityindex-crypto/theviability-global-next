@@ -147,9 +147,9 @@ export default function Page() {
             </ul>
           </div>
 
-        <a
+       <a
   href="/check/spain?year=2026&source=authority"
-  className="inline-block mt-6 bg-slate-900 text-white px-6 py-3 rounded-lg text-sm font-medium"
+  className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
 >
   Run your Spain viability check → Strategy Pack from $67
 </a>
