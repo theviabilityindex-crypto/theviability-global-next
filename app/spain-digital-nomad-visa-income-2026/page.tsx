@@ -261,6 +261,30 @@ export default function Page() {
           </div>
         </section>
 
+        {/* Source & Verification */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">
+            Source and verification
+          </h2>
+
+          <p className="mb-3">
+            The income thresholds shown on this page are derived from Spain’s minimum wage (SMI) 
+            and calculated using the official methodology applied to Digital Nomad Visa applications.
+          </p>
+
+          <p className="mb-3">
+            The 2026 figures are based on the updated SMI level and legal framework defined under 
+            Royal Decree 126/2026, which establishes the baseline used by immigration authorities 
+            when assessing income eligibility.
+          </p>
+
+          <p>
+            Because SMI is subject to periodic government updates, applicants should verify the 
+            latest thresholds before applying, as requirements may change in future years.
+          </p>
+        </section>
+
+
         {/* Bottom CTA */}
         <section className="text-center mt-16">
           <h2 className="text-xl font-semibold mb-4">
