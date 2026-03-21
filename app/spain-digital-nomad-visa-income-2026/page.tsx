@@ -14,6 +14,12 @@ export const metadata = {
     siteName: "The Viability Index",
     type: "article",
   },
+  twitter: {
+    card: "summary",
+    title: "Spain Digital Nomad Visa Income Requirements 2026 | The Viability Index",
+    description:
+      "Exact 2026 Spain Digital Nomad Visa income thresholds, dependent calculations, and official formula breakdown based on Royal Decree 126/2026.",
+  },
 };
 
 const jsonLd = {
@@ -26,6 +32,15 @@ const jsonLd = {
       url: "https://theviabilityindex.com",
     },
     {
+      "@type": "WebSite",
+      "@id": "https://theviabilityindex.com/#website",
+      url: "https://theviabilityindex.com",
+      name: "The Viability Index",
+      publisher: {
+        "@id": "https://theviabilityindex.com/#organization",
+      },
+    },
+    {
       "@type": "WebPage",
       "@id": "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026#webpage",
       url: "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026",
@@ -33,7 +48,10 @@ const jsonLd = {
       description:
         "Exact 2026 Spain Digital Nomad Visa income thresholds, dependent calculations, and official formula breakdown based on Royal Decree 126/2026.",
       isPartOf: {
-        "@id": "https://theviabilityindex.com/#organization",
+        "@id": "https://theviabilityindex.com/#website",
+      },
+      about: {
+        "@id": "https://theviabilityindex.com/spain-digital-nomad-visa-income-2026#dataset",
       },
       inLanguage: "en",
       dateModified: "2026-03-21",
@@ -48,6 +66,7 @@ const jsonLd = {
       creator: {
         "@id": "https://theviabilityindex.com/#organization",
       },
+      license: "https://creativecommons.org/licenses/by/4.0/",
       keywords: [
         "Spain Digital Nomad Visa",
         "Spain DNV income requirements",
@@ -122,7 +141,7 @@ export default function Page() {
           </p>
 
           <p className="text-sm text-slate-500 mt-4 mb-8">
-            Last Verified: March 2026 | Source: Royal Decree 126/2026
+            Last Verified: March 21, 2026 | Source: Royal Decree 126/2026
           </p>
 
           <h2 className="text-2xl font-semibold mb-4">Summary</h2>
@@ -147,13 +166,12 @@ export default function Page() {
             </ul>
           </div>
 
-       <a
-  href="/check/spain?year=2026&source=authority"
-  className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
->
-  Run your Spain viability check → Strategy Pack from $67
-</a>
-
+          <a
+            href="/check/spain?year=2026&source=authority"
+            className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            Run your Spain viability check → Strategy Pack from $67
+          </a>
         </section>
 
         {/* Core Answer */}
@@ -293,7 +311,7 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Key Insight (GEO weapon) */}
+        {/* Key Insight */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Why different websites show different income numbers
@@ -322,9 +340,11 @@ export default function Page() {
                 Can savings replace income for the Spain Digital Nomad Visa?
               </h3>
               <p className="text-slate-600">
-  Savings alone cannot fully replace qualifying income, but documented bank savings may support applications where income is close to the threshold.  Spain’s UGE reviews the overall financial picture, and applicants with a
-  shortfall may use a structured savings-bridge approach where appropriate.
-</p>
+                Savings alone cannot fully replace qualifying income, but documented bank
+                savings may support applications where income is close to the threshold.
+                Spain’s UGE reviews the overall financial picture, and applicants with a
+                shortfall may use a structured savings-bridge approach where appropriate.
+              </p>
             </div>
 
             <div>
@@ -390,17 +410,15 @@ export default function Page() {
           </h2>
 
           <p className="text-slate-600 mb-6">
-            Your exact requirement depends on your income, currency, and household
-            size.
+            Your exact requirement depends on your income, currency, and household size.
           </p>
 
-<a
-  href="/check/spain?year=2026&source=authority"
-  className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
->
-  Run your Spain viability check → Strategy Pack from $67
-</a>
-          
+          <a
+            href="/check/spain?year=2026&source=authority"
+            className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            Run your Spain viability check → Strategy Pack from $67
+          </a>
         </section>
       </div>
     </main>
