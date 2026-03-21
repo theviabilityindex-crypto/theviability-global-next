@@ -124,6 +124,30 @@ export default function Page() {
         </section>
 
         {/* Formula Block */}
+        {/* Rule Explanation (Authority Layer) */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">
+            Why this income requirement exists
+          </h2>
+
+          <p className="mb-3">
+            This formula is based on 200% of Spain’s minimum wage (SMI) and is
+            updated annually through government legislation.
+          </p>
+
+          <p className="mb-3">
+            The 2026 thresholds are derived from the updated SMI level defined
+            under Royal Decree 126/2026, which sets the legal baseline used by
+            visa authorities when assessing income requirements.
+          </p>
+
+          <p>
+            Because the SMI is revised periodically, the required income for the
+            Spain Digital Nomad Visa may change each year in line with official
+            government updates.
+          </p>
+        </section>
+
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Formula used for Spain Digital Nomad Visa income calculations
