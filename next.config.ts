@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/check/spain",
-        destination: "https://theviabilityindex.lovable.app",
+        destination: "https://app.theviabilityindex.com",
         permanent: false,
       },
     ];
