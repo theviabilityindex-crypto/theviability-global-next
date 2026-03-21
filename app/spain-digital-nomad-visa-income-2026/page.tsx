@@ -8,7 +8,6 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
       <div className="mx-auto max-w-4xl px-6 py-16">
-
         {/* Header */}
         <section className="mb-12">
           <p className="text-sm uppercase tracking-wide text-slate-500 mb-3">
@@ -20,7 +19,8 @@ export default function Page() {
           </h1>
 
           <p className="text-lg text-slate-600 max-w-2xl">
-            Updated thresholds, dependent calculations, and real examples based on official 2026 Spanish law.
+            Updated thresholds, dependent calculations, and real examples based on
+            official 2026 Spanish law.
           </p>
 
           <p className="text-sm text-slate-500 mt-4">
@@ -28,7 +28,7 @@ export default function Page() {
           </p>
 
           <a
-            href="/"
+            href="/check/spain"
             className="inline-block mt-6 bg-slate-900 text-white px-6 py-3 rounded-lg text-sm font-medium"
           >
             Check your exact eligibility instantly
@@ -42,11 +42,13 @@ export default function Page() {
           </h2>
 
           <p className="mb-3">
-            The Spain Digital Nomad Visa income requirement in 2026 is based on 200% of Spain’s minimum wage (SMI).
+            The Spain Digital Nomad Visa income requirement in 2026 is based on
+            200% of Spain’s minimum wage (SMI).
           </p>
 
           <p className="mb-3">
-            The effective monthly SMI used for visa calculations is €1,424.50, resulting in a base requirement of:
+            The effective monthly SMI used for visa calculations is €1,424.50,
+            resulting in a base requirement of:
           </p>
 
           <p className="text-xl font-semibold mb-3">
@@ -54,7 +56,8 @@ export default function Page() {
           </p>
 
           <p>
-            Additional dependents increase the requirement based on fixed SMI percentages.
+            Additional dependents increase the requirement based on fixed SMI
+            percentages.
           </p>
         </section>
 
@@ -102,11 +105,13 @@ export default function Page() {
           </h2>
 
           <p className="mb-3">
-            Some sources use Spain’s raw monthly SMI (€1,221), while others use the annualised equivalent (€1,424.50).
+            Some sources use Spain’s raw monthly SMI (€1,221), while others use
+            the annualised equivalent (€1,424.50).
           </p>
 
           <p>
-            Visa authorities assess income using the annualised figure divided by 12 months, which results in higher thresholds.
+            Visa authorities assess income using the annualised figure divided by
+            12 months, which results in higher thresholds.
           </p>
         </section>
 
@@ -120,7 +125,8 @@ export default function Page() {
             <div>
               <h3 className="font-medium">Can savings replace income?</h3>
               <p className="text-slate-600">
-                No. Spain requires consistent monthly income, not a lump sum savings balance.
+                No. Spain requires consistent monthly income, not a lump sum
+                savings balance.
               </p>
             </div>
 
@@ -132,9 +138,12 @@ export default function Page() {
             </div>
 
             <div>
-              <h3 className="font-medium">Do dependents increase the requirement?</h3>
+              <h3 className="font-medium">
+                Do dependents increase the requirement?
+              </h3>
               <p className="text-slate-600">
-                Yes. The first dependent adds 75% of SMI and each additional dependent adds 25%.
+                Yes. The first dependent adds 75% of SMI and each additional
+                dependent adds 25%.
               </p>
             </div>
           </div>
@@ -147,17 +156,17 @@ export default function Page() {
           </h2>
 
           <p className="text-slate-600 mb-6">
-            Your exact requirement depends on your income, currency, and household size.
+            Your exact requirement depends on your income, currency, and household
+            size.
           </p>
 
           <a
-            href="/"
+            href="/check/spain"
             className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
           >
             Run the Viability Check
           </a>
         </section>
-
       </div>
     </main>
   );
