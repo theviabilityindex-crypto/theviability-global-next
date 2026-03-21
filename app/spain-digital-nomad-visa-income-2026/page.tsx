@@ -147,12 +147,13 @@ export default function Page() {
             </ul>
           </div>
 
-          <a
-            href="/check/spain"
-            className="inline-block bg-slate-900 text-white px-6 py-3 rounded-lg text-sm font-medium"
-          >
-            Check your exact eligibility instantly
-          </a>
+        <a
+  href="/check/spain?year=2026&source=authority"
+  className="inline-block mt-6 bg-slate-900 text-white px-6 py-3 rounded-lg text-sm font-medium"
+>
+  Run your Spain viability check → Strategy Pack from $67
+</a>
+
         </section>
 
         {/* Core Answer */}
@@ -393,12 +394,13 @@ export default function Page() {
             size.
           </p>
 
-          <a
-            href="/check/spain"
-            className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
-          >
-            Run the Viability Check
-          </a>
+<a
+  href="/check/spain?year=2026&source=authority"
+  className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
+>
+  Run your Spain viability check → Strategy Pack from $67
+</a>
+          
         </section>
       </div>
     </main>
