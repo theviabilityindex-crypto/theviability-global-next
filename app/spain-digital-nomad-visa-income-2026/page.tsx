@@ -211,35 +211,51 @@ export default function Page() {
           </p>
         </section>
 
-        {/* FAQ */}
+                {/* FAQ */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
-            Frequently asked questions
+            Spain Digital Nomad Visa income FAQ (2026)
           </h2>
 
           <div className="space-y-4">
             <div>
-              <h3 className="font-medium">Can savings replace income?</h3>
+              <h3 className="font-medium">
+                Can savings replace income for the Spain Digital Nomad Visa?
+              </h3>
               <p className="text-slate-600">
-                No. Spain requires consistent monthly income, not a lump sum
-                savings balance.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-medium">Can remote employment qualify?</h3>
-              <p className="text-slate-600">
-                Yes, provided the employer is based outside Spain.
+                No. Spain requires consistent monthly income that meets the SMI-based threshold. 
+                Lump sum savings alone are not sufficient for approval.
               </p>
             </div>
 
             <div>
               <h3 className="font-medium">
-                Do dependents increase the requirement?
+                What income qualifies for the Spain Digital Nomad Visa?
               </h3>
               <p className="text-slate-600">
-                Yes. The first dependent adds 75% of SMI and each additional
-                dependent adds 25%.
+                Qualifying income must come from employment or business activity outside Spain. 
+                Remote work for a non-Spanish company or foreign clients is typically accepted.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-medium">
+                Do dependents increase the required income?
+              </h3>
+              <p className="text-slate-600">
+                Yes. The first dependent increases the requirement by 75% of Spain’s SMI, and 
+                each additional dependent adds 25% of SMI to the total requirement.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-medium">
+                Why do different websites show different income requirements?
+              </h3>
+              <p className="text-slate-600">
+                Some websites use the base monthly SMI, while others use the annualised SMI divided 
+                by 12 months. Spanish visa authorities use the annualised calculation, which results 
+                in higher required income figures.
               </p>
             </div>
           </div>
