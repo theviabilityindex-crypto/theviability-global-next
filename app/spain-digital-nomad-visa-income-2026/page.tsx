@@ -163,26 +163,33 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Examples */}
+                {/* Worked Examples */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
-            Example income requirements (2026)
+            Worked examples of Spain Digital Nomad Visa income requirements
           </h2>
 
           <div className="space-y-4">
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <p className="text-sm text-slate-500">Single applicant</p>
-              <p className="text-lg font-semibold">€2,849/month</p>
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+              <p className="text-sm text-slate-500 mb-1">Example 1 — Single applicant</p>
+              <p className="font-medium mb-1">Calculation: 200% × €1,424.50</p>
+              <p className="text-lg font-semibold">Required income: €2,849/month</p>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <p className="text-sm text-slate-500">Couple (1 dependent)</p>
-              <p className="text-lg font-semibold">€3,917/month</p>
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+              <p className="text-sm text-slate-500 mb-1">Example 2 — Couple (1 dependent)</p>
+              <p className="font-medium mb-1">
+                Calculation: €2,849 + (75% × €1,424.50)
+              </p>
+              <p className="text-lg font-semibold">Required income: €3,917/month</p>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <p className="text-sm text-slate-500">Family (3 dependents)</p>
-              <p className="text-lg font-semibold">€4,629/month</p>
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+              <p className="text-sm text-slate-500 mb-1">Example 3 — Family with 3 dependents</p>
+              <p className="font-medium mb-1">
+                Calculation: €2,849 + (75% × €1,424.50) + (25% × €1,424.50) + (25% × €1,424.50)
+              </p>
+              <p className="text-lg font-semibold">Required income: €4,629/month</p>
             </div>
           </div>
         </section>
