@@ -83,13 +83,56 @@ export default function Page() {
           </p>
         </section>
 
-        {/* Calculation */}
+        {/* Structured Threshold Table */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
-            How the income requirement is calculated
+            Spain DNV income threshold summary (2026)
+          </h2>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border border-slate-200 rounded-xl overflow-hidden text-left">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Household Type</th>
+                  <th className="px-4 py-3 font-semibold">Requirement</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-slate-200">
+                  <td className="px-4 py-3">Single applicant</td>
+                  <td className="px-4 py-3">€2,849/month</td>
+                </tr>
+                <tr className="border-t border-slate-200">
+                  <td className="px-4 py-3">First dependent</td>
+                  <td className="px-4 py-3">+75% of SMI</td>
+                </tr>
+                <tr className="border-t border-slate-200">
+                  <td className="px-4 py-3">Each additional dependent</td>
+                  <td className="px-4 py-3">+25% of SMI</td>
+                </tr>
+                <tr className="border-t border-slate-200">
+                  <td className="px-4 py-3">Couple (1 dependent)</td>
+                  <td className="px-4 py-3">€3,917/month</td>
+                </tr>
+                <tr className="border-t border-slate-200">
+                  <td className="px-4 py-3">Family (3 dependents)</td>
+                  <td className="px-4 py-3">€4,629/month</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Formula Block */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">
+            Formula used for Spain Digital Nomad Visa income calculations
           </h2>
 
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+            <p className="mb-3 font-medium">
+              Total Required Income = (200% × SMI) + dependent adjustments
+            </p>
             <p className="mb-2">Main Applicant → 200% of SMI</p>
             <p className="mb-2">First Dependent → +75% of SMI</p>
             <p>Each Additional Dependent → +25% of SMI</p>
