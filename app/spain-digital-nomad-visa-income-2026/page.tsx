@@ -200,6 +200,45 @@ export default function Page() {
           </p>
         </section>
 
+        {/* Task 32 — Who qualifies in practice */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">
+            Who qualifies for the Spain Digital Nomad Visa in practice?
+          </h2>
+
+          <p className="mb-3">
+            Meeting the income threshold alone is not sufficient. Applicants must
+            also demonstrate that their income is legitimate, consistent, and
+            sourced from outside Spain.
+          </p>
+
+          <div className="space-y-3 text-slate-700">
+            <p>
+              <span className="font-medium">Remote employees (W-2 / salaried):</span>{" "}
+              Typically qualify if working for a non-Spanish company with explicit
+              permission to work remotely from Spain.
+            </p>
+
+            <p>
+              <span className="font-medium">Freelancers and contractors:</span>{" "}
+              Must show stable foreign income through invoices, contracts, and
+              consistent payment history.
+            </p>
+
+            <p>
+              <span className="font-medium">Multiple income streams:</span>{" "}
+              Combined income may be accepted if properly documented, particularly
+              when all sources are based outside Spain.
+            </p>
+
+            <p>
+              <span className="font-medium">Documentation matters:</span>{" "}
+              Immigration authorities assess the consistency of bank statements,
+              contracts, and payslips — not just the headline income figure.
+            </p>
+          </div>
+        </section>
+
         {/* Structured Threshold Table */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
@@ -261,6 +300,39 @@ export default function Page() {
             Because the SMI is revised periodically, the required income for the
             Spain Digital Nomad Visa may change each year in line with official
             government updates.
+          </p>
+        </section>
+
+        {/* Task 33 — Application routes + qualification */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">
+            Spain Digital Nomad Visa application routes and requirements
+          </h2>
+
+          <p className="mb-3">
+            There are two primary ways to apply for the Spain Digital Nomad Visa,
+            and the process can affect the outcome and duration of your permit.
+          </p>
+
+          <div className="space-y-3 text-slate-700">
+            <p>
+              <span className="font-medium">Applying from abroad (consulate route):</span>{" "}
+              Typically results in an initial visa valid for up to 1 year,
+              followed by renewal in Spain.
+            </p>
+
+            <p>
+              <span className="font-medium">Applying from within Spain (UGE route):</span>{" "}
+              Often results in a residence permit of up to 3 years directly,
+              depending on eligibility.
+            </p>
+          </div>
+
+          <p className="mt-4">
+            <span className="font-medium">Important:</span> Income is not the only
+            requirement. Applicants are generally expected to demonstrate either a
+            relevant university degree or several years of professional experience
+            in their field.
           </p>
         </section>
 
