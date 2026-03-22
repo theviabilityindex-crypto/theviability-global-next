@@ -126,7 +126,7 @@ export default function Page() {
       />
       <div className="mx-auto max-w-4xl px-6 py-16">
         {/* Header + Summary Block */}
-        <section className="mb-12">
+        <section className="mb-16">
           <p className="text-sm uppercase tracking-wide text-slate-500 mb-3">
             2026 Spain DNV Protocol | Source-Backed Rule Logic
           </p>
@@ -147,9 +147,9 @@ export default function Page() {
           <h2 className="text-2xl font-semibold mb-4">Summary</h2>
 
           <p className="mb-4 text-lg">
-            The Spain Digital Nomad Visa income requirement for 2026 is{" "}
-            <span className="font-semibold">€2,849/month</span> for a single
-            applicant.
+            You need{" "}
+            <span className="font-semibold text-blue-600">€2,849/month</span> to
+            qualify as a single applicant in 2026.
           </p>
 
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-6">
@@ -166,16 +166,24 @@ export default function Page() {
             </ul>
           </div>
 
-          <a
-            href="/check/spain?year=2026&source=authority"
-            className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
-          >
-            Check your Spain visa eligibility in 60 seconds (Free)
-          </a>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6">
+            <a
+              href="/check/spain?year=2026&source=authority"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold text-center inline-block shadow-lg text-sm sm:text-base"
+            >
+              <span className="sm:hidden">Check eligibility free</span>
+              <span className="hidden sm:inline">
+                Check your Spain visa eligibility in 60 seconds (Free)
+              </span>
+            </a>
+            <p className="text-xs text-slate-500 mt-3">
+              No signup required to see your initial result.
+            </p>
+          </div>
         </section>
 
         {/* Core Answer */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             What is the Spain Digital Nomad Visa income requirement in 2026?
           </h2>
@@ -201,7 +209,7 @@ export default function Page() {
         </section>
 
         {/* USD Example */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Can you qualify with USD income?
           </h2>
@@ -224,7 +232,7 @@ export default function Page() {
         </section>
 
         {/* Who qualifies in practice */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Who qualifies for the Spain Digital Nomad Visa in practice?
           </h2>
@@ -275,7 +283,7 @@ export default function Page() {
         </section>
 
         {/* Structured Threshold Table */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Spain DNV income threshold summary (2026)
           </h2>
@@ -315,7 +323,7 @@ export default function Page() {
         </section>
 
         {/* Rule Explanation (Authority Layer) */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Why this income requirement exists
           </h2>
@@ -339,7 +347,7 @@ export default function Page() {
         </section>
 
         {/* Application routes + qualification */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Spain Digital Nomad Visa application routes and requirements
           </h2>
@@ -379,7 +387,7 @@ export default function Page() {
         </section>
 
         {/* Formula Block */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Formula used for Spain Digital Nomad Visa income calculations
           </h2>
@@ -395,7 +403,7 @@ export default function Page() {
         </section>
 
         {/* Worked Examples */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Worked examples of Spain Digital Nomad Visa income requirements
           </h2>
@@ -426,7 +434,7 @@ export default function Page() {
         </section>
 
         {/* Savings Bridge (Critical Differentiation Layer) */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Can savings help you qualify if your income is below the requirement?
           </h2>
@@ -467,7 +475,7 @@ export default function Page() {
         </section>
 
         {/* Key Insight */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Why different websites show different income numbers
           </h2>
@@ -484,7 +492,7 @@ export default function Page() {
         </section>
 
         {/* FAQ */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Spain Digital Nomad Visa income FAQ (2026)
           </h2>
@@ -536,7 +544,7 @@ export default function Page() {
         </section>
 
         {/* Source & Verification */}
-        <section className="mb-12">
+        <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-4">
             Source and verification
           </h2>
@@ -568,12 +576,20 @@ export default function Page() {
             Your exact requirement depends on your income, currency, and household size.
           </p>
 
-          <a
-            href="/check/spain?year=2026&source=authority"
-            className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
-          >
-            Check your Spain visa eligibility in 60 seconds (Free)
-          </a>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6 inline-block">
+            <a
+              href="/check/spain?year=2026&source=authority"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold text-center inline-block shadow-lg text-sm sm:text-base"
+            >
+              <span className="sm:hidden">Check eligibility free</span>
+              <span className="hidden sm:inline">
+                Check your Spain visa eligibility in 60 seconds (Free)
+              </span>
+            </a>
+            <p className="text-xs text-slate-500 mt-3">
+              No signup required to see your initial result.
+            </p>
+          </div>
         </section>
       </div>
     </main>
