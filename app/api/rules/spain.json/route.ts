@@ -35,7 +35,7 @@ export async function GET() {
     },
 
     summary:
-      "Spain Digital Nomad Visa requires €2,849/month for a single applicant in 2026.",
+      "Spain Digital Nomad Visa requires \u20AC2,849/month for a single applicant in 2026.",
 
     rules: [
       "Income must be from outside Spain",
@@ -67,11 +67,14 @@ export async function GET() {
     },
 
     savings_bridge_rule: {
-      months_required: 36,
+      type: "income_gap_support",
+      description:
+        "Savings may be considered by some consulates to support an income shortfall, but there is no fixed official formula.",
       example: {
         monthly_shortfall: 1000,
-        required_savings: 36000
-      }
+        illustrative_savings: 36000
+      },
+      confidence: "conditional"
     }
   });
 }

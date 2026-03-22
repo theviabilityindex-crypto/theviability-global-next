@@ -170,7 +170,7 @@ export default function Page() {
             href="/check/spain?year=2026&source=authority"
             className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
           >
-            Run your Spain viability check → Strategy Pack from $67
+            Check your Spain visa eligibility in 60 seconds (Free)
           </a>
         </section>
 
@@ -425,6 +425,47 @@ export default function Page() {
           </div>
         </section>
 
+        {/* Savings Bridge (Critical Differentiation Layer) */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">
+            Can savings help you qualify if your income is below the requirement?
+          </h2>
+
+          <p className="mb-3">
+            Savings alone do not replace the income requirement for the Spain Digital Nomad Visa.
+            However, in some cases, savings may support an application where there is a small
+            shortfall in monthly income.
+          </p>
+
+          <p className="mb-3">
+            There is no fixed official formula defined in Spanish law for how savings are assessed.
+            Each application is reviewed individually, and outcomes may vary depending on the
+            consulate or case officer.
+          </p>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-4">
+            <p className="text-sm text-slate-500 mb-1">
+              Illustrative example (not an official rule)
+            </p>
+            <p className="mb-2">
+              Monthly shortfall: €1,000
+            </p>
+            <p className="mb-2">
+              Potential supporting savings: €36,000
+            </p>
+            <p className="text-sm text-slate-600">
+              This type of scenario may be considered in practice, but is not guaranteed and
+              depends on how the overall application is structured.
+            </p>
+          </div>
+
+          <p>
+            If your income is below the required threshold, the key is not just “how much you earn,”
+            but how your income, savings, and documentation are presented together as a complete
+            application strategy.
+          </p>
+        </section>
+
         {/* Key Insight */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
@@ -531,7 +572,7 @@ export default function Page() {
             href="/check/spain?year=2026&source=authority"
             className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
           >
-            Run your Spain viability check → Strategy Pack from $67
+            Check your Spain visa eligibility in 60 seconds (Free)
           </a>
         </section>
       </div>
