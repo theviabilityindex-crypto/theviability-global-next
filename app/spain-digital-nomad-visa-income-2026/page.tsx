@@ -1,6 +1,12 @@
-// (ONLY showing changed section for clarity — but YOU must replace the whole file with this version)
-
 export default function Page() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Spain Digital Nomad Visa Income Requirements 2026",
+    description:
+      "Official Spain Digital Nomad Visa income thresholds for 2026 based on SMI.",
+  };
+
   return (
     <main className="min-h-screen bg-white text-slate-900">
       <script
@@ -8,16 +14,14 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 🔥 CRITICAL: tighter top spacing on mobile */}
       <div className="mx-auto max-w-4xl px-5 py-6 sm:px-6 sm:py-16">
-
         <section className="mb-12 sm:mb-16">
           <p className="text-xs sm:text-sm uppercase tracking-wide text-slate-500 mb-1 sm:mb-3">
             2026 Spain DNV Protocol | Source-Backed Rule Logic
           </p>
 
-          {/* 🔥 FIX: smaller mobile H1 */}
-          <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-4 leading-tight">
+          {/* ✅ FIXED MOBILE H1 */}
+          <h1 className="text-xl sm:text-4xl font-bold mb-1 sm:mb-4 leading-tight">
             Spain Digital Nomad Visa Income Requirements (2026)
           </h1>
 
@@ -29,7 +33,7 @@ export default function Page() {
             Last Verified: March 21, 2026 | Source: Royal Decree 126/2026
           </p>
 
-          {/* 🚨 MOVED CTA ABOVE EVERYTHING */}
+          {/* CTA */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 mb-6">
             <a
               href="/check/spain?year=2026&source=authority"
@@ -75,4 +79,66 @@ export default function Page() {
           </div>
         </section>
 
-        {/* rest of file stays EXACTLY the same */}
+        {/* CONTENT CONTINUES (UNCHANGED STRUCTURE) */}
+
+        <section className="mb-12">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
+            What is the Spain Digital Nomad Visa income requirement in 2026?
+          </h2>
+
+          <p className="mb-3">
+            The Spain Digital Nomad Visa income requirement in 2026 is based on 200% of Spain’s minimum wage (SMI).
+          </p>
+
+          <p className="mb-3">
+            The effective monthly SMI used for visa calculations is €1,424.50, resulting in a base requirement of:
+          </p>
+
+          <p className="font-semibold text-lg mb-3">
+            €2,849 per month (single applicant)
+          </p>
+
+          <p>
+            Additional dependents increase the requirement based on fixed SMI percentages.
+          </p>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
+            Can you qualify with USD income?
+          </h2>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-6">
+            <p className="mb-2">Example — $4,000/month income</p>
+            <p className="mb-2">Approximate EUR equivalent: €3,650/month</p>
+            <p className="font-semibold text-green-600">
+              Result: Meets Spain’s €2,849 requirement ✓
+            </p>
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
+            Who qualifies for the Spain Digital Nomad Visa in practice?
+          </h2>
+
+          <ul className="space-y-2">
+            <li>Remote employees working for non-Spanish companies</li>
+            <li>Freelancers with consistent foreign income</li>
+            <li>Applicants with provable and stable income streams</li>
+          </ul>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
+            Source and verification
+          </h2>
+
+          <p>
+            The income thresholds shown are derived from Spain’s minimum wage (SMI) and calculated using Royal Decree 126/2026.
+          </p>
+        </section>
+      </div>
+    </main>
+  );
+}
