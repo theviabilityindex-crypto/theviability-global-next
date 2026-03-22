@@ -9,23 +9,23 @@ export default function Page() {
       />
 
       {/* 🔥 CRITICAL: tighter top spacing on mobile */}
-      <div className="mx-auto max-w-4xl px-5 py-10 sm:px-6 sm:py-16">
+      <div className="mx-auto max-w-4xl px-5 py-6 sm:px-6 sm:py-16">
 
         <section className="mb-12 sm:mb-16">
-          <p className="text-xs sm:text-sm uppercase tracking-wide text-slate-500 mb-2 sm:mb-3">
+          <p className="text-xs sm:text-sm uppercase tracking-wide text-slate-500 mb-1 sm:mb-3">
             2026 Spain DNV Protocol | Source-Backed Rule Logic
           </p>
 
           {/* 🔥 FIX: smaller mobile H1 */}
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4 leading-tight">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-4 leading-tight">
             Spain Digital Nomad Visa Income Requirements (2026)
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-600 max-w-2xl">
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mb-2">
             Updated thresholds, dependent calculations, and real examples based on official 2026 Spanish law.
           </p>
 
-          <p className="text-xs sm:text-sm text-slate-500 mt-3 sm:mt-4 mb-5 sm:mb-6">
+          <p className="text-xs sm:text-sm text-slate-500 mt-2 sm:mt-4 mb-3 sm:mb-6">
             Last Verified: March 21, 2026 | Source: Royal Decree 126/2026
           </p>
 
