@@ -85,7 +85,7 @@ const jsonLd = {
           name: "Can savings replace income for the Spain Digital Nomad Visa?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Savings alone cannot fully replace qualifying income, but documented bank savings may support applications where income is close to the threshold. Spain’s UGE reviews the overall financial picture, and applicants with a shortfall may use a structured savings-bridge approach where appropriate.",
+            text: "Savings alone do not qualify for the Spain Digital Nomad Visa. Applicants must demonstrate consistent, ongoing income that meets the SMI-based threshold. Savings may support an application but cannot replace required income.",
           },
         },
         {
@@ -200,7 +200,30 @@ export default function Page() {
           </p>
         </section>
 
-        {/* Task 32 — Who qualifies in practice */}
+        {/* USD Example */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">
+            Can you qualify with USD income?
+          </h2>
+
+          <p className="mb-3">
+            Many applicants earn in USD. Based on a typical conversion example:
+          </p>
+
+          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <p className="text-sm text-slate-500 mb-1">
+              Example — $4,000/month income
+            </p>
+            <p className="font-medium mb-1">
+              Approximate EUR equivalent: €3,650/month
+            </p>
+            <p className="text-lg font-semibold">
+              Result: Meets Spain’s €2,849 requirement ✅
+            </p>
+          </div>
+        </section>
+
+        {/* Who qualifies in practice */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Who qualifies for the Spain Digital Nomad Visa in practice?
@@ -232,9 +255,21 @@ export default function Page() {
             </p>
 
             <p>
+              <span className="font-medium">80% outside Spain rule:</span>{" "}
+              At least 80% of income must typically come from sources outside Spain
+              to qualify.
+            </p>
+
+            <p>
               <span className="font-medium">Documentation matters:</span>{" "}
               Immigration authorities assess the consistency of bank statements,
               contracts, and payslips — not just the headline income figure.
+            </p>
+
+            <p>
+              <span className="font-medium">Bank consistency rule:</span>{" "}
+              Authorities assess not just income level but consistency — bank
+              statements should align with declared income over time.
             </p>
           </div>
         </section>
@@ -303,7 +338,7 @@ export default function Page() {
           </p>
         </section>
 
-        {/* Task 33 — Application routes + qualification */}
+        {/* Application routes + qualification */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">
             Spain Digital Nomad Visa application routes and requirements
@@ -333,6 +368,13 @@ export default function Page() {
             requirement. Applicants are generally expected to demonstrate either a
             relevant university degree or several years of professional experience
             in their field.
+          </p>
+
+          <p className="mt-4">
+            <span className="font-medium">Beckham Law:</span>{" "}
+            Some successful applicants may also be eligible for Spain’s Beckham Law,
+            which can allow certain foreign workers to be taxed at a flat 24% rate
+            for a limited period.
           </p>
         </section>
 
@@ -412,10 +454,10 @@ export default function Page() {
                 Can savings replace income for the Spain Digital Nomad Visa?
               </h3>
               <p className="text-slate-600">
-                Savings alone cannot fully replace qualifying income, but documented bank
-                savings may support applications where income is close to the threshold.
-                Spain’s UGE reviews the overall financial picture, and applicants with a
-                shortfall may use a structured savings-bridge approach where appropriate.
+                Savings alone do not qualify for the Spain Digital Nomad Visa.
+                Applicants must demonstrate consistent, ongoing income that meets
+                the SMI-based threshold. Savings may support an application but
+                cannot replace required income.
               </p>
             </div>
 
