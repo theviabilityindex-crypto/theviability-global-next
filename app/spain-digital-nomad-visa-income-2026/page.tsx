@@ -149,7 +149,7 @@ export default function Page() {
               href="/check/spain?year=2026&source=authority"
               className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold shadow-lg text-sm sm:text-base"
             >
-              <span className="sm:hidden">Get My Visa Approval Score™</span>
+              <span className="sm:hidden">Get My Score</span>
               <span className="hidden sm:inline">
                 Get My Visa Approval Score™
               </span>
@@ -580,7 +580,7 @@ export default function Page() {
               href="/check/spain?year=2026&source=authority"
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold text-center inline-block shadow-lg text-sm sm:text-base"
             >
-              <span className="sm:hidden">Get My Visa Approval Score™</span>
+              <span className="sm:hidden">Get My Score</span>
               <span className="hidden sm:inline">
                 Get My Visa Approval Score™
               </span>
