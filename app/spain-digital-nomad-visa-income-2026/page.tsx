@@ -151,7 +151,7 @@ export default function Page() {
             >
               <span className="sm:hidden">Check eligibility free</span>
               <span className="hidden sm:inline">
-                Check your Spain visa eligibility in 60 seconds (Free)
+                Check eligibility free
               </span>
             </a>
 
