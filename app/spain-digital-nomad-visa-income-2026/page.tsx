@@ -149,9 +149,9 @@ export default function Page() {
               href="/check/spain?year=2026&source=authority"
               className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold shadow-lg text-sm sm:text-base"
             >
-              <span className="sm:hidden">Check eligibility free</span>
+              <span className="sm:hidden">Get My Visa Approval Score™</span>
               <span className="hidden sm:inline">
-                Check eligibility free
+                Get My Visa Approval Score™
               </span>
             </a>
 
@@ -580,9 +580,9 @@ export default function Page() {
               href="/check/spain?year=2026&source=authority"
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold text-center inline-block shadow-lg text-sm sm:text-base"
             >
-              <span className="sm:hidden">Check eligibility free</span>
+              <span className="sm:hidden">Get My Visa Approval Score™</span>
               <span className="hidden sm:inline">
-                Check your Spain visa eligibility in 60 seconds (Free)
+                Get My Visa Approval Score™
               </span>
             </a>
             <p className="text-xs text-slate-500 mt-3">
