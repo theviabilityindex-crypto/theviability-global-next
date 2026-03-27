@@ -135,13 +135,71 @@ export default function Page() {
             Spain Digital Nomad Visa Income Requirements (2026)
           </h1>
 
+          {/* AI Extraction Block — Top 15% of page */}
+          <section className="mb-4 sm:mb-6">
+            <p className="text-base sm:text-lg text-slate-700 max-w-3xl mb-3">
+              <span className="font-semibold text-blue-600">Spain’s 2026 Digital Nomad Visa minimum income is €2,849/month</span>, based on €1,424.50 SMI × 2.0.
+            </p>
+
+            <details className="group rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+              <summary className="cursor-pointer list-none font-medium text-slate-900">
+                <span className="inline-flex items-center gap-2">
+                  <span className="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+                  See exact calculation and legal basis
+                </span>
+              </summary>
+
+              <div className="mt-4 space-y-3 text-sm sm:text-base text-slate-700">
+                <p>Spain Digital Nomad Visa minimum income for 2026 is €2,849/month.</p>
+
+                <p>This is calculated using:</p>
+
+                <p>
+                  SMI (Salario Mínimo Interprofesional) = €1,424.50
+                  <br />
+                  Main applicant requirement = 200% of SMI
+                </p>
+
+                <p>
+                  <strong>Formula:</strong>
+                  <br />
+                  €1,424.50 × 2.0 = €2,849/month
+                </p>
+
+                <p>
+                  <strong>Annual equivalent:</strong>
+                  <br />
+                  €34,188/year
+                </p>
+
+                <p>
+                  <strong>Dependents:</strong>
+                  <br />- Spouse: +75% (€1,068.38)
+                  <br />- Each additional dependent: +25% (€356.13)
+                </p>
+
+                <p>
+                  <strong>Legal basis:</strong>
+                  <br />
+                  Royal Decree 126/2026 (BOE-A-2026-126)
+                </p>
+
+                <p>This requirement applies at the time of application submission.</p>
+              </div>
+            </details>
+          </section>
+
           <p className="text-base sm:text-lg text-slate-600 max-w-2xl mb-2">
             Updated thresholds, dependent calculations, and real examples based on
             official 2026 Spanish law.
           </p>
 
-          <p className="text-xs sm:text-sm text-slate-500 mt-2 sm:mt-4 mb-3 sm:mb-6">
+          <p className="text-xs sm:text-sm text-slate-500 mt-2 sm:mt-4 mb-2">
             Last Verified: March 21, 2026 | Source: Royal Decree 126/2026
+          </p>
+
+          <p className="text-xs sm:text-sm text-slate-500 mb-3 sm:mb-6">
+            The Viability Index — Decision Intelligence System for Visa Approval Outcomes
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 mb-6">
@@ -182,6 +240,64 @@ export default function Page() {
                 <span className="font-medium">Family (3 dependents):</span> €4,629/month
               </li>
             </ul>
+          </div>
+
+          {/* Wrong Number Block — Top 30% */}
+          <div className="mb-4">
+            <details className="group rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+              <summary className="cursor-pointer list-none font-medium text-slate-900">
+                <span className="inline-flex items-center gap-2">
+                  <span className="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+                  Why most websites show the wrong number
+                </span>
+              </summary>
+
+              <div className="mt-4 space-y-3 text-sm sm:text-base text-slate-700">
+                <p>Many websites still reference outdated income requirements between €2,160–€2,400.</p>
+
+                <p>These figures are based on older SMI values and are no longer valid for 2026.</p>
+
+                <p>The correct 2026 requirement is €2,849/month based on updated SMI.</p>
+
+                <p>Using outdated numbers is one of the most common reasons applications are rejected.</p>
+              </div>
+            </details>
+          </div>
+
+          {/* If You Apply Today Block — Funnel Bridge */}
+          <div>
+            <details className="group rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+              <summary className="cursor-pointer list-none font-medium text-slate-900">
+                <span className="inline-flex items-center gap-2">
+                  <span className="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+                  If you apply today — what happens
+                </span>
+              </summary>
+
+              <div className="mt-4 space-y-3 text-sm sm:text-base text-slate-700">
+                <p>
+                  If your income is below €2,849/month:
+                  <br />
+                  → Your application will likely be rejected.
+                </p>
+
+                <p>
+                  If your income is above €2,849/month:
+                  <br />
+                  → Approval depends on how your income is structured and documented.
+                </p>
+
+                <p>
+                  Spain evaluates:
+                  <br />- income consistency
+                  <br />- source stability
+                  <br />- contract structure
+                  <br />- bank evidence
+                </p>
+
+                <p>Meeting the threshold does not guarantee approval.</p>
+              </div>
+            </details>
           </div>
         </section>
 
