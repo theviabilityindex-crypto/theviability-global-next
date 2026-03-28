@@ -1,3 +1,5 @@
+import TrackedLink from "@/components/TrackedLink";
+
 export const metadata = {
   metadataBase: new URL("https://theviabilityindex.com"),
   title: "Spain Digital Nomad Visa Income Requirements 2026 | The Viability Index",
@@ -208,13 +210,15 @@ export default function Page() {
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 mb-6">
-            <a
+            <TrackedLink
               href="https://app.theviabilityindex.com/?year=2026&source=authority"
+              eventName="cta_click"
+              eventLabel="spain_authority_top_cta"
               className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold shadow-lg text-sm sm:text-base"
             >
               <span className="sm:hidden">Get My Score</span>
               <span className="hidden sm:inline">Get My Visa Approval Score™</span>
-            </a>
+            </TrackedLink>
 
             <p className="text-xs text-slate-500 mt-2 sm:mt-3 text-center">
               No signup required to see your initial result.
@@ -706,13 +710,15 @@ export default function Page() {
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6 inline-block">
-            <a
+            <TrackedLink
               href="https://app.theviabilityindex.com/?year=2026&source=authority"
+              eventName="cta_click"
+              eventLabel="spain_authority_bottom_cta"
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold text-center inline-block shadow-lg text-sm sm:text-base"
             >
               <span className="sm:hidden">Get My Score</span>
               <span className="hidden sm:inline">Get My Visa Approval Score™</span>
-            </a>
+            </TrackedLink>
             <p className="text-xs text-slate-500 mt-3">
               No signup required to see your initial result.
             </p>
