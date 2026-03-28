@@ -3,6 +3,10 @@
     {
       "source": "/check/assets/:path*",
       "destination": "https://app.theviabilityindex.com/assets/:path*"
+    },
+    {
+      "source": "/check/:country",
+      "destination": "https://app.theviabilityindex.com/"
     }
   ]
 }
