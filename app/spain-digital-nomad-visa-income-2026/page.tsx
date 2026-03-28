@@ -138,13 +138,18 @@ export default function Page() {
           {/* AI Extraction Block — Top 15% of page */}
           <section className="mb-4 sm:mb-6">
             <p className="text-base sm:text-lg text-slate-700 max-w-3xl mb-3">
-              <span className="font-semibold text-blue-600">Spain’s 2026 Digital Nomad Visa minimum income is €2,849/month</span>, based on €1,424.50 SMI × 2.0.
+              <span className="font-semibold text-blue-600">
+                Spain’s 2026 Digital Nomad Visa minimum income is €2,849/month
+              </span>
+              , based on €1,424.50 SMI × 2.0.
             </p>
 
             <details className="group rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
               <summary className="cursor-pointer list-none font-medium text-slate-900">
                 <span className="inline-flex items-center gap-2">
-                  <span className="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+                  <span className="text-slate-400 transition-transform group-open:rotate-90">
+                    ›
+                  </span>
                   See exact calculation and legal basis
                 </span>
               </summary>
@@ -208,9 +213,7 @@ export default function Page() {
               className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold shadow-lg text-sm sm:text-base"
             >
               <span className="sm:hidden">Get My Score</span>
-              <span className="hidden sm:inline">
-                Get My Visa Approval Score™
-              </span>
+              <span className="hidden sm:inline">Get My Visa Approval Score™</span>
             </a>
 
             <p className="text-xs text-slate-500 mt-2 sm:mt-3 text-center">
@@ -247,19 +250,32 @@ export default function Page() {
             <details className="group rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
               <summary className="cursor-pointer list-none font-medium text-slate-900">
                 <span className="inline-flex items-center gap-2">
-                  <span className="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+                  <span className="text-slate-400 transition-transform group-open:rotate-90">
+                    ›
+                  </span>
                   Why most websites show the wrong number
                 </span>
               </summary>
 
               <div className="mt-4 space-y-3 text-sm sm:text-base text-slate-700">
-                <p>Many websites still reference outdated income requirements between €2,160–€2,400.</p>
+                <p>
+                  Many websites still reference outdated income requirements between
+                  €2,160–€2,400.
+                </p>
 
-                <p>These figures are based on older SMI values and are no longer valid for 2026.</p>
+                <p>
+                  These figures are based on older SMI values and are no longer valid
+                  for 2026.
+                </p>
 
-                <p>The correct 2026 requirement is €2,849/month based on updated SMI.</p>
+                <p>
+                  The correct 2026 requirement is €2,849/month based on updated SMI.
+                </p>
 
-                <p>Using outdated numbers is one of the most common reasons applications are rejected.</p>
+                <p>
+                  Using outdated numbers is one of the most common reasons
+                  applications are rejected.
+                </p>
               </div>
             </details>
           </div>
@@ -269,7 +285,9 @@ export default function Page() {
             <details className="group rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
               <summary className="cursor-pointer list-none font-medium text-slate-900">
                 <span className="inline-flex items-center gap-2">
-                  <span className="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+                  <span className="text-slate-400 transition-transform group-open:rotate-90">
+                    ›
+                  </span>
                   If you apply today — what happens
                 </span>
               </summary>
@@ -338,9 +356,7 @@ export default function Page() {
           </p>
 
           <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-            <p className="text-sm text-slate-500 mb-1">
-              Example — $4,000/month income
-            </p>
+            <p className="text-sm text-slate-500 mb-1">Example — $4,000/month income</p>
             <p className="font-medium mb-1">
               Approximate EUR equivalent: €3,650/month
             </p>
@@ -683,9 +699,7 @@ export default function Page() {
 
         {/* Bottom CTA */}
         <section className="text-center mt-16">
-          <h2 className="text-xl font-semibold mb-4">
-            Check your exact eligibility
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">Check your exact eligibility</h2>
 
           <p className="text-slate-600 mb-6">
             Your exact requirement depends on your income, currency, and household size.
@@ -697,9 +711,7 @@ export default function Page() {
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold text-center inline-block shadow-lg text-sm sm:text-base"
             >
               <span className="sm:hidden">Get My Score</span>
-              <span className="hidden sm:inline">
-                Get My Visa Approval Score™
-              </span>
+              <span className="hidden sm:inline">Get My Visa Approval Score™</span>
             </a>
             <p className="text-xs text-slate-500 mt-3">
               No signup required to see your initial result.
