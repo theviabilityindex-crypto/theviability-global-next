@@ -28,7 +28,8 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
+      <body className="min-h-full flex flex-col">
+        {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-W9ZLKZK0KS"
           strategy="afterInteractive"
@@ -38,13 +39,18 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             window.gtag = gtag;
+
             gtag('js', new Date());
-            gtag('config', 'G-W9ZLKZK0KS');
+
+            gtag('config', 'G-W9ZLKZK0KS', {
+              page_path: window.location.pathname,
+              linker: {
+                domains: ['theviabilityindex.com', 'app.theviabilityindex.com']
+              }
+            });
           `}
         </Script>
-      </head>
 
-      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>
