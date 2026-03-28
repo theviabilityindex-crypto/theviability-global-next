@@ -214,7 +214,7 @@ export default function Page() {
               src="https://app.theviabilityindex.com/?year=2026&source=authority"
               title="Spain Digital Nomad Visa Calculator"
               className="w-full"
-              style={{ minHeight: "100vh", border: "0" }}
+              style={{ minHeight: "1600px", border: "0" }}
               loading="eager"
             />
           </div>
