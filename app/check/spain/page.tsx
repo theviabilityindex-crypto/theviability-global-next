@@ -156,14 +156,14 @@ export default function Page() {
           </h1>
 
           <p className="max-w-3xl text-sm text-slate-700 sm:text-base">
-            The minimum income requirement for Spain’s 2026 Digital Nomad Visa is{" "}
-            <span className="font-semibold text-blue-600">€2,849/month</span>,
-            based on Spain’s effective monthly SMI of €1,424.50 × 2.0.
-            This page combines a live calculator with source-backed rule logic.
+            The Spain Digital Nomad Visa income requirement for 2026 is{" "}
+            <span className="font-semibold text-blue-600">€2,849/month</span>{" "}
+            (SMI × 2.0). This calculator shows if you qualify and where you fall
+            short before applying.
           </p>
 
           <div className="mt-4 flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:flex-wrap sm:gap-4 sm:text-sm">
-            <span>Last verified: March 2026</span>
+            <span>Last verified: March 21, 2026</span>
             <span>Based on Royal Decree 126/2026 (BOE-A-2026-126)</span>
             <span>The Viability Index — Decision Intelligence System</span>
           </div>
@@ -196,10 +196,19 @@ export default function Page() {
               </p>
             </div>
           </div>
+
+          <div className="mt-6">
+            <a
+              href="#calculator"
+              className="block w-full rounded-xl bg-slate-900 px-5 py-4 text-center text-base font-semibold text-white shadow-sm hover:bg-slate-800 sm:inline-block sm:w-auto"
+            >
+              Check My Viability →
+            </a>
+          </div>
         </section>
 
         {/* Embedded live calculator */}
-        <section className="mb-10 sm:mb-12">
+        <section id="calculator" className="mb-10 sm:mb-12">
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <iframe
               src="https://app.theviabilityindex.com/?year=2026&source=authority"
@@ -237,7 +246,7 @@ export default function Page() {
                 <span className="font-medium">Legal basis:</span> Royal Decree 126/2026
               </li>
               <li>
-                <span className="font-medium">Last verified:</span> March 2026
+                <span className="font-medium">Last verified:</span> March 21, 2026
               </li>
             </ul>
           </div>
@@ -317,6 +326,12 @@ export default function Page() {
               <p>
                 The first dependent adds 75% of SMI. Each additional dependent
                 adds 25% of SMI.
+              </p>
+
+              <p>
+                Some sources cite €949 for the first dependent. This uses a lower
+                monthly SMI estimate. Spain applies an annualised SMI methodology,
+                resulting in €1,068 (75% of €1,424.50).
               </p>
 
               <p>
