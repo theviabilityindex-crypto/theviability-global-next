@@ -209,7 +209,7 @@ export default function Page() {
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 mb-6">
             <a
-              href="/check/spain?year=2026&source=authority"
+              href="https://app.theviabilityindex.com/?year=2026&source=authority"
               className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold shadow-lg text-sm sm:text-base"
             >
               <span className="sm:hidden">Get My Score</span>
@@ -707,7 +707,7 @@ export default function Page() {
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6 inline-block">
             <a
-              href="/check/spain?year=2026&source=authority"
+              href="https://app.theviabilityindex.com/?year=2026&source=authority"
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold text-center inline-block shadow-lg text-sm sm:text-base"
             >
               <span className="sm:hidden">Get My Score</span>
