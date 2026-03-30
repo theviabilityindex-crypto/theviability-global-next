@@ -136,24 +136,92 @@ export default function SpainCheckPage() {
     creator: {
       "@type": "Organization",
       name: "The Viability Index",
+      url: "https://theviabilityindex.com",
     },
+    keywords: [
+      "Spain digital nomad visa",
+      "Spain DNV 2026",
+      "Spain visa income requirement",
+      "Spain SMI 2026",
+    ],
+    license: "https://theviabilityindex.com",
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: "https://theviabilityindex.com/api/rules/spain.json",
+    },
+    variableMeasured: [
+      {
+        "@type": "PropertyValue",
+        name: "Monthly income threshold for single applicant",
+        value: thresholds.single,
+        unitText: "EUR/month",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Monthly income threshold for first dependent",
+        value: thresholds.firstDependent,
+        unitText: "EUR/month",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Monthly income threshold for each additional dependent",
+        value: thresholds.additionalDependent,
+        unitText: "EUR/month",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "2026 annual SMI",
+        value: thresholds.annualSmi14Payments,
+        unitText: "EUR/year",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "2026 monthly SMI equivalent",
+        value: thresholds.smi12MonthEquivalent,
+        unitText: "EUR/month",
+      },
+    ],
   };
 
-  const webpageJsonLd = {
+  const webApplicationJsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebPage",
+    "@type": "WebApplication",
     name: "Spain Digital Nomad Visa Calculator (2026)",
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Any",
     url: "https://theviabilityindex.com/check/spain",
     description:
-      "Answer-first page for Spain's 2026 digital nomad visa income requirement, calculation formula, examples, and viability path.",
+      "Calculator that checks whether your monthly income meets the Spain Digital Nomad Visa income requirement for 2026 based on household size.",
+    isAccessibleForFree: true,
+    creator: {
+      "@type": "Organization",
+      name: "The Viability Index",
+      url: "https://theviabilityindex.com",
+    },
+    about: {
+      "@type": "Thing",
+      name: "Spain Digital Nomad Visa income requirement 2026",
+    },
+    subjectOf: {
+      "@type": "Dataset",
+      name: "Spain Digital Nomad Visa Income Rules 2026",
+      url: "https://theviabilityindex.com/api/rules/spain.json",
+    },
+    featureList: [
+      "Checks income against Spain 2026 digital nomad visa thresholds",
+      "Calculates threshold based on household size",
+      "Explains the 200% / 75% / 25% formula",
+      "Shows worked examples for different family sizes",
+    ],
   };
 
   return (
     <>
       <Script
-        id="jsonld-webpage-spain-check"
+        id="jsonld-webapplication-spain-check"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webpageJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationJsonLd) }}
       />
       <Script
         id="jsonld-dataset-spain-check"
@@ -361,10 +429,10 @@ export default function SpainCheckPage() {
                 What this page does
               </h2>
               <p className="mt-3 text-base leading-7 text-neutral-700">
-                This page gives you the current Spain 2026 threshold logic in a
-                readable format, then lets you test your own income against the
-                live rules engine. It is designed to combine answer-first GEO
-                content with a native viability check on a single page.
+                This tool shows the current Spain Digital Nomad Visa income
+                requirement for 2026, explains how the threshold is calculated,
+                and lets you check your income against the live rule based on
+                your household size.
               </p>
             </div>
           </div>
