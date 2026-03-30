@@ -484,12 +484,21 @@ export default function SpainEligibilityCalculator() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                       <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                        Output states
+                        Your approval status
                       </div>
-                      <div className="mt-2 space-y-2 text-sm text-neutral-800">
-                        <div>Eligible now</div>
-                        <div>Borderline / at risk</div>
-                        <div>Not eligible yet</div>
+                      <div className="mt-3 space-y-2 text-sm font-medium text-neutral-900">
+                        <div className="flex items-center justify-between">
+                          <span>Eligible</span>
+                          <span className="text-green-600">✓</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>At Risk</span>
+                          <span className="text-amber-600">⚠</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Not Eligible</span>
+                          <span className="text-red-600">✕</span>
+                        </div>
                       </div>
                     </div>
 
