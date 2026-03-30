@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
-import SpainEligibilityCalculator from "../../../components/SpainEligibilityCalculator";
+import SpainEligibilityCalculator from "./SpainEligibilityCalculator";
 
 export const metadata: Metadata = {
   title: "Spain Digital Nomad Visa Calculator (2026) | Income Requirement Checker",
