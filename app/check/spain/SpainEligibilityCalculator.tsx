@@ -377,14 +377,15 @@ export default function SpainEligibilityCalculator() {
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
           <div className="max-w-3xl">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Native viability checker
+              Visa approval check
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">
-              Check your 2026 Spain threshold using the live rules engine
+              Check if you meet Spain’s 2026 Digital Nomad Visa income requirement
             </h2>
             <p className="mt-3 text-sm leading-6 text-neutral-700 sm:text-base">
-              This keeps the current Spain rules path intact while moving the
-              visible calculator onto the native page.
+              Enter your monthly income and household size to see if you meet the
+              requirement, how far above or below the threshold you are, and
+              whether you are ready to apply.
             </p>
           </div>
 
