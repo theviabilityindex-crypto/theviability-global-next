@@ -474,10 +474,36 @@ export default function SpainEligibilityCalculator() {
               </div>
 
               {!result || !displayScore || !decisionMessage ? (
-                <div className="mt-4">
+                <div className="mt-4 space-y-4">
                   <p className="text-sm leading-6 text-neutral-700">
-                    Your result will appear here.
+                    Enter your details to receive your Visa Approval Score™, your
+                    current approval state, your income gap or buffer, and an
+                    estimate of how long it may take to qualify.
                   </p>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                        Output states
+                      </div>
+                      <div className="mt-2 space-y-2 text-sm text-neutral-800">
+                        <div>Eligible now</div>
+                        <div>Borderline / at risk</div>
+                        <div>Not eligible yet</div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                        What you will see
+                      </div>
+                      <div className="mt-2 space-y-2 text-sm text-neutral-800">
+                        <div>Income gap or surplus</div>
+                        <div>Risk level</div>
+                        <div>Estimated time to qualify</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="mt-4 space-y-4">
