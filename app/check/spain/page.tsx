@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Script from "next/script";
 import SpainEligibilityCalculator from "./SpainEligibilityCalculator";
 
@@ -180,20 +179,20 @@ export default function SpainCheckPage() {
                 </h2>
                 <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-700">
                   That figure is based on 200% of Spain’s 2026 monthly minimum
-                  wage equivalent. The first dependent adds 75% of SMI, and
-                  each additional dependent adds 25%.
+                  wage equivalent. The first dependent adds 75% of SMI, and each
+                  additional dependent adds 25%.
                 </p>
 
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <a
-                    href="/check/spain#calculator"
-                    className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
+                    href="#calculator"
+                    className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-6 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-amber-300"
                   >
                     Check My Eligibility
                   </a>
 
                   <a
-                    href="/check/spain#formula"
+                    href="#formula"
                     className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
                   >
                     See the Formula
@@ -233,36 +232,36 @@ export default function SpainCheckPage() {
         </section>
 
         <section className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-9 lg:px-8">
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+            <div className="grid gap-3 md:grid-cols-4">
+              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
                 <div className="text-sm text-neutral-500">Single applicant</div>
-                <div className="mt-2 text-3xl font-semibold">{thresholds.single}</div>
-                <div className="mt-2 text-sm text-neutral-600">200% of SMI</div>
+                <div className="mt-1 text-3xl font-semibold">{thresholds.single}</div>
+                <div className="mt-1 text-sm text-neutral-600">200% of SMI</div>
               </div>
 
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
                 <div className="text-sm text-neutral-500">Couple</div>
-                <div className="mt-2 text-3xl font-semibold">{thresholds.couple}</div>
-                <div className="mt-2 text-sm text-neutral-600">
+                <div className="mt-1 text-3xl font-semibold">{thresholds.couple}</div>
+                <div className="mt-1 text-sm text-neutral-600">
                   Main applicant + first dependent
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
                 <div className="text-sm text-neutral-500">Family of 3</div>
-                <div className="mt-2 text-3xl font-semibold">{thresholds.familyOf3}</div>
-                <div className="mt-2 text-sm text-neutral-600">
+                <div className="mt-1 text-3xl font-semibold">{thresholds.familyOf3}</div>
+                <div className="mt-1 text-sm text-neutral-600">
                   Main applicant + spouse + 1 additional dependent
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
                 <div className="text-sm text-neutral-500">Each extra dependent</div>
-                <div className="mt-2 text-3xl font-semibold">
+                <div className="mt-1 text-3xl font-semibold">
                   {thresholds.additionalDependent}
                 </div>
-                <div className="mt-2 text-sm text-neutral-600">25% of SMI</div>
+                <div className="mt-1 text-sm text-neutral-600">25% of SMI</div>
               </div>
             </div>
           </div>
@@ -270,14 +269,17 @@ export default function SpainCheckPage() {
 
         <SpainEligibilityCalculator />
 
-        <section id="formula" className="border-b border-neutral-200 bg-neutral-50 scroll-mt-24">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <section
+          id="formula"
+          className="border-b border-neutral-200 bg-neutral-50 scroll-mt-24"
+        >
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
             <div className="max-w-3xl">
               <h2 className="text-2xl font-semibold tracking-tight">
                 How the 2026 Spain DNV threshold is calculated
               </h2>
 
-              <p className="mt-4 text-base leading-7 text-neutral-700">
+              <p className="mt-3 text-base leading-7 text-neutral-700">
                 Spain’s 2026 minimum wage is{" "}
                 <strong className="text-neutral-950">
                   {thresholds.annualSmi14Payments} per year
@@ -289,8 +291,8 @@ export default function SpainCheckPage() {
                 per month.
               </p>
 
-              <div className="mt-5 rounded-2xl border border-neutral-200 bg-white p-5">
-                <ul className="space-y-3 text-base text-neutral-800">
+              <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4">
+                <ul className="space-y-2 text-base text-neutral-800">
                   <li>
                     <strong>Main applicant:</strong> 200% × SMI ={" "}
                     {thresholds.single}
@@ -310,56 +312,56 @@ export default function SpainCheckPage() {
         </section>
 
         <section className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
             <div className="max-w-5xl">
               <h2 className="text-2xl font-semibold tracking-tight">
                 Worked examples
               </h2>
 
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="mt-4 grid grid-cols-2 gap-3">
                 {examples.map((example) => (
                   <div
                     key={example.label}
-                    className="rounded-2xl border border-neutral-200 p-5"
+                    className="rounded-2xl border border-neutral-200 p-4"
                   >
                     <div className="text-sm text-neutral-500">{example.label}</div>
-                    <div className="mt-2 text-2xl font-semibold text-neutral-950">
+                    <div className="mt-1 text-2xl font-semibold text-neutral-950">
                       {example.amount}
                     </div>
-                    <div className="mt-2 text-sm text-neutral-600">
+                    <div className="mt-1 text-sm text-neutral-600">
                       {example.explanation}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-8">
-                <Link
-                  href="https://app.theviabilityindex.com/?year=2026&source=check-spain-examples"
+              <div className="mt-6">
+                <a
+                  href="#calculator"
                   className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
                 >
-                  Continue to Full Eligibility Check
-                </Link>
+                  Back to Calculator
+                </a>
               </div>
             </div>
           </div>
         </section>
 
         <section className="border-b border-neutral-200 bg-neutral-50">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-9 lg:px-8">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
             <div className="max-w-3xl">
               <h2 className="text-2xl font-semibold tracking-tight">
                 What this page does
               </h2>
 
-              <p className="mt-4 text-base leading-7 text-neutral-700">
-                This page is designed to answer the threshold question first.
-                It gives you the current 2026 income requirement, the formula
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                This page is designed to answer the threshold question first. It
+                gives you the current 2026 income requirement, the formula
                 behind it, and the dependent examples most people need before
                 they check their eligibility in full.
               </p>
 
-              <p className="mt-4 text-base leading-7 text-neutral-700">
+              <p className="mt-3 text-base leading-7 text-neutral-700">
                 The full checker remains on the app domain for now so the live
                 buyer flow stays intact while this native page becomes the
                 crawlable authority layer for Spain.
@@ -369,17 +371,17 @@ export default function SpainCheckPage() {
         </section>
 
         <section className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-9 lg:px-8">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
             <div className="max-w-3xl">
               <h2 className="text-2xl font-semibold tracking-tight">FAQ</h2>
 
-              <div className="mt-6 space-y-3">
+              <div className="mt-4 space-y-3">
                 {faqs.map((faq) => (
                   <details
                     key={faq.question}
-                    className="rounded-2xl border border-neutral-200 bg-white p-4"
+                    className="group rounded-2xl border border-neutral-200 bg-white p-4 transition open:border-neutral-950/20 open:bg-neutral-50"
                   >
-                    <summary className="cursor-pointer list-none font-medium text-neutral-950">
+                    <summary className="cursor-pointer list-none font-medium text-neutral-700 transition group-open:text-neutral-950 group-open:font-semibold">
                       {faq.question}
                     </summary>
                     <p className="mt-3 text-base leading-7 text-neutral-700">
@@ -393,12 +395,19 @@ export default function SpainCheckPage() {
         </section>
 
         <section className="bg-neutral-50">
-          <div className="mx-auto max-w-6xl px-4 py-6 text-sm text-neutral-600 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl px-4 py-5 text-sm leading-6 text-neutral-600 sm:px-6 lg:px-8">
             <p>
-              Source basis: Spain’s 2026 minimum wage is set by Royal Decree
-              126/2026. Spanish consular digital nomad guidance uses 200% of
-              the monthly minimum wage for the main applicant, plus 75% for the
-              first dependent and 25% for each additional dependent.
+              Information on this page is for general educational and planning
+              purposes only. It is not legal, immigration, tax, or financial
+              advice and should not be relied on as a substitute for qualified
+              professional advice.
+            </p>
+            <p className="mt-2">
+              Visa rules, minimum income thresholds, documentation standards,
+              and consular practice can change. Always verify current
+              requirements with the relevant Spanish authorities and a licensed
+              immigration professional before making financial or relocation
+              decisions.
             </p>
           </div>
         </section>

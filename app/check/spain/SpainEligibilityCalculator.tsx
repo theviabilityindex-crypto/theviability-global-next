@@ -29,6 +29,10 @@ const CURRENCY_OPTIONS: CurrencyCode[] = [
   "AUD",
 ];
 
+const BASE_THRESHOLD = 2849;
+const FIRST_DEPENDENT = 1068.38;
+const ADDITIONAL_DEPENDENT = 356.13;
+
 function round2(value: number) {
   return Math.round(value * 100) / 100;
 }
@@ -40,6 +44,12 @@ function formatCurrency(value: number, currency: string = "EUR") {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
+}
+
+function calculateSpainRequirement(dependents: number) {
+  if (dependents <= 0) return BASE_THRESHOLD;
+  if (dependents === 1) return BASE_THRESHOLD + FIRST_DEPENDENT;
+  return BASE_THRESHOLD + FIRST_DEPENDENT + (dependents - 1) * ADDITIONAL_DEPENDENT;
 }
 
 function getClientScore(requirement: number, incomeInEur: number) {
@@ -105,8 +115,7 @@ function getDecisionMessage(status: string, gap: number) {
 
   if (status === "Borderline") {
     return {
-      headline:
-        "You are currently within the rejection range if this is not corrected.",
+      headline: "You are currently within the rejection range if this is not corrected.",
       body: `You are ${formatCurrency(
         Math.abs(gap),
         "EUR"
@@ -117,6 +126,18 @@ function getDecisionMessage(status: string, gap: number) {
   return {
     headline: "You are currently below the required threshold.",
     body: "Applications at this level are likely to be rejected unless you follow a clear fix plan first.",
+  };
+}
+
+function buildFallbackResult(incomeInEur: number, dependents: number): CalcResponse {
+  const requirement = round2(calculateSpainRequirement(dependents));
+  const gap = round2(incomeInEur - requirement);
+
+  return {
+    is_viable: gap >= 0,
+    gap,
+    requirement,
+    tax_leak: 0,
   };
 }
 
@@ -167,39 +188,41 @@ export default function SpainEligibilityCalculator() {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+      let safeResult: CalcResponse;
+
       if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error("Missing public Supabase environment variables.");
-      }
+        safeResult = buildFallbackResult(incomeInEur, parsedDependents);
+      } else {
+        const response = await fetch(
+          `${supabaseUrl}/functions/v1/calculate-spain-dnv`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: supabaseAnonKey,
+              Authorization: `Bearer ${supabaseAnonKey}`,
+            },
+            body: JSON.stringify({
+              income: incomeInEur,
+              dependents: parsedDependents,
+            }),
+          }
+        );
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/calculate-spain-dnv`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: supabaseAnonKey,
-            Authorization: `Bearer ${supabaseAnonKey}`,
-          },
-          body: JSON.stringify({
-            income: incomeInEur,
-            dependents: parsedDependents,
-          }),
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || "Calculator request failed.");
         }
-      );
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Calculator request failed.");
+        const data = (await response.json()) as CalcResponse;
+
+        safeResult = {
+          is_viable: Boolean(data.is_viable),
+          gap: Number(data.gap ?? 0),
+          requirement: Number(data.requirement ?? 0),
+          tax_leak: Number(data.tax_leak ?? 0),
+        };
       }
-
-      const data = (await response.json()) as CalcResponse;
-
-      const safeResult = {
-        is_viable: Boolean(data.is_viable),
-        gap: Number(data.gap ?? 0),
-        requirement: Number(data.requirement ?? 0),
-        tax_leak: Number(data.tax_leak ?? 0),
-      };
 
       setResult(safeResult);
 
@@ -248,20 +271,20 @@ export default function SpainEligibilityCalculator() {
     >
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="max-w-3xl">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
             Native eligibility checker
           </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">
             Check your 2026 Spain threshold using the live rules engine
           </h2>
-          <p className="mt-4 text-base leading-7 text-neutral-700">
+          <p className="mt-3 text-sm leading-6 text-neutral-700 sm:text-base">
             This keeps the current Spain rules path intact while moving the
             visible calculator onto the native page.
           </p>
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
+        <div className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-4 sm:p-5">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label
@@ -270,38 +293,34 @@ export default function SpainEligibilityCalculator() {
                 >
                   Monthly income
                 </label>
-                <input
-                  id="monthly-income"
-                  type="number"
-                  inputMode="decimal"
-                  min="0"
-                  step="0.01"
-                  value={income}
-                  onChange={(e) => setIncome(e.target.value)}
-                  placeholder="e.g. 4500"
-                  className="mt-2 block w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
-                />
-              </div>
 
-              <div>
-                <label
-                  htmlFor="currency"
-                  className="block text-sm font-medium text-neutral-900"
-                >
-                  Currency
-                </label>
-                <select
-                  id="currency"
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
-                  className="mt-2 block w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
-                >
-                  {CURRENCY_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
+                <div className="mt-2 flex items-stretch gap-2">
+                  <select
+                    id="currency"
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
+                    className="w-20 shrink-0 rounded-xl border border-neutral-300 bg-white px-3 py-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
+                    aria-label="Currency"
+                  >
+                    {CURRENCY_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+
+                  <input
+                    id="monthly-income"
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    value={income}
+                    onChange={(e) => setIncome(e.target.value)}
+                    placeholder="e.g. 4500"
+                    className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
+                  />
+                </div>
 
                 {approximateConversionNote ? (
                   <p className="mt-2 text-sm text-neutral-500">
@@ -334,23 +353,23 @@ export default function SpainEligibilityCalculator() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Calculating..." : "Check My Viability"}
+                {loading ? "Checking..." : "Check My Eligibility"}
               </button>
 
               {error ? <p className="text-sm text-red-700">{error}</p> : null}
             </form>
           </div>
 
-          <div className="rounded-3xl border border-neutral-200 bg-white p-5 sm:p-6">
-            <div className="text-sm font-medium uppercase tracking-[0.16em] text-neutral-500">
+          <div className="rounded-3xl border border-neutral-200 bg-white p-4 sm:p-5">
+            <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
               Your result
             </div>
 
             {!result || !displayScore || !decisionMessage ? (
-              <div className="mt-6">
-                <p className="text-base leading-7 text-neutral-700">
+              <div className="mt-4">
+                <p className="text-sm leading-6 text-neutral-700">
                   Your result will appear here.
                 </p>
               </div>
@@ -368,7 +387,7 @@ export default function SpainEligibilityCalculator() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                     <div className="text-sm text-neutral-500">
                       Required monthly threshold
@@ -388,7 +407,7 @@ export default function SpainEligibilityCalculator() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-3">
                   <div>
                     <div className="text-sm text-neutral-500">Status</div>
                     <div className="mt-1 font-medium text-neutral-950">
@@ -421,8 +440,8 @@ export default function SpainEligibilityCalculator() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
-                  <div className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
                     If you apply today
                   </div>
                   <h3 className="mt-2 text-lg font-semibold text-neutral-950">
@@ -433,8 +452,8 @@ export default function SpainEligibilityCalculator() {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-                  <div className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
                     Next step
                   </div>
                   <p className="mt-2 text-sm leading-6 text-neutral-700">
@@ -453,9 +472,9 @@ export default function SpainEligibilityCalculator() {
                 </div>
 
                 <p className="text-sm leading-6 text-neutral-600">
-                  This is the threshold and viability layer only. Documentation,
-                  structure, and submission quality still affect the full
-                  outcome.
+                  This is the threshold and eligibility layer only.
+                  Documentation, structure, and submission quality still affect
+                  the full outcome.
                 </p>
               </div>
             )}
