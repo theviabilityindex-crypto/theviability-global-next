@@ -82,6 +82,43 @@ function getGapLabel(gap: number) {
   return gap >= 0 ? "Amount above threshold" : "Income shortfall";
 }
 
+function getPrimaryCta(status: string) {
+  if (status === "Eligible now") {
+    return "Verify My Approval Readiness";
+  }
+
+  if (status === "Borderline") {
+    return "Fix My Approval Gap";
+  }
+
+  return "Avoid Rejection — Get My Plan";
+}
+
+function getDecisionMessage(status: string, gap: number) {
+  if (status === "Eligible now") {
+    return {
+      headline: "You meet the income threshold — but approval is not guaranteed.",
+      body:
+        "Most rejections at this stage happen because of documentation weakness, income consistency issues, or poor submission structure.",
+    };
+  }
+
+  if (status === "Borderline") {
+    return {
+      headline: `You are currently within the rejection range if this is not corrected.`,
+      body: `You are ${formatCurrency(
+        Math.abs(gap),
+        "EUR"
+      )} below the current threshold. Small adjustments may still move you into a safer approval position.`,
+    };
+  }
+
+  return {
+    headline: "You are currently below the required threshold.",
+    body: `Applications at this level are likely to be rejected unless you follow a clear fix plan first.`,
+  };
+}
+
 export default function SpainEligibilityCalculator() {
   const [income, setIncome] = useState("");
   const [currency, setCurrency] = useState<CurrencyCode>("EUR");
@@ -108,6 +145,11 @@ export default function SpainEligibilityCalculator() {
     currency !== "EUR" && incomeInEur > 0
       ? `≈ ${formatCurrency(incomeInEur, "EUR")} at approximate rate`
       : "";
+
+  const decisionMessage =
+    result && displayScore
+      ? getDecisionMessage(displayScore.status, result.gap)
+      : null;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -187,6 +229,15 @@ export default function SpainEligibilityCalculator() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handlePrimaryAction() {
+    if (!displayScore) return;
+
+    const target =
+      displayScore.status === "Eligible now" ? "$147 modal" : "$67 modal";
+
+    window.alert(`Next step: open ${target}.`);
   }
 
   return (
@@ -293,7 +344,7 @@ export default function SpainEligibilityCalculator() {
               Your result
             </div>
 
-            {!result || !displayScore ? (
+            {!result || !displayScore || !decisionMessage ? (
               <div className="mt-6">
                 <p className="text-base leading-7 text-neutral-700">
                   Your result will appear here.
@@ -364,6 +415,37 @@ export default function SpainEligibilityCalculator() {
                   <div className="mt-2 text-sm text-neutral-600">
                     Estimated time to fix: {getFixTime(Math.abs(result.gap))}
                   </div>
+                </div>
+
+                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+                  <div className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                    If you apply today
+                  </div>
+                  <h3 className="mt-2 text-lg font-semibold text-neutral-950">
+                    {decisionMessage.headline}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-neutral-700">
+                    {decisionMessage.body}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+                  <div className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                    Next step
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-neutral-700">
+                    {displayScore.status === "Eligible now"
+                      ? "You meet the threshold, but approval still depends on structure, documentation, and submission quality."
+                      : "This plan shows exactly how to fix the weak points before you apply."}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handlePrimaryAction}
+                    className="mt-4 inline-flex items-center justify-center rounded-xl bg-neutral-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
+                  >
+                    {getPrimaryCta(displayScore.status)}
+                  </button>
                 </div>
 
                 <p className="text-sm leading-6 text-neutral-600">
