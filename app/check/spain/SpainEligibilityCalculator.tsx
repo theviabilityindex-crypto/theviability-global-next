@@ -105,7 +105,8 @@ function getDecisionMessage(status: string, gap: number) {
 
   if (status === "Borderline") {
     return {
-      headline: `You are currently within the rejection range if this is not corrected.`,
+      headline:
+        "You are currently within the rejection range if this is not corrected.",
       body: `You are ${formatCurrency(
         Math.abs(gap),
         "EUR"
@@ -115,7 +116,7 @@ function getDecisionMessage(status: string, gap: number) {
 
   return {
     headline: "You are currently below the required threshold.",
-    body: `Applications at this level are likely to be rejected unless you follow a clear fix plan first.`,
+    body: "Applications at this level are likely to be rejected unless you follow a clear fix plan first.",
   };
 }
 
@@ -241,8 +242,11 @@ export default function SpainEligibilityCalculator() {
   }
 
   return (
-    <section className="border-b border-neutral-200 bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <section
+      id="calculator"
+      className="scroll-mt-24 border-b border-neutral-200 bg-white"
+    >
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="max-w-3xl">
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-neutral-500">
             Native eligibility checker
@@ -256,9 +260,9 @@ export default function SpainEligibilityCalculator() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label
                   htmlFor="monthly-income"
@@ -339,7 +343,7 @@ export default function SpainEligibilityCalculator() {
             </form>
           </div>
 
-          <div className="rounded-3xl border border-neutral-200 bg-white p-6 sm:p-8">
+          <div className="rounded-3xl border border-neutral-200 bg-white p-5 sm:p-6">
             <div className="text-sm font-medium uppercase tracking-[0.16em] text-neutral-500">
               Your result
             </div>
@@ -351,7 +355,7 @@ export default function SpainEligibilityCalculator() {
                 </p>
               </div>
             ) : (
-              <div className="mt-6 space-y-5">
+              <div className="mt-4 space-y-4">
                 <div>
                   <div className="text-sm text-neutral-500">
                     Visa Approval Score™
