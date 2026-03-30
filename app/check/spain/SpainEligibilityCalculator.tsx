@@ -13,6 +13,13 @@ type CalcResponse = {
 
 type ModalState = "fix-plan" | null;
 
+type FixPlanAnswers = {
+  qualification: "" | "yes" | "no";
+  citizenship: string;
+  residenceHistory: "" | "yes" | "no";
+  employmentType: "" | "employed_remotely" | "freelancer" | "business_owner";
+};
+
 const CURRENCY_RATES: Record<CurrencyCode, number> = {
   EUR: 1,
   USD: 0.92,
@@ -35,6 +42,13 @@ const BASE_THRESHOLD = 2849;
 const FIRST_DEPENDENT = 1068.38;
 const ADDITIONAL_DEPENDENT = 356.13;
 const FIX_PLAN_URL = "https://buy.stripe.com/aFaaEQ5y17k2cMf7wlcMM00";
+
+const INITIAL_FIX_PLAN_ANSWERS: FixPlanAnswers = {
+  qualification: "",
+  citizenship: "",
+  residenceHistory: "",
+  employmentType: "",
+};
 
 function round2(value: number) {
   return Math.round(value * 100) / 100;
@@ -111,12 +125,7 @@ function getPrimaryCta(status: string) {
   if (status === "Eligible now") {
     return "Verify My Approval Readiness";
   }
-
-  if (status === "Borderline") {
-    return "Fix My Approval Gap";
-  }
-
-  return "Avoid Rejection — Get My Plan";
+  return "Get My Fix Plan — $67";
 }
 
 function getDecisionMessage(status: string, gap: number) {
@@ -164,6 +173,27 @@ function getProgressWidth(requirement: number, incomeInEur: number) {
   return Math.max(0, Math.min(100, (incomeInEur / requirement) * 100));
 }
 
+function getFixPlanStatusLine(status: string) {
+  if (status === "Eligible now") {
+    return "You qualify — but approval depends on how your application is structured.";
+  }
+
+  if (status === "Borderline") {
+    return "You are currently within the rejection range if this is not corrected.";
+  }
+
+  return "You are currently below the required threshold.";
+}
+
+function isFixPlanComplete(answers: FixPlanAnswers) {
+  return Boolean(
+    answers.qualification &&
+      answers.citizenship &&
+      answers.residenceHistory &&
+      answers.employmentType
+  );
+}
+
 export default function SpainEligibilityCalculator() {
   const [income, setIncome] = useState("");
   const [currency, setCurrency] = useState<CurrencyCode>("EUR");
@@ -172,6 +202,9 @@ export default function SpainEligibilityCalculator() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<CalcResponse | null>(null);
   const [modalState, setModalState] = useState<ModalState>(null);
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [fixPlanAnswers, setFixPlanAnswers] =
+    useState<FixPlanAnswers>(INITIAL_FIX_PLAN_ANSWERS);
 
   const parsedIncome = Number(income);
   const parsedDependents = Math.max(0, Math.floor(Number(dependents) || 0));
@@ -206,6 +239,7 @@ export default function SpainEligibilityCalculator() {
     event.preventDefault();
     setError("");
     setModalState(null);
+    setShowQuestions(false);
 
     if (!Number.isFinite(parsedIncome) || parsedIncome <= 0) {
       setError("Enter a valid monthly income greater than 0.");
@@ -296,6 +330,44 @@ export default function SpainEligibilityCalculator() {
     setModalState("fix-plan");
   }
 
+  function handleOpenQuestions() {
+    setModalState(null);
+    setShowQuestions(true);
+  }
+
+  function updateFixPlanAnswers<K extends keyof FixPlanAnswers>(
+    key: K,
+    value: FixPlanAnswers[K]
+  ) {
+    setFixPlanAnswers((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  }
+
+  function handleContinueToPayment() {
+    if (!result || !displayScore || !isFixPlanComplete(fixPlanAnswers)) return;
+
+    localStorage.setItem(
+      "dnv_fix_plan_answers",
+      JSON.stringify({
+        ...fixPlanAnswers,
+        score: displayScore.total,
+        status: displayScore.status,
+        confidence: displayScore.confidence,
+        risk: displayScore.risk,
+        income,
+        currency,
+        dependents: parsedDependents,
+        income_eur: incomeInEur,
+        requirement: result.requirement,
+        gap: result.gap,
+      })
+    );
+
+    window.location.href = FIX_PLAN_URL;
+  }
+
   return (
     <>
       <section
@@ -305,7 +377,7 @@ export default function SpainEligibilityCalculator() {
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
           <div className="max-w-3xl">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Native eligibility checker
+              Native viability checker
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">
               Check your 2026 Spain threshold using the live rules engine
@@ -647,6 +719,157 @@ export default function SpainEligibilityCalculator() {
                     </button>
                   </div>
 
+                  {showQuestions && displayScore.status !== "Eligible now" ? (
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
+                      <h3 className="text-2xl font-semibold text-neutral-950">
+                        Personalise Your Approval Plan
+                      </h3>
+                      <p className="mt-2 text-sm leading-6 text-neutral-600">
+                        Answer 4 quick questions to generate your personalised Fix Plan.
+                      </p>
+
+                      <div className="mt-6 space-y-6">
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-900">
+                            Do you meet the qualification requirement?
+                          </label>
+                          <div className="mt-3 space-y-2">
+                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
+                              <input
+                                type="radio"
+                                name="qualification"
+                                checked={fixPlanAnswers.qualification === "yes"}
+                                onChange={() => updateFixPlanAnswers("qualification", "yes")}
+                              />
+                              <span>Yes — I have a degree or 3+ years of experience</span>
+                            </label>
+                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
+                              <input
+                                type="radio"
+                                name="qualification"
+                                checked={fixPlanAnswers.qualification === "no"}
+                                onChange={() => updateFixPlanAnswers("qualification", "no")}
+                              />
+                              <span>No — I do not meet this requirement</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="citizenship"
+                            className="block text-sm font-medium text-neutral-900"
+                          >
+                            What is your citizenship?
+                          </label>
+                          <select
+                            id="citizenship"
+                            value={fixPlanAnswers.citizenship}
+                            onChange={(e) =>
+                              updateFixPlanAnswers("citizenship", e.target.value)
+                            }
+                            className="mt-3 block w-full rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-950"
+                          >
+                            <option value="">Select country...</option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-900">
+                            Have you lived in another country for 6+ months in the last 5 years?
+                          </label>
+                          <div className="mt-3 space-y-2">
+                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
+                              <input
+                                type="radio"
+                                name="residence-history"
+                                checked={fixPlanAnswers.residenceHistory === "no"}
+                                onChange={() => updateFixPlanAnswers("residenceHistory", "no")}
+                              />
+                              <span>No</span>
+                            </label>
+                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
+                              <input
+                                type="radio"
+                                name="residence-history"
+                                checked={fixPlanAnswers.residenceHistory === "yes"}
+                                onChange={() => updateFixPlanAnswers("residenceHistory", "yes")}
+                              />
+                              <span>Yes</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-900">
+                            How do you earn your income?
+                          </label>
+                          <div className="mt-3 rounded-none border border-neutral-200 bg-white p-4">
+                            <p className="text-sm leading-6 text-neutral-700">
+                              This visa requires remote work for a company or clients based outside Spain.
+                            </p>
+                            <p className="mt-2 text-sm font-medium text-neutral-900">
+                              Not eligible if your role requires you to work from a fixed physical office.
+                            </p>
+                          </div>
+                          <div className="mt-3 space-y-2">
+                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
+                              <input
+                                type="radio"
+                                name="employment-type"
+                                checked={fixPlanAnswers.employmentType === "employed_remotely"}
+                                onChange={() =>
+                                  updateFixPlanAnswers("employmentType", "employed_remotely")
+                                }
+                              />
+                              <span>Employed remotely</span>
+                            </label>
+                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
+                              <input
+                                type="radio"
+                                name="employment-type"
+                                checked={fixPlanAnswers.employmentType === "freelancer"}
+                                onChange={() =>
+                                  updateFixPlanAnswers("employmentType", "freelancer")
+                                }
+                              />
+                              <span>Freelancer / contractor</span>
+                            </label>
+                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
+                              <input
+                                type="radio"
+                                name="employment-type"
+                                checked={fixPlanAnswers.employmentType === "business_owner"}
+                                onChange={() =>
+                                  updateFixPlanAnswers("employmentType", "business_owner")
+                                }
+                              />
+                              <span>Business owner</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={!isFixPlanComplete(fixPlanAnswers)}
+                        onClick={handleContinueToPayment}
+                        className="mt-8 inline-flex w-full items-center justify-center bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        CONTINUE TO PAYMENT — $67
+                      </button>
+
+                      <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
+                        Secure checkout • Instant access after payment
+                      </p>
+                    </div>
+                  ) : null}
+
                   <p className="text-sm leading-6 text-neutral-600">
                     This is the threshold and viability layer only.
                     Documentation, structure, and submission quality still affect
@@ -659,15 +882,15 @@ export default function SpainEligibilityCalculator() {
         </div>
       </section>
 
-      {modalState === "fix-plan" ? (
+      {modalState === "fix-plan" && displayScore ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-xl rounded-none bg-white p-6 shadow-2xl sm:p-8">
             <h3 className="text-2xl font-semibold text-neutral-950">
               Unlock Your Personal Approval Plan
             </h3>
 
             <p className="mt-4 text-sm font-medium text-red-600">
-              You are currently below the required threshold.
+              {getFixPlanStatusLine(displayScore.status)}
             </p>
 
             <div className="mt-5">
@@ -692,21 +915,21 @@ export default function SpainEligibilityCalculator() {
             </p>
 
             <p className="mt-3 text-center text-sm leading-6 text-neutral-600">
-              Before we generate your plan, answer 4 quick questions to
-              personalise your result.
+              Before we generate your plan, answer 4 quick questions to personalise your result.
             </p>
 
-            <a
-              href={FIX_PLAN_URL}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
+            <button
+              type="button"
+              onClick={handleOpenQuestions}
+              className="mt-6 inline-flex w-full items-center justify-center bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
             >
               AVOID REJECTION — GET MY PLAN ($67)
-            </a>
+            </button>
 
             <button
               type="button"
               onClick={() => setModalState(null)}
-              className="mt-4 inline-flex w-full items-center justify-center rounded-xl px-6 py-3 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100"
+              className="mt-4 inline-flex w-full items-center justify-center px-6 py-3 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100"
             >
               Go Back
             </button>
