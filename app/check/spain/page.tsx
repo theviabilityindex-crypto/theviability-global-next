@@ -5,14 +5,14 @@ import SpainEligibilityCalculator from "./SpainEligibilityCalculator";
 export const metadata: Metadata = {
   title: "Spain Digital Nomad Visa Calculator (2026) | Income Requirement Checker",
   description:
-    "Spain's 2026 digital nomad visa income requirement is €2,849/month for a single applicant. See the formula, dependent thresholds, worked examples, and check your eligibility.",
+    "Spain's 2026 digital nomad visa income requirement is €2,849/month for a single applicant. See the formula, dependent thresholds, worked examples, and check your viability.",
   alternates: {
     canonical: "https://theviabilityindex.com/check/spain",
   },
   openGraph: {
     title: "Spain Digital Nomad Visa Calculator (2026)",
     description:
-      "Exact 2026 Spain digital nomad visa income thresholds, formula, examples, and eligibility guidance.",
+      "Exact 2026 Spain digital nomad visa income thresholds, formula, examples, and viability guidance.",
     url: "https://theviabilityindex.com/check/spain",
     siteName: "The Viability Index",
     type: "website",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Spain Digital Nomad Visa Calculator (2026)",
     description:
-      "Exact 2026 Spain digital nomad visa income thresholds, formula, examples, and eligibility guidance.",
+      "Exact 2026 Spain digital nomad visa income thresholds, formula, examples, and viability guidance.",
   },
 };
 
@@ -122,7 +122,7 @@ export default function SpainCheckPage() {
     name: "Spain Digital Nomad Visa Calculator (2026)",
     url: "https://theviabilityindex.com/check/spain",
     description:
-      "Answer-first page for Spain's 2026 digital nomad visa income requirement, calculation formula, examples, and eligibility path.",
+      "Answer-first page for Spain's 2026 digital nomad visa income requirement, calculation formula, examples, and viability path.",
   };
 
   return (
@@ -186,9 +186,9 @@ export default function SpainCheckPage() {
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <a
                     href="#calculator"
-                    className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-6 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-amber-300"
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
                   >
-                    Check My Eligibility
+                    Check My Viability
                   </a>
 
                   <a
@@ -358,7 +358,7 @@ export default function SpainCheckPage() {
                 This page is designed to answer the threshold question first. It
                 gives you the current 2026 income requirement, the formula
                 behind it, and the dependent examples most people need before
-                they check their eligibility in full.
+                they check their viability in full.
               </p>
 
               <p className="mt-3 text-base leading-7 text-neutral-700">
