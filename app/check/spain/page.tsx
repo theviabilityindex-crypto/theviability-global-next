@@ -89,6 +89,29 @@ const examples = [
   },
 ];
 
+const thresholdCards = [
+  {
+    label: "Single applicant",
+    amount: thresholds.single,
+    explanation: "200% of SMI",
+  },
+  {
+    label: "Couple",
+    amount: thresholds.couple,
+    explanation: "Main + first dependent",
+  },
+  {
+    label: "Family of 3",
+    amount: thresholds.familyOf3,
+    explanation: "Main + spouse + 1 dependent",
+  },
+  {
+    label: "Extra dependent",
+    amount: thresholds.additionalDependent,
+    explanation: "25% of SMI",
+  },
+];
+
 export default function SpainCheckPage() {
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -233,35 +256,24 @@ export default function SpainCheckPage() {
 
         <section className="border-b border-neutral-200 bg-white">
           <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
-            <div className="grid gap-3 md:grid-cols-4">
-              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                <div className="text-sm text-neutral-500">Single applicant</div>
-                <div className="mt-1 text-3xl font-semibold">{thresholds.single}</div>
-                <div className="mt-1 text-sm text-neutral-600">200% of SMI</div>
-              </div>
-
-              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                <div className="text-sm text-neutral-500">Couple</div>
-                <div className="mt-1 text-3xl font-semibold">{thresholds.couple}</div>
-                <div className="mt-1 text-sm text-neutral-600">
-                  Main applicant + first dependent
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                <div className="text-sm text-neutral-500">Family of 3</div>
-                <div className="mt-1 text-3xl font-semibold">{thresholds.familyOf3}</div>
-                <div className="mt-1 text-sm text-neutral-600">
-                  Main applicant + spouse + 1 additional dependent
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                <div className="text-sm text-neutral-500">Each extra dependent</div>
-                <div className="mt-1 text-3xl font-semibold">
-                  {thresholds.additionalDependent}
-                </div>
-                <div className="mt-1 text-sm text-neutral-600">25% of SMI</div>
+            <div className="max-w-3xl">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {thresholdCards.map((card) => (
+                  <div
+                    key={card.label}
+                    className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3 sm:p-4"
+                  >
+                    <div className="text-xs sm:text-sm text-neutral-500">
+                      {card.label}
+                    </div>
+                    <div className="mt-1 text-xl font-semibold leading-none text-neutral-950 sm:text-2xl">
+                      {card.amount}
+                    </div>
+                    <div className="mt-2 text-[11px] leading-4 text-neutral-600 sm:text-sm sm:leading-5">
+                      {card.explanation}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -313,36 +325,31 @@ export default function SpainCheckPage() {
 
         <section className="border-b border-neutral-200 bg-white">
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
-            <div className="max-w-5xl">
+            <div className="max-w-3xl">
               <h2 className="text-2xl font-semibold tracking-tight">
                 Worked examples
               </h2>
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                These examples show how the Spain 2026 monthly threshold changes
+                as dependants are added.
+              </p>
+            </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                {examples.map((example) => (
-                  <div
-                    key={example.label}
-                    className="rounded-2xl border border-neutral-200 p-4"
-                  >
-                    <div className="text-sm text-neutral-500">{example.label}</div>
-                    <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                      {example.amount}
-                    </div>
-                    <div className="mt-1 text-sm text-neutral-600">
-                      {example.explanation}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6">
-                <a
-                  href="#calculator"
-                  className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
+            <div className="mt-5 max-w-3xl grid grid-cols-2 gap-4">
+              {examples.map((example) => (
+                <div
+                  key={example.label}
+                  className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
                 >
-                  Back to Calculator
-                </a>
-              </div>
+                  <div className="text-sm text-neutral-500">{example.label}</div>
+                  <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                    {example.amount}
+                  </div>
+                  <div className="mt-2 text-sm text-neutral-600">
+                    {example.explanation}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -353,18 +360,11 @@ export default function SpainCheckPage() {
               <h2 className="text-2xl font-semibold tracking-tight">
                 What this page does
               </h2>
-
               <p className="mt-3 text-base leading-7 text-neutral-700">
-                This page is designed to answer the threshold question first. It
-                gives you the current 2026 income requirement, the formula
-                behind it, and the dependent examples most people need before
-                they check their viability in full.
-              </p>
-
-              <p className="mt-3 text-base leading-7 text-neutral-700">
-                The full checker remains on the app domain for now so the live
-                buyer flow stays intact while this native page becomes the
-                crawlable authority layer for Spain.
+                This page gives you the current Spain 2026 threshold logic in a
+                readable format, then lets you test your own income against the
+                live rules engine. It is designed to combine answer-first GEO
+                content with a native viability check on a single page.
               </p>
             </div>
           </div>
@@ -374,41 +374,36 @@ export default function SpainCheckPage() {
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
             <div className="max-w-3xl">
               <h2 className="text-2xl font-semibold tracking-tight">FAQ</h2>
+            </div>
 
-              <div className="mt-4 space-y-3">
-                {faqs.map((faq) => (
-                  <details
-                    key={faq.question}
-                    className="group rounded-2xl border border-neutral-200 bg-white p-4 transition open:border-neutral-950/20 open:bg-neutral-50"
-                  >
-                    <summary className="cursor-pointer list-none font-medium text-neutral-700 transition group-open:text-neutral-950 group-open:font-semibold">
-                      {faq.question}
-                    </summary>
-                    <p className="mt-3 text-base leading-7 text-neutral-700">
-                      {faq.answer}
-                    </p>
-                  </details>
-                ))}
-              </div>
+            <div className="mt-5 divide-y divide-neutral-200 rounded-2xl border border-neutral-200 bg-white">
+              {faqs.map((faq) => (
+                <details key={faq.question} className="group p-4 open:bg-neutral-50">
+                  <summary className="cursor-pointer list-none text-base font-medium text-neutral-950">
+                    {faq.question}
+                  </summary>
+                  <p className="mt-3 text-sm leading-7 text-neutral-700">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="bg-neutral-50">
-          <div className="mx-auto max-w-6xl px-4 py-5 text-sm leading-6 text-neutral-600 sm:px-6 lg:px-8">
-            <p>
-              Information on this page is for general educational and planning
-              purposes only. It is not legal, immigration, tax, or financial
-              advice and should not be relied on as a substitute for qualified
-              professional advice.
-            </p>
-            <p className="mt-2">
-              Visa rules, minimum income thresholds, documentation standards,
-              and consular practice can change. Always verify current
-              requirements with the relevant Spanish authorities and a licensed
-              immigration professional before making financial or relocation
-              decisions.
-            </p>
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+              <div className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-900">
+                Important disclaimer
+              </div>
+              <p className="mt-3 text-sm leading-7 text-amber-950">
+                This page is an informational viability tool, not legal advice.
+                Final approval depends on document quality, income structure,
+                consistency of evidence, and the interpretation of the relevant
+                Spanish authority or consulate handling the application.
+              </p>
+            </div>
           </div>
         </section>
       </main>
