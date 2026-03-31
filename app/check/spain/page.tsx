@@ -63,7 +63,7 @@ const faqs = [
   {
     question: "Why do some websites show different Spain DNV dependent figures?",
     answer:
-      "Different figures often come from older SMI amounts or from sites that have not updated their calculations after the latest minimum wage change.",
+      "Different figures often come from older SMI amounts or from sites that have not updated their calculations after the latest minimum wage change. Always check the current SMI basis and recalculate the 200% / 75% / 25% formula.",
   },
 ];
 
@@ -90,63 +90,433 @@ const examples = [
   },
 ];
 
+const thresholdCards = [
+  {
+    label: "Single applicant",
+    amount: thresholds.single,
+    explanation: "200% of SMI",
+  },
+  {
+    label: "Couple",
+    amount: thresholds.couple,
+    explanation: "Main + first dependent",
+  },
+  {
+    label: "Family of 3",
+    amount: thresholds.familyOf3,
+    explanation: "Main + spouse + 1 dependent",
+  },
+  {
+    label: "Extra dependent",
+    amount: thresholds.additionalDependent,
+    explanation: "25% of SMI",
+  },
+];
+
 export default function SpainCheckPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
+  const datasetJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: "Spain Digital Nomad Visa Income Rules 2026",
+    description:
+      "Machine-readable 2026 Spain digital nomad visa income thresholds and calculation basis used by The Viability Index.",
+    url: "https://theviabilityindex.com/api/rules/spain.json",
+    creator: {
+      "@type": "Organization",
+      name: "The Viability Index",
+      url: "https://theviabilityindex.com",
+    },
+    keywords: [
+      "Spain digital nomad visa",
+      "Spain DNV 2026",
+      "Spain visa income requirement",
+      "Spain SMI 2026",
+    ],
+    license: "https://theviabilityindex.com",
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: "https://theviabilityindex.com/api/rules/spain.json",
+    },
+    variableMeasured: [
+      {
+        "@type": "PropertyValue",
+        name: "Monthly income threshold for single applicant",
+        value: thresholds.single,
+        unitText: "EUR/month",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Monthly income threshold for first dependent",
+        value: thresholds.firstDependent,
+        unitText: "EUR/month",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Monthly income threshold for each additional dependent",
+        value: thresholds.additionalDependent,
+        unitText: "EUR/month",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "2026 annual SMI",
+        value: thresholds.annualSmi14Payments,
+        unitText: "EUR/year",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "2026 monthly SMI equivalent",
+        value: thresholds.smi12MonthEquivalent,
+        unitText: "EUR/month",
+      },
+    ],
+  };
+
+  const webApplicationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Spain Digital Nomad Visa Calculator (2026)",
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Any",
+    url: "https://theviabilityindex.com/check/spain",
+    description:
+      "Calculator that checks whether your monthly income meets the Spain Digital Nomad Visa income requirement for 2026 based on household size.",
+    isAccessibleForFree: true,
+    creator: {
+      "@type": "Organization",
+      name: "The Viability Index",
+      url: "https://theviabilityindex.com",
+    },
+    about: {
+      "@type": "Thing",
+      name: "Spain Digital Nomad Visa income requirement 2026",
+    },
+    subjectOf: {
+      "@type": "Dataset",
+      name: "Spain Digital Nomad Visa Income Rules 2026",
+      url: "https://theviabilityindex.com/api/rules/spain.json",
+    },
+    featureList: [
+      "Checks income against Spain 2026 digital nomad visa thresholds",
+      "Calculates threshold based on household size",
+      "Explains the 200% / 75% / 25% formula",
+      "Shows worked examples for different family sizes",
+    ],
+  };
+
   return (
-    <main className="min-h-screen bg-white text-neutral-950">
+    <>
+      <Script
+        id="jsonld-webapplication-spain-check"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationJsonLd) }}
+      />
+      <Script
+        id="jsonld-dataset-spain-check"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
+      />
+      <Script
+        id="jsonld-faq-spain-check"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
 
-      {/* HERO */}
-      <section className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-
-          <h1 className="text-4xl font-semibold">
-            Spain Digital Nomad Visa Calculator (2026)
-          </h1>
-
-          <p className="mt-4 text-lg text-neutral-700">
-            The 2026 Spain digital nomad visa income requirement is{" "}
-            <strong>{thresholds.single}</strong> per month for a single applicant.
-          </p>
-
-        </div>
-      </section>
-
-      {/* CALCULATOR */}
-      <SpainEligibilityCalculator />
-
-      {/* FORMULA SECTION */}
-      <section
-        id="formula"
-        className="border-b border-neutral-200 bg-neutral-50"
-      >
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="max-w-3xl">
-
-            <h2 className="text-2xl font-semibold">
-              How the 2026 Spain DNV threshold is calculated
-            </h2>
-
-            {/* ✅ SYSTEM LANGUAGE (NEW) */}
-            <p className="mt-2 text-sm text-neutral-600">
-              This calculator uses Spain’s 2026 SMI-based visa rules.
+      <main className="min-h-screen bg-white text-neutral-950">
+        <section className="border-b border-neutral-200 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+            <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-neutral-500">
+              Spain • 2026 Rules
             </p>
 
-            <p className="mt-3 text-neutral-700">
-              Spain’s 2026 minimum wage is{" "}
-              <strong>{thresholds.annualSmi14Payments}</strong> per year.
-            </p>
+            <div className="max-w-4xl">
+              <h1 className="text-4xl font-semibold tracking-tight text-neutral-950 sm:text-5xl">
+                Spain Digital Nomad Visa Calculator (2026)
+              </h1>
 
-            <div className="mt-4 bg-white border rounded-xl p-4">
-              <ul className="space-y-2">
-                <li>Main applicant: {thresholds.single}</li>
-                <li>First dependent: {thresholds.firstDependent}</li>
-                <li>Additional dependent: {thresholds.additionalDependent}</li>
-              </ul>
+              <p className="mt-4 text-lg leading-8 text-neutral-700">
+                The 2026 Spain digital nomad visa income requirement is{" "}
+                <strong className="text-neutral-950">{thresholds.single}</strong>{" "}
+                per month for a single applicant. For a couple, the threshold is{" "}
+                <strong className="text-neutral-950">{thresholds.couple}</strong>.
+                Each additional dependent adds{" "}
+                <strong className="text-neutral-950">
+                  {thresholds.additionalDependent}
+                </strong>{" "}
+                per month.
+              </p>
             </div>
 
-          </div>
-        </div>
-      </section>
+            <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+              <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
+                <div className="text-sm font-medium uppercase tracking-[0.16em] text-neutral-500">
+                  Quick answer
+                </div>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+                  Most applicants need to clear €2,849/month before they should
+                  even think about applying.
+                </h2>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-700">
+                  That figure is based on 200% of Spain’s 2026 monthly minimum
+                  wage equivalent. The first dependent adds 75% of SMI, and each
+                  additional dependent adds 25%.
+                </p>
 
-    </main>
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <a
+                    href="#calculator"
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  >
+                    Check My Viability
+                  </a>
+
+                  <a
+                    href="#formula"
+                    className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+                  >
+                    See the Formula
+                  </a>
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5">
+                  <h3 className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                    Spain Digital Nomad Visa Income Requirement (2026)
+                  </h3>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-neutral-900">
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Single</span>
+                      <span className="font-semibold">€2,849</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Couple</span>
+                      <span className="font-semibold">€3,917</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Family of 3</span>
+                      <span className="font-semibold">€4,273</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Family of 4</span>
+                      <span className="font-semibold">€4,629</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-neutral-200 bg-white p-5 sm:p-6">
+                <div className="text-sm font-medium uppercase tracking-[0.16em] text-neutral-500">
+                  Source basis
+                </div>
+                <dl className="mt-4 space-y-3">
+                  <div>
+                    <dt className="text-sm text-neutral-500">2026 annual SMI</dt>
+                    <dd className="mt-1 text-xl font-semibold text-neutral-950">
+                      {thresholds.annualSmi14Payments}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">
+                      12-month equivalent
+                    </dt>
+                    <dd className="mt-1 text-xl font-semibold text-neutral-950">
+                      {thresholds.smi12MonthEquivalent}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Last verified</dt>
+                    <dd className="mt-1 text-base font-medium text-neutral-900">
+                      {lastVerified}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-neutral-200 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+            <div className="max-w-3xl">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {thresholdCards.map((card) => (
+                  <div
+                    key={card.label}
+                    className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3 sm:p-4"
+                  >
+                    <div className="text-xs sm:text-sm text-neutral-500">
+                      {card.label}
+                    </div>
+                    <div className="mt-1 text-xl font-semibold leading-none text-neutral-950 sm:text-2xl">
+                      {card.amount}
+                    </div>
+                    <div className="mt-2 text-[11px] leading-4 text-neutral-600 sm:text-sm sm:leading-5">
+                      {card.explanation}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <SpainEligibilityCalculator />
+
+        <section
+          id="formula"
+          className="border-b border-neutral-200 bg-neutral-50 scroll-mt-24"
+        >
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                How the 2026 Spain DNV threshold is calculated
+              </h2>
+
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                Spain’s 2026 minimum wage is{" "}
+                <strong className="text-neutral-950">
+                  {thresholds.annualSmi14Payments} per year
+                </strong>{" "}
+                in 14 payments. On a 12-month equivalent basis, that is{" "}
+                <strong className="text-neutral-950">
+                  {thresholds.smi12MonthEquivalent}
+                </strong>{" "}
+                per month.
+              </p>
+
+              <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4">
+                <ul className="space-y-2 text-base text-neutral-800">
+                  <li>
+                    <strong>Main applicant:</strong> 200% × SMI ={" "}
+                    {thresholds.single}
+                  </li>
+                  <li>
+                    <strong>First dependent:</strong> 75% × SMI ={" "}
+                    {thresholds.firstDependent}
+                  </li>
+                  <li>
+                    <strong>Each additional dependent:</strong> 25% × SMI ={" "}
+                    {thresholds.additionalDependent}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-neutral-200 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Worked examples
+              </h2>
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                These examples show how the Spain 2026 monthly threshold changes
+                as dependants are added.
+              </p>
+            </div>
+
+            <div className="mt-5 max-w-3xl grid grid-cols-2 gap-4">
+              {examples.map((example) => (
+                <div
+                  key={example.label}
+                  className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
+                >
+                  <div className="text-sm text-neutral-500">{example.label}</div>
+                  <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                    {example.amount}
+                  </div>
+                  <div className="mt-2 text-sm text-neutral-600">
+                    {example.explanation}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-neutral-200 bg-neutral-50">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                What this page does
+              </h2>
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                This tool shows the current Spain Digital Nomad Visa income
+                requirement for 2026, explains how the threshold is calculated,
+                and lets you check your income against the live rule based on
+                your household size.
+              </p>
+
+              <div className="mt-4 flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                <Link
+                  href="/spain-digital-nomad-visa-income-2026"
+                  className="font-medium text-blue-700 underline underline-offset-4 transition hover:text-blue-800"
+                >
+                  See full Spain visa breakdown
+                </Link>
+
+                <Link
+                  href="/check/portugal"
+                  className="font-medium text-blue-700 underline underline-offset-4 transition hover:text-blue-800"
+                >
+                  Compare with Portugal
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-neutral-200 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">FAQ</h2>
+            </div>
+
+            <div className="mt-5 divide-y divide-neutral-200 rounded-2xl border border-neutral-200 bg-white">
+              {faqs.map((faq) => (
+                <details key={faq.question} className="group p-4 open:bg-neutral-50">
+                  <summary className="cursor-pointer list-none text-base font-medium text-neutral-950">
+                    {faq.question}
+                  </summary>
+                  <p className="mt-3 text-sm leading-7 text-neutral-700">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+              <div className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-900">
+                Important disclaimer
+              </div>
+              <p className="mt-3 text-sm leading-7 text-amber-950">
+                This page is an informational viability tool, not legal advice.
+                Final approval depends on document quality, income structure,
+                consistency of evidence, and the interpretation of the relevant
+                Spanish authority or consulate handling the application.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
   );
 }
