@@ -7,22 +7,22 @@ export const spain147Config: FixPlanTemplateConfig = {
   visaLabel: "Digital Nomad Visa",
   verificationEndpoint:
     "https://kbgkmubbrdyhmivdhier.functions.supabase.co/verify-purchase",
-  returnPath: "/",
-  pageMicroLabel: "Visa Approval Score™ + Fix Plan",
+  returnPath: "/check/spain",
+  pageMicroLabel: "Visa Approval System™",
   nextActionReady:
-    "Begin gathering your documents — use the checklist in File 01 below.",
+    "Begin assembling your full approval package using the system below.",
   nextActionNotReady:
-    'Close your income gap first — see "Your Fastest Path to Approval" below.',
+    'Follow your approval system below to close the gap and prepare your application.',
   readinessParagraphReady:
-    "Your income meets the current estimated threshold for the Spain Digital Nomad Visa. Approval depends on documentation quality, income classification, and submission structure.",
+    "Your income meets the current estimated threshold for the Spain Digital Nomad Visa. Use the full approval system below to structure a stronger application.",
   readinessParagraphNotReady:
-    "You do not currently meet the estimated income threshold for the Spain Digital Nomad Visa. This is fixable. Follow the structured path below to reach approval position.",
-  primaryDownloadLabel: "Download My Fix Plan (PDF)",
+    "You do not currently meet the estimated income threshold for the Spain Digital Nomad Visa. Use the full approval system below to improve your position before filing.",
+  primaryDownloadLabel: "Download My Full Approval System",
   primaryDownloadUrl: "https://drive.google.com/drive/folders/YOUR_MASTER_FOLDER_ID",
   primaryDownloadSupportText:
     "Use your browser's print function to save this page as a PDF document.",
-  includedSystemLabel: "Your Visa Approval System™",
-  includedSystemIntro: "Tools included with your Fix Plan.",
+  includedSystemLabel: "Your Full Visa Approval System™",
+  includedSystemIntro: "Everything included in your full approval system.",
   deliverables: [
     {
       num: "01",
@@ -67,41 +67,34 @@ export const spain147Config: FixPlanTemplateConfig = {
       cta: "Check My Score",
       url: "https://drive.google.com/file/d/103CPjBz54Wzf2QEZdPgnau74ggwesiN-/view?usp=sharing",
     },
-  ],
-  upsellTitle: "Need a full approval system?",
-  upsellDescription:
-    "Get the complete structure, submission blueprint, and advanced risk protection. Includes Files 07–10: Application Submission Blueprint, Document Naming System, Rejection Trigger Matrix, and Approval Timeline System.",
-  upsellCtaLabel: "Unlock Full Approval System — $147",
-  upsellHref: "/check/spain",
-  upsellItems: [
     {
-     	 num: "07"
-	title: "07 — Application Submission Blueprint",
-      	desc: "Exact order and sequence for assembling your strongest application.",
-	cta: "Check my Application",
-	url: "https://drive.google.com/file/d/1Q-jl7N2QI1o4DaYnTdUmf_-v8XwLgj7A/view?usp=sharing",
+      num: "07",
+      title: "Application Submission Blueprint",
+      desc: "Exact order and sequence for assembling your strongest application.",
+      cta: "Check My Application",
+      url: "https://drive.google.com/file/d/1Q-jl7N2QI1o4DaYnTdUmf_-v8XwLgj7A/view?usp=sharing",
     },
-   {
-      	num: "08"
-	title: "08 — Document Naming System",
-      	desc: "Keep your file structure clean, consistent, and review-friendly.",
-	cta: "Document Names",
-	url: "https://drive.google.com/file/d/1-bJjnLeruJ1_gn_0z7xO3AY4pnrt8V2r/view?usp=sharing",   
- },
-  {
-      	num: "09"
-	title: "09 — Rejection Trigger Matrix",
-      	desc: "See the common errors that trigger avoidable refusal or delay.",
-	cta: "Trigger Matrix",
-	url: "https://drive.google.com/file/d/1mHg35o-0z7mazPUGBUKOCnwAWnr87Ee4/view?usp=sharing",    
-},
-  {
-      	num: "10"
-	title: "10 — Approval Timeline System",
-      	desc: "Track the full process from preparation to submission and follow-up.",
-	cta: "Timeline System",
-	url: "https://drive.google.com/file/d/1hapR79X0rOJakd_t7tewECAv2BWJW31s/view?usp=sharing",   
- },
+    {
+      num: "08",
+      title: "Document Naming System",
+      desc: "Keep your file structure clean, consistent, and review-friendly.",
+      cta: "Document Names",
+      url: "https://drive.google.com/file/d/1-bJjnLeruJ1_gn_0z7xO3AY4pnrt8V2r/view?usp=sharing",
+    },
+    {
+      num: "09",
+      title: "Rejection Trigger Matrix",
+      desc: "See the common errors that trigger avoidable refusal or delay.",
+      cta: "Trigger Matrix",
+      url: "https://drive.google.com/file/d/1mHg35o-0z7mazPUGBUKOCnwAWnr87Ee4/view?usp=sharing",
+    },
+    {
+      num: "10",
+      title: "Approval Timeline System",
+      desc: "Track the full process from preparation to submission and follow-up.",
+      cta: "Timeline System",
+      url: "https://drive.google.com/file/d/1hapR79X0rOJakd_t7tewECAv2BWJW31s/view?usp=sharing",
+    },
   ],
   disclaimer:
     "This plan is based on Spain 2026 DNV rules and your provided inputs. It does not constitute legal advice. Consult a licensed immigration attorney before filing.",
