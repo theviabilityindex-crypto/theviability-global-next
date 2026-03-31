@@ -41,7 +41,9 @@ const CURRENCY_OPTIONS: CurrencyCode[] = [
 const BASE_THRESHOLD = 2849;
 const FIRST_DEPENDENT = 1068.38;
 const ADDITIONAL_DEPENDENT = 356.13;
-const FIX_PLAN_URL = "https://buy.stripe.com/aFaaEQ5y17k2cMf7wlcMM00";
+
+const FIX_PLAN_URL_67 = "https://buy.stripe.com/test_aFaaEQ5y17k2cMf7wlcMM00";
+const FIX_PLAN_URL_147 = "https://buy.stripe.com/test_fZueV67G9bAih2vcQFcMM01";
 
 const INITIAL_FIX_PLAN_ANSWERS: FixPlanAnswers = {
   qualification: "",
@@ -123,9 +125,30 @@ function getGapLabel(gap: number) {
 
 function getPrimaryCta(status: string) {
   if (status === "Eligible now") {
-    return "Verify My Approval Readiness";
+    return "Protect My Approval — Get My Fix Plan $147";
   }
-  return "Avoid Rejection — Get My Fix Plan ($67)";
+  return "Avoid Rejection — Get My Fix Plan $67";
+}
+
+function getModalCta(status: string) {
+  if (status === "Eligible now") {
+    return "PROTECT MY APPROVAL — GET MY PLAN ($147)";
+  }
+  return "AVOID REJECTION — GET MY PLAN ($67)";
+}
+
+function getQuestionnaireCta(status: string) {
+  if (status === "Eligible now") {
+    return "CONTINUE TO PAYMENT — $147";
+  }
+  return "CONTINUE TO PAYMENT — $67";
+}
+
+function getPriceLine(status: string) {
+  if (status === "Eligible now") {
+    return "One-time payment — $147 (no subscription)";
+  }
+  return "One-time payment — $67 (no subscription)";
 }
 
 function getDecisionMessage(status: string, gap: number) {
@@ -164,7 +187,7 @@ function getNextStepContent(status: string, gap: number) {
       body:
         "Your income clears the minimum, but approval still depends on documentation strength, income consistency, and how the application is presented.",
       support:
-        "This next step is about reducing preventable rejection risk before you apply.",
+        "This plan helps reduce preventable rejection risk before you apply and shows what still needs to be tightened.",
     };
   }
 
@@ -189,7 +212,7 @@ function getNextStepContent(status: string, gap: number) {
       "At this level, the risk is not just delay. It is spending time and money on an application that is likely to fail unless the weak points are fixed first.",
     support:
       "The Fix Plan turns this from a dead end into a practical path back toward approval.",
-  };
+    };
 }
 
 function buildFallbackResult(incomeInEur: number, dependents: number): CalcResponse {
@@ -228,6 +251,10 @@ function isFixPlanComplete(answers: FixPlanAnswers) {
       answers.residenceHistory &&
       answers.employmentType
   );
+}
+
+function canPurchase(answers: FixPlanAnswers) {
+  return isFixPlanComplete(answers) && answers.qualification === "yes";
 }
 
 export default function SpainEligibilityCalculator() {
@@ -376,12 +403,6 @@ export default function SpainEligibilityCalculator() {
 
   function handlePrimaryAction() {
     if (!displayScore) return;
-
-    if (displayScore.status === "Eligible now") {
-      window.alert("Next step: $147 flow not yet wired.");
-      return;
-    }
-
     setModalState("fix-plan");
   }
 
@@ -401,7 +422,7 @@ export default function SpainEligibilityCalculator() {
   }
 
   function handleContinueToPayment() {
-    if (!result || !displayScore || !isFixPlanComplete(fixPlanAnswers)) return;
+    if (!result || !displayScore || !canPurchase(fixPlanAnswers)) return;
 
     localStorage.setItem(
       "dnv_fix_plan_answers",
@@ -417,10 +438,12 @@ export default function SpainEligibilityCalculator() {
         income_eur: incomeInEur,
         requirement: result.requirement,
         gap: result.gap,
+        tier: displayScore.status === "Eligible now" ? 147 : 67,
       })
     );
 
-    window.location.href = FIX_PLAN_URL;
+    window.location.href =
+      displayScore.status === "Eligible now" ? FIX_PLAN_URL_147 : FIX_PLAN_URL_67;
   }
 
   function handleSendEmailCapture() {
@@ -713,12 +736,12 @@ export default function SpainEligibilityCalculator() {
                       </p>
                     ) : (
                       <p className="mt-3 text-xs leading-5 text-neutral-400">
-                        Approval still depends on structure, documents, and submission quality
+                        One-time payment • Approval-readiness plan • No subscription
                       </p>
                     )}
                   </div>
 
-                  {showQuestions && displayScore.status !== "Eligible now" ? (
+                  {showQuestions ? (
                     <div
                       ref={questionRef}
                       className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6"
@@ -857,13 +880,19 @@ export default function SpainEligibilityCalculator() {
                         </div>
                       </div>
 
+                      {fixPlanAnswers.qualification === "no" ? (
+                        <p className="mt-6 text-sm font-medium text-red-700">
+                          You cannot continue to purchase this plan unless you meet the qualification requirement.
+                        </p>
+                      ) : null}
+
                       <button
                         type="button"
-                        disabled={!isFixPlanComplete(fixPlanAnswers)}
+                        disabled={!canPurchase(fixPlanAnswers)}
                         onClick={handleContinueToPayment}
                         className="mt-8 inline-flex w-full items-center justify-center bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        CONTINUE TO PAYMENT — $67
+                        {getQuestionnaireCta(displayScore.status)}
                       </button>
 
                       <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
@@ -1079,7 +1108,7 @@ export default function SpainEligibilityCalculator() {
             </p>
 
             <p className="mt-5 text-center text-base font-semibold text-neutral-950">
-              One-time payment — $67 (no subscription)
+              {getPriceLine(displayScore.status)}
             </p>
 
             <p className="mt-3 text-center text-sm leading-6 text-neutral-600">
@@ -1091,7 +1120,7 @@ export default function SpainEligibilityCalculator() {
               onClick={handleOpenQuestions}
               className="mt-6 inline-flex w-full items-center justify-center bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
             >
-              AVOID REJECTION — GET MY PLAN ($67)
+              {getModalCta(displayScore.status)}
             </button>
 
             <button
