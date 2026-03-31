@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
+const countryKey = "spain";
+
 type CurrencyCode = "EUR" | "USD" | "GBP" | "CHF" | "CAD" | "AUD";
 
 type CalcResponse = {
@@ -374,11 +376,11 @@ export default function SpainEligibilityCalculator() {
 
       const score = getClientScore(safeResult.requirement, incomeInEur);
 
-      localStorage.setItem("dnv_income", income);
-      localStorage.setItem("dnv_currency", currency);
-      localStorage.setItem("dnv_dependents", String(parsedDependents));
+      localStorage.setItem(`${countryKey}_dnv_income`, income);
+      localStorage.setItem(`${countryKey}_dnv_currency`, currency);
+      localStorage.setItem(`${countryKey}_dnv_dependents`, String(parsedDependents));
       localStorage.setItem(
-        "dnv_result",
+        `${countryKey}_dnv_result`,
         JSON.stringify({
           ...safeResult,
           income,
@@ -425,7 +427,7 @@ export default function SpainEligibilityCalculator() {
     if (!result || !displayScore || !canPurchase(fixPlanAnswers)) return;
 
     localStorage.setItem(
-      "dnv_fix_plan_answers",
+      `${countryKey}_dnv_fix_plan_answers`,
       JSON.stringify({
         ...fixPlanAnswers,
         score: displayScore.total,
@@ -450,7 +452,7 @@ export default function SpainEligibilityCalculator() {
     if (!email || !result || !displayScore) return;
 
     localStorage.setItem(
-      "dnv_email_capture",
+      `${countryKey}_dnv_email_capture`,
       JSON.stringify({
         email,
         income,
