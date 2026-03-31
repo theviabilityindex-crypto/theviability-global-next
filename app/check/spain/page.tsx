@@ -385,6 +385,10 @@ export default function SpainCheckPage() {
                 How the 2026 Spain DNV threshold is calculated
               </h2>
 
+              <p className="mt-2 text-sm text-neutral-600">
+                This calculator uses Spain’s 2026 SMI-based visa rules.
+              </p>
+
               <p className="mt-3 text-base leading-7 text-neutral-700">
                 Spain’s 2026 minimum wage is{" "}
                 <strong className="text-neutral-950">
