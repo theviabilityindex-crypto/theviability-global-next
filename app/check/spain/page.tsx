@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import Link from "next/link";
 import SpainEligibilityCalculator from "./SpainEligibilityCalculator";
 
 export const metadata: Metadata = {
@@ -459,6 +460,22 @@ export default function SpainCheckPage() {
                 and lets you check your income against the live rule based on
                 your household size.
               </p>
+
+              <div className="mt-4 flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                <Link
+                  href="/spain-digital-nomad-visa-income-2026"
+                  className="font-medium text-blue-700 underline underline-offset-4 transition hover:text-blue-800"
+                >
+                  See full Spain visa breakdown
+                </Link>
+
+                <Link
+                  href="/check/portugal"
+                  className="font-medium text-blue-700 underline underline-offset-4 transition hover:text-blue-800"
+                >
+                  Compare with Portugal
+                </Link>
+              </div>
             </div>
           </div>
         </section>
