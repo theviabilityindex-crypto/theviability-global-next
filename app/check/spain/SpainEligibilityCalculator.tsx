@@ -212,7 +212,7 @@ function getNextStepContent(status: string, gap: number) {
       "At this level, the risk is not just delay. It is spending time and money on an application that is likely to fail unless the weak points are fixed first.",
     support:
       "The Fix Plan turns this from a dead end into a practical path back toward approval.",
-    };
+  };
 }
 
 function buildFallbackResult(incomeInEur: number, dependents: number): CalcResponse {
@@ -890,7 +890,7 @@ export default function SpainEligibilityCalculator() {
                         type="button"
                         disabled={!canPurchase(fixPlanAnswers)}
                         onClick={handleContinueToPayment}
-                        className="mt-8 inline-flex w-full items-center justify-center bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="mt-8 inline-flex w-full items-center justify-center rounded-none px-6 py-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300 enabled:bg-neutral-950 enabled:text-white enabled:hover:bg-neutral-800"
                       >
                         {getQuestionnaireCta(displayScore.status)}
                       </button>
@@ -1118,7 +1118,7 @@ export default function SpainEligibilityCalculator() {
             <button
               type="button"
               onClick={handleOpenQuestions}
-              className="mt-6 inline-flex w-full items-center justify-center bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
+              className="mt-6 inline-flex w-full items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
             >
               {getModalCta(displayScore.status)}
             </button>
