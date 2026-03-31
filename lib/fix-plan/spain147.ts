@@ -75,28 +75,32 @@ export const spain147Config: FixPlanTemplateConfig = {
   upsellHref: "/check/spain",
   upsellItems: [
     {
-      title: "07 — Application Submission Blueprint",
-      desc: "Exact order and sequence for assembling your strongest application.",
-cta: "Check my Application",
-url: "https://drive.google.com/file/d/1Q-jl7N2QI1o4DaYnTdUmf_-v8XwLgj7A/view?usp=sharing",
+     	 num: "07"
+	title: "07 — Application Submission Blueprint",
+      	desc: "Exact order and sequence for assembling your strongest application.",
+	cta: "Check my Application",
+	url: "https://drive.google.com/file/d/1Q-jl7N2QI1o4DaYnTdUmf_-v8XwLgj7A/view?usp=sharing",
     },
-    {
-      title: "08 — Document Naming System",
-      desc: "Keep your file structure clean, consistent, and review-friendly.",
-cta: "Document Names",
-url: "https://drive.google.com/file/d/1-bJjnLeruJ1_gn_0z7xO3AY4pnrt8V2r/view?usp=sharing",   
+   {
+      	num: "08"
+	title: "08 — Document Naming System",
+      	desc: "Keep your file structure clean, consistent, and review-friendly.",
+	cta: "Document Names",
+	url: "https://drive.google.com/file/d/1-bJjnLeruJ1_gn_0z7xO3AY4pnrt8V2r/view?usp=sharing",   
  },
-    {
-      title: "09 — Rejection Trigger Matrix",
-      desc: "See the common errors that trigger avoidable refusal or delay.",
-cta: "Trigger Matrix",
-url: "https://drive.google.com/file/d/1mHg35o-0z7mazPUGBUKOCnwAWnr87Ee4/view?usp=sharing",    
+  {
+      	num: "09"
+	title: "09 — Rejection Trigger Matrix",
+      	desc: "See the common errors that trigger avoidable refusal or delay.",
+	cta: "Trigger Matrix",
+	url: "https://drive.google.com/file/d/1mHg35o-0z7mazPUGBUKOCnwAWnr87Ee4/view?usp=sharing",    
 },
-    {
-      title: "10 — Approval Timeline System",
-      desc: "Track the full process from preparation to submission and follow-up.",
-cta: "Timeline System",
-url: "https://drive.google.com/file/d/1hapR79X0rOJakd_t7tewECAv2BWJW31s/view?usp=sharing",   
+  {
+      	num: "10"
+	title: "10 — Approval Timeline System",
+      	desc: "Track the full process from preparation to submission and follow-up.",
+	cta: "Timeline System",
+	url: "https://drive.google.com/file/d/1hapR79X0rOJakd_t7tewECAv2BWJW31s/view?usp=sharing",   
  },
   ],
   disclaimer:
