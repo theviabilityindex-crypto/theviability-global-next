@@ -263,28 +263,6 @@ export default function SpainCheckPage() {
               <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
                 <div className="text-sm font-medium uppercase tracking-[0.16em] text-neutral-500">
                   Quick answer
-
- </h3>
-
-  <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-neutral-900">
-    <div className="flex justify-between">
-      <span>Single</span>
-      <span className="font-semibold">€2,849</span>
-    </div>
-    <div className="flex justify-between">
-      <span>Couple</span>
-      <span className="font-semibold">€3,917</span>
-    </div>
-    <div className="flex justify-between">
-      <span>Family of 3</span>
-      <span className="font-semibold">€4,273</span>
-    </div>
-    <div className="flex justify-between">
-      <span>Family of 4</span>
-      <span className="font-semibold">€4,629</span>
-    </div>
-  </div>
-</div>
                 </div>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
                   Most applicants need to clear €2,849/month before they should
@@ -310,6 +288,31 @@ export default function SpainCheckPage() {
                   >
                     See the Formula
                   </a>
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5">
+                  <h3 className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                    Spain Digital Nomad Visa Income Requirement (2026)
+                  </h3>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-neutral-900">
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Single</span>
+                      <span className="font-semibold">€2,849</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Couple</span>
+                      <span className="font-semibold">€3,917</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Family of 3</span>
+                      <span className="font-semibold">€4,273</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Family of 4</span>
+                      <span className="font-semibold">€4,629</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
