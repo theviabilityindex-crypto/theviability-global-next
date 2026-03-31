@@ -156,6 +156,42 @@ function getDecisionMessage(status: string, gap: number) {
   };
 }
 
+function getNextStepContent(status: string, gap: number) {
+  if (status === "Eligible now") {
+    return {
+      label: "Protect the approval",
+      headline: "Passing the threshold is not the same as being approval-ready.",
+      body:
+        "Your income clears the minimum, but approval still depends on documentation strength, income consistency, and how the application is presented.",
+      support:
+        "This next step is about reducing preventable rejection risk before you apply.",
+    };
+  }
+
+  if (status === "Borderline") {
+    return {
+      label: "Fix the weak point",
+      headline: `You are still ${formatCurrency(
+        Math.abs(gap),
+        "EUR"
+      )} short of a safer position.`,
+      body:
+        "This result is close enough to feel possible but weak enough to get rejected if you apply without a structured correction plan.",
+      support:
+        "The Fix Plan shows the fastest path to close the gap and tighten the rest of the application.",
+    };
+  }
+
+  return {
+    label: "Avoid rejection",
+    headline: "You need a correction plan before you should even think about applying.",
+    body:
+      "At this level, the risk is not just delay. It is spending time and money on an application that is likely to fail unless the weak points are fixed first.",
+    support:
+      "The Fix Plan turns this from a dead end into a practical path back toward approval.",
+  };
+}
+
 function buildFallbackResult(incomeInEur: number, dependents: number): CalcResponse {
   const requirement = round2(calculateSpainRequirement(dependents));
   const gap = round2(incomeInEur - requirement);
@@ -228,6 +264,11 @@ export default function SpainEligibilityCalculator() {
   const decisionMessage =
     result && displayScore
       ? getDecisionMessage(displayScore.status, result.gap)
+      : null;
+
+  const nextStepContent =
+    result && displayScore
+      ? getNextStepContent(displayScore.status, result.gap)
       : null;
 
   const progressWidth =
@@ -688,6 +729,39 @@ export default function SpainEligibilityCalculator() {
                     </div>
                   </div>
 
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-950 p-4 text-white">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-300">
+                      {nextStepContent?.label ?? "Next step"}
+                    </div>
+                    <h3 className="mt-2 text-lg font-semibold text-white">
+                      {nextStepContent?.headline}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-neutral-200">
+                      {nextStepContent?.body}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-neutral-300">
+                      {nextStepContent?.support}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={handlePrimaryAction}
+                      className="mt-5 inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-neutral-100"
+                    >
+                      {getPrimaryCta(displayScore.status)}
+                    </button>
+
+                    {displayScore.status !== "Eligible now" ? (
+                      <p className="mt-3 text-xs leading-5 text-neutral-400">
+                        One-time payment • Personalised plan • No subscription
+                      </p>
+                    ) : (
+                      <p className="mt-3 text-xs leading-5 text-neutral-400">
+                        Approval still depends on structure, documents, and submission quality
+                      </p>
+                    )}
+                  </div>
+
                   <div className="rounded-2xl border border-neutral-200 p-4">
                     <h3 className="text-lg font-semibold text-neutral-950">
                       What you unlock next
@@ -735,25 +809,6 @@ export default function SpainEligibilityCalculator() {
                       </p>
                     </div>
                   ) : null}
-
-                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      Next step
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      {displayScore.status === "Eligible now"
-                        ? "You meet the threshold, but approval still depends on structure, documentation, and submission quality."
-                        : "This plan shows exactly how to fix the weak points before you apply."}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={handlePrimaryAction}
-                      className="mt-4 inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
-                    >
-                      {getPrimaryCta(displayScore.status)}
-                    </button>
-                  </div>
 
                   {showQuestions && displayScore.status !== "Eligible now" ? (
                     <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
