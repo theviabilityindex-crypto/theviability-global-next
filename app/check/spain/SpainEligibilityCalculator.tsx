@@ -272,7 +272,6 @@ export default function SpainEligibilityCalculator() {
     useState<FixPlanAnswers>(INITIAL_FIX_PLAN_ANSWERS);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
-  const [decisionSessionId, setDecisionSessionId] = useState<string | null>(null);
 
   const questionRef = useRef<HTMLDivElement | null>(null);
 
@@ -318,39 +317,6 @@ export default function SpainEligibilityCalculator() {
       });
     }
   }, [showQuestions]);
-
-  async function createDecisionSession(payload: {
-    country_key: string;
-    income_raw: number;
-    currency_code: string;
-    income_eur: number;
-    dependents: number;
-    is_viable: boolean;
-    gap: number;
-    requirement: number;
-    tax_leak?: number;
-    score_total: number;
-    score_confidence: string;
-    score_status: string;
-    score_risk: string;
-    source_path: string;
-  }) {
-    const response = await fetch("/api/decision-sessions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to create decision session.");
-    }
-
-    return data.id as string;
-  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -410,26 +376,6 @@ export default function SpainEligibilityCalculator() {
 
       const score = getClientScore(safeResult.requirement, incomeInEur);
 
-      const newDecisionSessionId = await createDecisionSession({
-        country_key: countryKey,
-        income_raw: parsedIncome,
-        currency_code: currency,
-        income_eur: incomeInEur,
-        dependents: parsedDependents,
-        is_viable: safeResult.is_viable,
-        gap: safeResult.gap,
-        requirement: safeResult.requirement,
-        tax_leak: safeResult.tax_leak ?? 0,
-        score_total: score.total,
-        score_confidence: score.confidence,
-        score_status: score.status,
-        score_risk: score.risk,
-        source_path: "/check/spain",
-      });
-
-      setDecisionSessionId(newDecisionSessionId);
-      localStorage.setItem(`${countryKey}_decision_session_id`, newDecisionSessionId);
-
       localStorage.setItem(`${countryKey}_dnv_income`, income);
       localStorage.setItem(`${countryKey}_dnv_currency`, currency);
       localStorage.setItem(`${countryKey}_dnv_dependents`, String(parsedDependents));
@@ -477,8 +423,43 @@ export default function SpainEligibilityCalculator() {
     }));
   }
 
-  function handleContinueToPayment() {
+  async function handleContinueToPayment() {
     if (!result || !displayScore || !canPurchase(fixPlanAnswers)) return;
+
+    const storedDecisionSessionId =
+      decisionSessionId || localStorage.getItem(`${countryKey}_decision_session_id`);
+
+    const tier = displayScore.status === "Eligible now" ? 147 : 67;
+    const productKey =
+      tier === 147 ? "spain_147_approval_system" : "spain_67_fix_plan";
+
+    try {
+      if (storedDecisionSessionId) {
+        const response = await fetch("/api/decision-sessions", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: storedDecisionSessionId,
+            tier_intended: tier,
+            product_key: productKey,
+            qualification: fixPlanAnswers.qualification,
+            citizenship: fixPlanAnswers.citizenship,
+            residence_history: fixPlanAnswers.residenceHistory,
+            employment_type: fixPlanAnswers.employmentType,
+          }),
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok) {
+          throw new Error(data?.error || "Failed to update decision session.");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to update decision session before payment:", err);
+    }
 
     localStorage.setItem(
       `${countryKey}_dnv_fix_plan_answers`,
@@ -494,12 +475,13 @@ export default function SpainEligibilityCalculator() {
         income_eur: incomeInEur,
         requirement: result.requirement,
         gap: result.gap,
-        tier: displayScore.status === "Eligible now" ? 147 : 67,
+        tier,
+        product_key: productKey,
+        decision_session_id: storedDecisionSessionId,
       })
     );
 
-    window.location.href =
-      displayScore.status === "Eligible now" ? FIX_PLAN_URL_147 : FIX_PLAN_URL_67;
+    window.location.href = tier === 147 ? FIX_PLAN_URL_147 : FIX_PLAN_URL_67;
   }
 
   function handleSendEmailCapture() {
