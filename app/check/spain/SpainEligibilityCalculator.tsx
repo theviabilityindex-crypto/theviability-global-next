@@ -272,6 +272,7 @@ export default function SpainEligibilityCalculator() {
     useState<FixPlanAnswers>(INITIAL_FIX_PLAN_ANSWERS);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [decisionSessionId, setDecisionSessionId] = useState<string | null>(null);
 
   const questionRef = useRef<HTMLDivElement | null>(null);
 
@@ -317,6 +318,39 @@ export default function SpainEligibilityCalculator() {
       });
     }
   }, [showQuestions]);
+
+  async function createDecisionSession(payload: {
+    country_key: string;
+    income_raw: number;
+    currency_code: string;
+    income_eur: number;
+    dependents: number;
+    is_viable: boolean;
+    gap: number;
+    requirement: number;
+    tax_leak?: number;
+    score_total: number;
+    score_confidence: string;
+    score_status: string;
+    score_risk: string;
+    source_path: string;
+  }) {
+    const response = await fetch("/api/decision-sessions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to create decision session.");
+    }
+
+    return data.id as string;
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -375,6 +409,26 @@ export default function SpainEligibilityCalculator() {
       setResult(safeResult);
 
       const score = getClientScore(safeResult.requirement, incomeInEur);
+
+      const newDecisionSessionId = await createDecisionSession({
+        country_key: countryKey,
+        income_raw: parsedIncome,
+        currency_code: currency,
+        income_eur: incomeInEur,
+        dependents: parsedDependents,
+        is_viable: safeResult.is_viable,
+        gap: safeResult.gap,
+        requirement: safeResult.requirement,
+        tax_leak: safeResult.tax_leak ?? 0,
+        score_total: score.total,
+        score_confidence: score.confidence,
+        score_status: score.status,
+        score_risk: score.risk,
+        source_path: "/check/spain",
+      });
+
+      setDecisionSessionId(newDecisionSessionId);
+      localStorage.setItem(`${countryKey}_decision_session_id`, newDecisionSessionId);
 
       localStorage.setItem(`${countryKey}_dnv_income`, income);
       localStorage.setItem(`${countryKey}_dnv_currency`, currency);
@@ -1138,3 +1192,4 @@ export default function SpainEligibilityCalculator() {
     </>
   );
 }
+
