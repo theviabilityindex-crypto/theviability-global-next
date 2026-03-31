@@ -125,7 +125,7 @@ function getPrimaryCta(status: string) {
   if (status === "Eligible now") {
     return "Verify My Approval Readiness";
   }
-  return "Get My Fix Plan — $67";
+  return "Avoid Rejection — Get My Fix Plan ($67)";
 }
 
 function getDecisionMessage(status: string, gap: number) {
