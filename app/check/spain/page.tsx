@@ -417,6 +417,10 @@ export default function SpainCheckPage() {
                   </li>
                 </ul>
               </div>
+
+              <p className="mt-4 text-xs text-neutral-500">
+                Machine-readable rule source: /api/rules/spain.json
+              </p>
             </div>
           </div>
         </section>
