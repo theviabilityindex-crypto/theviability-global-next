@@ -1,31 +1,16 @@
-type PageProps = {
-  searchParams: Promise<{
-    payment?: string;
-    tier?: string;
-    session_id?: string;
-  }>;
-};
+"use client";
 
-export default async function SuccessPage({ searchParams }: PageProps) {
-  const { payment, tier, session_id } = await searchParams;
+import { useSearchParams } from "next/navigation";
+import FixPlanProductTemplate from "@/components/products/FixPlanProductTemplate";
+import { spain67Config } from "@/config/products/spain67";
+import { spain147Config } from "@/config/products/spain147";
 
-  return (
-    <main style={{ padding: "40px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Stripe Success Page Working</h1>
+export default function SuccessPage() {
+  const searchParams = useSearchParams();
 
-      <p>This page is rendering.</p>
+  const tier = searchParams.get("tier");
 
-      <p>
-        <strong>payment:</strong> {payment ?? "missing"}
-      </p>
+  const config = tier === "147" ? spain147Config : spain67Config;
 
-      <p>
-        <strong>tier:</strong> {tier ?? "missing"}
-      </p>
-
-      <p>
-        <strong>session_id:</strong> {session_id ?? "missing"}
-      </p>
-    </main>
-  );
+  return <FixPlanProductTemplate config={config} />;
 }
