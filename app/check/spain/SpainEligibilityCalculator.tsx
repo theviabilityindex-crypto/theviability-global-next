@@ -272,6 +272,7 @@ export default function SpainEligibilityCalculator() {
     useState<FixPlanAnswers>(INITIAL_FIX_PLAN_ANSWERS);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [decisionSessionId, setDecisionSessionId] = useState<string | null>(null);
 
   const questionRef = useRef<HTMLDivElement | null>(null);
 
@@ -317,6 +318,39 @@ export default function SpainEligibilityCalculator() {
       });
     }
   }, [showQuestions]);
+
+  async function createDecisionSession(payload: {
+    country_key: string;
+    income_raw: number;
+    currency_code: string;
+    income_eur: number;
+    dependents: number;
+    is_viable: boolean;
+    gap: number;
+    requirement: number;
+    tax_leak?: number;
+    score_total: number;
+    score_confidence: string;
+    score_status: string;
+    score_risk: string;
+    source_path: string;
+  }) {
+    const response = await fetch("/api/decision-sessions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to create decision session.");
+    }
+
+    return data.id as string;
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -375,6 +409,26 @@ export default function SpainEligibilityCalculator() {
       setResult(safeResult);
 
       const score = getClientScore(safeResult.requirement, incomeInEur);
+
+      const newDecisionSessionId = await createDecisionSession({
+        country_key: countryKey,
+        income_raw: parsedIncome,
+        currency_code: currency,
+        income_eur: incomeInEur,
+        dependents: parsedDependents,
+        is_viable: safeResult.is_viable,
+        gap: safeResult.gap,
+        requirement: safeResult.requirement,
+        tax_leak: safeResult.tax_leak ?? 0,
+        score_total: score.total,
+        score_confidence: score.confidence,
+        score_status: score.status,
+        score_risk: score.risk,
+        source_path: "/check/spain",
+      });
+
+      setDecisionSessionId(newDecisionSessionId);
+      localStorage.setItem(`${countryKey}_decision_session_id`, newDecisionSessionId);
 
       localStorage.setItem(`${countryKey}_dnv_income`, income);
       localStorage.setItem(`${countryKey}_dnv_currency`, currency);
@@ -1004,17 +1058,32 @@ export default function SpainEligibilityCalculator() {
                                 Math.abs(result.gap),
                                 "EUR"
                               )}.`
-                            : "Income threshold currently met."}
+                            : `You currently clear the income requirement by ${formatCurrency(
+                                result.gap,
+                                "EUR"
+                              )}.`}
                         </div>
                       </div>
+
                       <div className="rounded-xl border border-neutral-200 p-3">
                         <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Other path to qualify
+                          Fastest path to approval
                         </div>
                         <div className="mt-1 text-sm text-neutral-800">
-                          Alternative qualification may involve stronger
-                          documentation, improved income consistency, or a
-                          savings bridge.
+                          {displayScore.status === "Eligible now"
+                            ? "Tighten documents, evidence consistency, and submission structure before filing."
+                            : "Increase income, strengthen evidence, and follow a structured plan before applying."}
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-neutral-200 p-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
+                          Priority fix order
+                        </div>
+                        <div className="mt-1 text-sm text-neutral-800">
+                          {displayScore.status === "Eligible now"
+                            ? "Documentation → income consistency → submission order"
+                            : "Income gap → evidence quality → qualification fit → submission order"}
                         </div>
                       </div>
                     </div>
@@ -1022,94 +1091,36 @@ export default function SpainEligibilityCalculator() {
 
                   <div className="rounded-2xl border border-neutral-200 p-4">
                     <h3 className="text-lg font-semibold text-neutral-950">
-                      What you unlock next
-                    </h3>
-
-                    <div className="mt-4 space-y-2">
-                      {[
-                        "Your personalised recovery plan",
-                        "The fastest path to eligibility",
-                        "The mistakes that would lead to rejection",
-                        "What must change before you apply",
-                      ].map((item) => (
-                        <div
-                          key={item}
-                          className="flex items-center justify-between rounded-xl border border-neutral-200 px-4 py-3 text-sm"
-                        >
-                          <span>{item}</span>
-                          <span className="text-xs uppercase tracking-[0.14em] text-neutral-500">
-                            Locked
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {result.gap < 0 ? (
-                    <div className="rounded-2xl border border-neutral-200 p-4">
-                      <h3 className="text-lg font-semibold text-neutral-950">
-                        Savings bridge (alternative qualification)
-                      </h3>
-                      <p className="mt-3 text-sm leading-6 text-neutral-800">
-                        You are {formatCurrency(Math.abs(result.gap), "EUR")} per
-                        month below the required threshold.
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-neutral-800">
-                        To qualify using savings, you would need approximately{" "}
-                        <strong>
-                          {formatCurrency(Math.abs(result.gap) * 36, "EUR")}
-                        </strong>{" "}
-                        in accessible funds.
-                      </p>
-                      <p className="mt-3 text-xs leading-5 text-neutral-500">
-                        Based on 36 months of income coverage. Actual outcomes
-                        depend on documentation and consulate assessment.
-                      </p>
-                    </div>
-                  ) : null}
-
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <h3 className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      Send my results + approval plan
+                      Want your personalised approval plan by email?
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Enter your email to save this result and send the next-step plan to yourself.
+                      Get a copy of your result summary sent to your email so you can
+                      come back to it later.
                     </p>
 
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full rounded-xl border border-neutral-300 px-4 py-3 text-sm outline-none transition focus:border-neutral-950"
+                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
                       />
                       <button
                         type="button"
                         onClick={handleSendEmailCapture}
-                        disabled={!email}
-                        className="rounded-xl bg-neutral-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center rounded-xl border border-neutral-950 px-5 py-3 text-sm font-medium text-neutral-950 transition hover:bg-neutral-50"
                       >
-                        Send
+                        Send me my result
                       </button>
                     </div>
 
                     {emailSent ? (
-                      <p className="mt-3 text-xs leading-5 text-neutral-500">
-                        Saved. You can use this email capture later for fulfilment or follow-up.
+                      <p className="mt-3 text-sm text-green-700">
+                        Your result has been saved for email follow-up.
                       </p>
-                    ) : (
-                      <p className="mt-3 text-xs leading-5 text-neutral-500">
-                        Backup path for users who are not ready to buy today.
-                      </p>
-                    )}
+                    ) : null}
                   </div>
-
-                  <p className="text-sm leading-6 text-neutral-600">
-                    This is the threshold and viability layer only.
-                    Documentation, structure, and submission quality still affect
-                    the full outcome.
-                  </p>
                 </div>
               )}
             </div>
@@ -1118,60 +1129,42 @@ export default function SpainEligibilityCalculator() {
       </section>
 
       {modalState === "fix-plan" && displayScore ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-xl rounded-none bg-white p-6 shadow-2xl sm:p-8">
-            <h3 className="text-2xl font-semibold text-neutral-950">
-              Unlock Your Personal Approval Plan
-            </h3>
-
-            <p className="mt-4 text-sm font-medium text-red-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
+              Before you continue
+            </p>
+            <h3 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
               {getFixPlanStatusLine(displayScore.status)}
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-neutral-700">
+              {displayScore.status === "Eligible now"
+                ? "This plan is designed to reduce preventable rejection risk before you apply."
+                : "This Fix Plan is designed to help you close the gap and avoid wasting time or money on a weak application."}
             </p>
-
-            <div className="mt-5">
-              <p className="text-sm font-medium text-neutral-900">
-                This plan will show:
-              </p>
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-neutral-700">
-                <li>• Your exact approval gap</li>
-                <li>• Your fastest path to approval</li>
-                <li>• What to fix — in order</li>
-                <li>• How to avoid rejection</li>
-              </ul>
-            </div>
-
-            <p className="mt-5 text-sm leading-6 text-neutral-700">
-              Without a structured plan, applications at your level are
-              frequently rejected or significantly delayed.
-            </p>
-
-            <p className="mt-5 text-center text-base font-semibold text-neutral-950">
+            <p className="mt-3 text-sm font-medium text-neutral-950">
               {getPriceLine(displayScore.status)}
             </p>
 
-            <p className="mt-3 text-center text-sm leading-6 text-neutral-600">
-              Before we generate your plan, answer 4 quick questions to personalise your result.
-            </p>
-
-            <button
-              type="button"
-              onClick={handleOpenQuestions}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
-            >
-              {getModalCta(displayScore.status)}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setModalState(null)}
-              className="mt-4 inline-flex w-full items-center justify-center px-6 py-3 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100"
-            >
-              Go Back
-            </button>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setModalState(null)}
+                className="inline-flex flex-1 items-center justify-center rounded-xl border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+              >
+                Not now
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenQuestions}
+                className="inline-flex flex-1 items-center justify-center rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800"
+              >
+                {getModalCta(displayScore.status)}
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
     </>
   );
 }
-

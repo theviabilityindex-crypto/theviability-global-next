@@ -4,12 +4,23 @@ import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ country: string }>;
-  searchParams: Promise<{ tier?: string }>;
+  searchParams: Promise<{
+    payment?: string;
+    tier?: string;
+    session_id?: string;
+  }>;
 };
 
-export default async function SuccessPage({ params, searchParams }: PageProps) {
+export default async function SuccessPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { country } = await params;
-  const { tier } = await searchParams;
+  const { payment, tier } = await searchParams;
+
+  if (payment !== "success") {
+    notFound();
+  }
 
   const numericTier = Number(tier);
 
