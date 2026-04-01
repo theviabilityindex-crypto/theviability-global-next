@@ -1,38 +1,65 @@
-import FixPlanProductTemplate from "@/components/FixPlanProductTemplate";
-import { getFixPlanConfig } from "@/lib/fix-plan/config-registry";
-import { notFound } from "next/navigation";
+"use client";
 
-type PageProps = {
-  params: Promise<{ country: string }>;
-  searchParams: Promise<{
-    payment?: string;
-    tier?: string;
-    session_id?: string;
-  }>;
-};
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function SuccessPage({
-  params,
-  searchParams,
-}: PageProps) {
-  const { country } = await params;
-  const { payment, tier } = await searchParams;
+export default function SuccessPage() {
+  const searchParams = useSearchParams();
 
-  if (payment !== "success") {
-    notFound();
-  }
+  const sessionId = searchParams.get("session_id");
+  const tier = searchParams.get("tier");
 
-  const numericTier = Number(tier);
+  const [status, setStatus] = useState("loading");
 
-  if (!country || !tier || ![67, 147].includes(numericTier)) {
-    notFound();
-  }
+  useEffect(() => {
+    if (!sessionId) {
+      setStatus("no-session");
+      return;
+    }
 
-  const config = getFixPlanConfig(country, numericTier as 67 | 147);
+    // OPTIONAL: later we verify via Stripe API
+    setStatus("success");
+  }, [sessionId]);
 
-  if (!config) {
-    notFound();
-  }
+  return (
+    <div style={{ padding: "40px", maxWidth: "700px", margin: "0 auto" }}>
+      <h1>Payment Successful</h1>
 
-  return <FixPlanProductTemplate config={config} />;
+      {status === "loading" && <p>Processing your session...</p>}
+
+      {status === "no-session" && (
+        <p>No session detected. Please contact support.</p>
+      )}
+
+      {status === "success" && (
+        <>
+          <p>Your purchase has been confirmed.</p>
+
+          <p><strong>Tier:</strong> ${tier}</p>
+          <p><strong>Session ID:</strong> {sessionId}</p>
+
+          <hr style={{ margin: "20px 0" }} />
+
+          <h2>Your Resources</h2>
+
+          {tier === "67" && (
+            <ul>
+              <li><a href="YOUR_GOOGLE_DRIVE_LINK_1" target="_blank">Download File 1</a></li>
+              <li><a href="YOUR_GOOGLE_DRIVE_LINK_2" target="_blank">Download File 2</a></li>
+              <li><a href="YOUR_GOOGLE_DRIVE_LINK_3" target="_blank">Download File 3</a></li>
+            </ul>
+          )}
+
+          {tier === "147" && (
+            <ul>
+              <li><a href="YOUR_GOOGLE_DRIVE_LINK_1" target="_blank">Premium File 1</a></li>
+              <li><a href="YOUR_GOOGLE_DRIVE_LINK_2" target="_blank">Premium File 2</a></li>
+              <li><a href="YOUR_GOOGLE_DRIVE_LINK_3" target="_blank">Premium File 3</a></li>
+              <li><a href="YOUR_GOOGLE_DRIVE_LINK_4" target="_blank">Premium File 4</a></li>
+            </ul>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
