@@ -234,15 +234,40 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       });
   }, [config.countryKey, config.tier, config.verificationEndpoint]);
 
+  const requirementAmount = useMemo(() => {
+    if (!result) return 0;
+    return Number(result.requirement) || 0;
+  }, [result]);
+
   const actualGap = useMemo(() => {
     if (!result) return 0;
-    return incomeInEur - Number(result.requirement);
-  }, [result, incomeInEur]);
+
+    const storedGap = Number(result.gap);
+    if (Number.isFinite(storedGap) && storedGap !== 0) {
+      return storedGap;
+    }
+
+    return incomeInEur - requirementAmount;
+  }, [result, incomeInEur, requirementAmount]);
 
   const gapPct = useMemo(() => {
-    if (!result || Number(result.requirement) === 0) return 0;
-    return actualGap / Number(result.requirement);
-  }, [result, actualGap]);
+    if (!requirementAmount) return 0;
+    return actualGap / requirementAmount;
+  }, [requirementAmount, actualGap]);
+
+  const gapDisplay = useMemo(() => {
+    const isAbove = actualGap >= 0;
+    const pctAbs = Math.abs(gapPct * 100);
+
+    return {
+      isAbove,
+      amountText: `${isAbove ? "+" : "-"}${fmtEur(actualGap)}`,
+      amountColor: isAbove ? "#2E7D32" : "#B91C1C",
+      compareText: isAbove ? "Above average" : "Below average",
+      percentText: `${pctAbs.toFixed(1)}% ${isAbove ? "above" : "below"}`,
+      percentColor: isAbove ? "#2E7D32" : "#B91C1C",
+    };
+  }, [actualGap, gapPct]);
 
   const path = useMemo(() => {
     if (actualGap >= 0) {
@@ -591,7 +616,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               Required Income
             </p>
             <p className="font-data font-bold" style={{ fontSize: "18px", color: "#0F172A" }}>
-              {fmtEurClean(Number(result.requirement))}
+              {fmtEurClean(requirementAmount)}
               <span className="text-xs font-normal" style={{ color: "#64748B" }}>
                 /mo
               </span>
@@ -620,10 +645,15 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             </p>
             <p
               className="font-data font-bold"
-              style={{ fontSize: "18px", color: actualGap >= 0 ? "#2E7D32" : "#B91C1C" }}
+              style={{ fontSize: "18px", color: gapDisplay.amountColor }}
             >
-              {actualGap >= 0 ? "+" : "-"}
-              {fmtEur(actualGap)}
+              {gapDisplay.amountText}
+            </p>
+            <p
+              className="text-[11px] font-normal mt-1"
+              style={{ color: gapDisplay.percentColor }}
+            >
+              {gapDisplay.percentText}
             </p>
           </div>
         </div>
@@ -631,7 +661,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         <p style={{ fontSize: "14px", color: "#64748B" }}>
           Compared to similar applicants:{" "}
           <strong style={{ color: "#334155" }}>
-            {actualGap >= 0 ? "Above average" : "Below average"}
+            {gapDisplay.compareText}
           </strong>
         </p>
 
@@ -691,7 +721,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             <div className="flex justify-between items-baseline">
               <span style={{ fontSize: "14px", color: "#334155" }}>Required income</span>
               <span className="font-data font-bold" style={{ fontSize: "16px", color: "#0F172A" }}>
-                {fmtEurClean(Number(result.requirement))}/mo
+                {fmtEurClean(requirementAmount)}/mo
               </span>
             </div>
             <div className="flex justify-between items-baseline">
@@ -705,11 +735,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               <span style={{ fontSize: "14px", color: "#334155" }}>Gap</span>
               <span
                 className="font-data font-bold"
-                style={{ fontSize: "16px", color: actualGap >= 0 ? "#2E7D32" : "#B91C1C" }}
+                style={{ fontSize: "16px", color: gapDisplay.amountColor }}
               >
-                {actualGap >= 0 ? "+" : "-"}
-                {fmtEur(actualGap)} ({actualGap >= 0 ? "+" : ""}
-                {(gapPct * 100).toFixed(1)}%)
+                {gapDisplay.amountText} ({gapDisplay.percentText})
               </span>
             </div>
           </div>
