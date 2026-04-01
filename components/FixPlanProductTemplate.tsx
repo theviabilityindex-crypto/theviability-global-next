@@ -99,21 +99,51 @@ type VerifyResponse = {
   session_id?: string;
   tier?: number;
   amount_total?: number;
-  country?: string;
 };
 
 type TemplateProps = {
   config: FixPlanTemplateConfig;
 };
 
-function getStorageKeys(countryKey: string) {
-  const safeCountryKey = countryKey.trim().toLowerCase();
+function restoreCachedPlan(countryKey: string, setResult: (value: CachedResult | null) => void, setIncomeInEur: (value: number) => void) {
+  const storageKeys = [
+    {
+      resultKey: `${countryKey}_dnv_result`,
+      incomeKey: `${countryKey}_dnv_income`,
+      currencyKey: `${countryKey}_dnv_currency`,
+    },
+    {
+      resultKey: "dnv_result",
+      incomeKey: "dnv_income",
+      currencyKey: "dnv_currency",
+    },
+  ];
 
-  return {
-    resultKey: `${safeCountryKey}_dnv_result`,
-    incomeKey: `${safeCountryKey}_dnv_income`,
-    currencyKey: `${safeCountryKey}_dnv_currency`,
-  };
+  for (const keys of storageKeys) {
+    try {
+      const savedResult = localStorage.getItem(keys.resultKey);
+      const savedIncome = localStorage.getItem(keys.incomeKey);
+      const savedCurrency = localStorage.getItem(keys.currencyKey);
+
+      if (savedResult) {
+        setResult(JSON.parse(savedResult) as CachedResult);
+      }
+
+      if (savedIncome && savedCurrency) {
+        const raw = Number(savedIncome);
+        const rate = CURRENCY_TO_EUR[savedCurrency] || 1;
+        setIncomeInEur(Math.round(raw * rate * 100) / 100);
+      }
+
+      if (savedResult && savedIncome && savedCurrency) {
+        return true;
+      }
+    } catch {
+      // preserve graceful fallback
+    }
+  }
+
+  return false;
 }
 
 export default function FixPlanProductTemplate({ config }: TemplateProps) {
@@ -135,24 +165,31 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       return;
     }
 
+    const restoredFromStorage = restoreCachedPlan(
+      config.countryKey,
+      setResult,
+      setIncomeInEur
+    );
+
     if (!sessionId) {
+      if (restoredFromStorage) {
+        setVerified(true);
+        setVerifyError(null);
+        setVerifying(false);
+        return;
+      }
+
       setVerifyError("No payment session found. If you completed payment, please contact support.");
       setVerifying(false);
       return;
     }
-
-    const { resultKey, incomeKey, currencyKey } = getStorageKeys(config.countryKey);
 
     fetch(config.verificationEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        session_id: sessionId,
-        expected_tier: config.tier,
-        expected_country: config.countryKey,
-      }),
+      body: JSON.stringify({ session_id: sessionId, expected_tier: config.tier }),
     })
       .then(async (res) => {
         const data = (await res.json()) as VerifyResponse;
@@ -160,28 +197,21 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       })
       .then(({ ok, data }) => {
         if (!ok || !data.verified) {
+          if (restoredFromStorage) {
+            setVerified(true);
+            setVerifyError(null);
+            return;
+          }
+
           setVerifyError(data.error || "Payment could not be verified. Please contact support.");
           return;
         }
 
         setVerified(true);
+        setVerifyError(null);
 
-        try {
-          const savedResult = localStorage.getItem(resultKey);
-          const savedIncome = localStorage.getItem(incomeKey);
-          const savedCurrency = localStorage.getItem(currencyKey);
-
-          if (savedResult) {
-            setResult(JSON.parse(savedResult) as CachedResult);
-          }
-
-          if (savedIncome && savedCurrency) {
-            const raw = Number(savedIncome);
-            const rate = CURRENCY_TO_EUR[savedCurrency] || 1;
-            setIncomeInEur(Math.round(raw * rate * 100) / 100);
-          }
-        } catch {
-          // graceful fallback if local storage cannot be read
+        if (!restoredFromStorage) {
+          restoreCachedPlan(config.countryKey, setResult, setIncomeInEur);
         }
 
         window.history.replaceState(
@@ -191,6 +221,12 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         );
       })
       .catch(() => {
+        if (restoredFromStorage) {
+          setVerified(true);
+          setVerifyError(null);
+          return;
+        }
+
         setVerifyError("Unable to verify payment. Please refresh the page or contact support.");
       })
       .finally(() => {
@@ -561,7 +597,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               </span>
             </p>
           </div>
-
           <div className="rounded-md" style={cardStyle}>
             <p
               className="text-[10px] font-data uppercase tracking-widest mb-1"
@@ -576,7 +611,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               </span>
             </p>
           </div>
-
           <div className="rounded-md" style={cardStyle}>
             <p
               className="text-[10px] font-data uppercase tracking-widest mb-1"
@@ -603,7 +637,8 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
 
         <div className="pb-2">
           <p className="font-bold" style={{ fontSize: "15px", color: "#0F172A" }}>
-            Your next step: {result.is_viable ? config.nextActionReady : config.nextActionNotReady}
+            Your next step:{" "}
+            {result.is_viable ? config.nextActionReady : config.nextActionNotReady}
           </p>
         </div>
 
@@ -617,7 +652,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             {config.primaryDownloadLabel}
           </a>
-
           <div className="flex items-center justify-center gap-4 print:hidden">
             <button
               onClick={() => window.print()}
@@ -627,7 +661,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               Print / Save as PDF
             </button>
           </div>
-
           <p className="text-center" style={{ fontSize: "12px", color: "#94A3B8" }}>
             {config.primaryDownloadSupportText}
           </p>
@@ -654,7 +687,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Your Approval Gap
           </p>
-
           <div className="space-y-3">
             <div className="flex justify-between items-baseline">
               <span style={{ fontSize: "14px", color: "#334155" }}>Required income</span>
@@ -662,16 +694,13 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 {fmtEurClean(Number(result.requirement))}/mo
               </span>
             </div>
-
             <div className="flex justify-between items-baseline">
               <span style={{ fontSize: "14px", color: "#334155" }}>Your income</span>
               <span className="font-data font-bold" style={{ fontSize: "16px", color: "#0F172A" }}>
                 {fmtEurClean(incomeInEur)}/mo
               </span>
             </div>
-
             <div className="h-px" style={{ backgroundColor: "#E2E8F0" }} />
-
             <div className="flex justify-between items-baseline">
               <span style={{ fontSize: "14px", color: "#334155" }}>Gap</span>
               <span
@@ -693,15 +722,12 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Your Fastest Path to Approval
           </p>
-
           <p className="font-bold mb-3" style={{ fontSize: "16px", color: "#0F172A" }}>
             {path.title}
           </p>
-
           <p className="mb-4" style={{ fontSize: "15px", color: "#334155", lineHeight: "1.7" }}>
             {path.method}
           </p>
-
           <div className="flex gap-8">
             <div>
               <p
@@ -714,7 +740,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 {path.time}
               </p>
             </div>
-
             <div>
               <p
                 className="text-[10px] font-data uppercase tracking-widest mb-0.5"
@@ -736,7 +761,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Alternative Paths
           </p>
-
           <div className="space-y-3">
             <div className="rounded-md" style={smallCardStyle}>
               <p
@@ -748,12 +772,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               <p style={{ fontSize: "14px", color: "#334155" }}>
                 {actualGap >= 0
                   ? "Not required — your income meets the threshold. Savings can still strengthen your application."
-                  : `Demonstrate approximately ${fmtEurClean(
-                      Math.abs(actualGap) * 36
-                    )} in accessible savings to cover 36 months of the income shortfall.`}
+                  : `Demonstrate approximately ${fmtEurClean(Math.abs(actualGap) * 36)} in accessible savings to cover 36 months of the income shortfall.`}
               </p>
             </div>
-
             <div className="rounded-md" style={smallCardStyle}>
               <p
                 className="font-data font-bold uppercase tracking-widest mb-1"
@@ -776,7 +797,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Risk Flags You Must Fix
           </p>
-
           <div className="space-y-3">
             {riskFlags.map((flag) => (
               <div key={flag.title} className="rounded-md" style={smallCardStyle}>
@@ -802,7 +822,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Your Timeline to Approval
           </p>
-
           <div className="space-y-4">
             {timelineSteps.map((item) => (
               <div key={item.step} className="flex gap-4">
@@ -812,7 +831,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 >
                   {item.step}
                 </span>
-
                 <div>
                   <p className="font-bold" style={{ fontSize: "15px", color: "#0F172A" }}>
                     {item.title}
@@ -839,7 +857,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Avoid These Mistakes
           </p>
-
           <div className="space-y-3">
             {mistakes.map((item) => (
               <div key={item.mistake}>
@@ -914,11 +931,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                       </span>
                     ) : null}
                   </div>
-
                   <p className="font-bold mb-1 text-foreground" style={{ fontSize: "14px" }}>
                     {item.title}
                   </p>
-
                   <p
                     className="mb-3 text-muted-foreground"
                     style={{ fontSize: "13px", lineHeight: "1.5" }}
@@ -936,7 +951,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                   >
                     {item.cta}
                   </a>
-
                   <p
                     className="mt-2 text-muted-foreground break-all"
                     style={{ fontSize: "10px", lineHeight: "1.4" }}
@@ -956,10 +970,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           </div>
         </div>
 
-        {config.upsellTitle &&
-        config.upsellDescription &&
-        config.upsellHref &&
-        config.upsellCtaLabel ? (
+        {config.upsellTitle && config.upsellDescription && config.upsellHref && config.upsellCtaLabel ? (
           <>
             <div className="h-px" style={{ backgroundColor: "#E2E8F0" }} />
 
@@ -970,7 +981,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               <p className="font-bold text-foreground mb-2" style={{ fontSize: "18px" }}>
                 {config.upsellTitle}
               </p>
-
               <p
                 className="text-muted-foreground mb-6"
                 style={{
@@ -986,20 +996,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               {config.upsellItems?.length ? (
                 <div className="max-w-xl mx-auto mb-6 text-left space-y-2">
                   {config.upsellItems.map((item) => (
-                    <div
-                      key={item.title}
-                      className="rounded-sm border border-border bg-white px-4 py-3"
-                    >
-                      <p
-                        className="font-data font-bold uppercase tracking-widest text-foreground"
-                        style={{ fontSize: "11px" }}
-                      >
+                    <div key={item.title} className="rounded-sm border border-border bg-white px-4 py-3">
+                      <p className="font-data font-bold uppercase tracking-widest text-foreground" style={{ fontSize: "11px" }}>
                         {item.title}
                       </p>
-                      <p
-                        className="mt-1 text-muted-foreground"
-                        style={{ fontSize: "13px", lineHeight: "1.5" }}
-                      >
+                      <p className="mt-1 text-muted-foreground" style={{ fontSize: "13px", lineHeight: "1.5" }}>
                         {item.desc}
                       </p>
                     </div>
