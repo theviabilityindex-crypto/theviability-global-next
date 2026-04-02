@@ -17,10 +17,9 @@ export const spain67Config: FixPlanTemplateConfig = {
     "Your income meets the current estimated threshold for the Spain Digital Nomad Visa. Approval depends on documentation quality, income classification, and submission structure.",
   readinessParagraphNotReady:
     "You do not currently meet the estimated income threshold for the Spain Digital Nomad Visa. This is fixable. Follow the structured path below to reach approval position.",
-  primaryDownloadLabel: "Download My Fix Plan (PDF)",
-  primaryDownloadUrl: "https://drive.google.com/drive/folders/YOUR_MASTER_FOLDER_ID",
-  primaryDownloadSupportText:
-    "Use your browser's print function to save this page as a PDF document.",
+primaryDownloadLabel: "Save My Plan as PDF",
+primaryDownloadSupportText:  "Click above and choose 'Save as PDF' in your browser.",
+returnPath: "/check/spain",
   includedSystemLabel: "Your Visa Approval System™",
   includedSystemIntro: "Tools included with your Fix Plan.",
   deliverables: [
