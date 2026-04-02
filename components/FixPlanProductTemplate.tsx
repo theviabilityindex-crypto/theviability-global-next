@@ -183,9 +183,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         return;
       }
 
-      setVerifyError(
-        "No payment session found. If you completed payment, please contact support."
-      );
+      setVerifyError("No payment session found. If you completed payment, please contact support.");
       setVerifying(false);
       return;
     }
@@ -209,9 +207,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             return;
           }
 
-          setVerifyError(
-            data.error || "Payment could not be verified. Please contact support."
-          );
+          setVerifyError(data.error || "Payment could not be verified. Please contact support.");
           return;
         }
 
@@ -235,9 +231,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           return;
         }
 
-        setVerifyError(
-          "Unable to verify payment. Please refresh the page or contact support."
-        );
+        setVerifyError("Unable to verify payment. Please refresh the page or contact support.");
       })
       .finally(() => {
         setVerifying(false);
@@ -282,9 +276,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
   const path = useMemo(() => {
     if (actualGap >= 0) {
       return {
-        title: "Apply Now",
+        title: "Approval-ready path",
         method:
-          "Your income meets the threshold. Focus on structuring your documentation correctly and submitting a clean application.",
+          "You meet the financial threshold. Your priority now is preparing a clean application file, tightening evidence, and avoiding technical mistakes that cause otherwise-eligible applicants to get delayed or rejected.",
         time: "Ready now",
         probability: "High (85–95%)",
       };
@@ -292,18 +286,20 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
 
     if (gapPct >= -0.1) {
       return {
-        title: "Close Income Gap",
-        method:
-          "Increase your verifiable monthly income by adding a client, adjusting contract terms, or restructuring payment frequency to cross the threshold.",
+        title: "Gap-closing path",
+        method: `You are still ${fmtEur(
+          Math.abs(actualGap)
+        )} below the threshold. Your fastest path is to close that gap first, stabilise the evidence, then apply with a materially stronger case.`,
         time: "4–8 weeks",
         probability: "Moderate–High (65–80%)",
       };
     }
 
     return {
-      title: "Income Expansion Strategy",
-      method:
-        "You need a material income increase before applying. Consider adding revenue streams, renegotiating contracts, or delaying until your income consistently exceeds the threshold.",
+      title: "Gap-closing path",
+      method: `You are still ${fmtEur(
+        Math.abs(actualGap)
+      )} below the threshold. Your fastest path is to close that gap first, stabilise the evidence, then apply with a materially stronger case.`,
       time: "2–4 months",
       probability: "Moderate (40–65%)",
     };
@@ -772,15 +768,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           </p>
 
           <p className="font-bold mb-3" style={{ fontSize: "16px", color: "#0F172A" }}>
-            {actualGap >= 0 ? "Approval-ready path" : "Gap-closing path"}
+            {path.title}
           </p>
 
           <p className="mb-4" style={{ fontSize: "15px", color: "#334155", lineHeight: "1.7" }}>
-            {actualGap >= 0
-              ? "You meet the financial threshold. Your priority now is preparing a clean application file, tightening evidence, and avoiding technical mistakes that cause otherwise-eligible applicants to get delayed or rejected."
-              : `You are still ${fmtEur(
-                  Math.abs(actualGap)
-                )} below the threshold. Your fastest path is to close that gap first, stabilise the evidence, then apply with a materially stronger case.`}
+            {path.method}
           </p>
 
           <div className="flex gap-8">
