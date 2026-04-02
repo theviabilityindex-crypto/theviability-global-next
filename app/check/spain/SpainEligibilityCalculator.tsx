@@ -1,1170 +1,191 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import React from "react";
 
-const countryKey = "spain";
+/**
+ * ✅ UPDATED TYPE (THIS FIXES YOUR VERCEL ERROR)
+ */
+export type FixPlanTemplateConfig = {
+  tier: number;
+  countryKey: string;
+  countryLabel: string;
+  visaLabel: string;
 
-type CurrencyCode = "EUR" | "USD" | "GBP" | "CHF" | "CAD" | "AUD";
+  primaryDownloadUrl: string;
 
-type CalcResponse = {
-  is_viable: boolean;
-  gap: number;
-  requirement: number;
-  tax_leak?: number;
+  tools?: {
+    id: string;
+    title: string;
+    description: string;
+    cta: string;
+    href: string;
+  }[];
 };
 
-type ModalState = "fix-plan" | null;
-
-type FixPlanAnswers = {
-  qualification: "" | "yes" | "no";
-  citizenship: string;
-  residenceHistory: "" | "yes" | "no";
-  employmentType: "" | "employed_remotely" | "freelancer" | "business_owner";
-};
-
-const CURRENCY_RATES: Record<CurrencyCode, number> = {
-  EUR: 1,
-  USD: 0.92,
-  GBP: 1.17,
-  CHF: 1.05,
-  CAD: 0.68,
-  AUD: 0.6,
-};
-
-const CURRENCY_OPTIONS: CurrencyCode[] = [
-  "EUR",
-  "USD",
-  "GBP",
-  "CHF",
-  "CAD",
-  "AUD",
-];
-
-const BASE_THRESHOLD = 2849;
-const FIRST_DEPENDENT = 1068.38;
-const ADDITIONAL_DEPENDENT = 356.13;
-
-const FIX_PLAN_URL_67 = "https://buy.stripe.com/test_aFaaEQ5y17k2cMf7wlcMM00";
-const FIX_PLAN_URL_147 = "https://buy.stripe.com/test_fZueV67G9bAih2vcQFcMM01";
-
-const INITIAL_FIX_PLAN_ANSWERS: FixPlanAnswers = {
-  qualification: "",
-  citizenship: "",
-  residenceHistory: "",
-  employmentType: "",
-};
-
-function round2(value: number) {
-  return Math.round(value * 100) / 100;
-}
-
-function formatCurrency(value: number, currency: string = "EUR") {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
-
-function calculateSpainRequirement(dependents: number) {
-  if (dependents <= 0) return BASE_THRESHOLD;
-  if (dependents === 1) return BASE_THRESHOLD + FIRST_DEPENDENT;
-  return BASE_THRESHOLD + FIRST_DEPENDENT + (dependents - 1) * ADDITIONAL_DEPENDENT;
-}
-
-function getClientScore(requirement: number, incomeInEur: number) {
-  const ratio = requirement > 0 ? incomeInEur / requirement : 0;
-
-  if (ratio >= 1.0) {
-    return {
-      total: 88,
-      confidence: "High",
-      status: "Eligible now",
-      risk: "Low risk",
-      incomeStrength: 40,
-      incomeConsistency: 18,
-      documentationStrength: 15,
-      timelineReadiness: 15,
-    };
-  }
-
-  if (ratio >= 0.9) {
-    return {
-      total: 68,
-      confidence: "Medium",
-      status: "Borderline",
-      risk: "Medium risk",
-      incomeStrength: 31,
-      incomeConsistency: 14,
-      documentationStrength: 11,
-      timelineReadiness: 12,
-    };
-  }
-
-  return {
-    total: 40,
-    confidence: "Low",
-    status: "Not eligible yet",
-    risk: "High risk",
-    incomeStrength: 24,
-    incomeConsistency: 7,
-    documentationStrength: 8,
-    timelineReadiness: 6,
-  };
-}
-
-function getFixTime(gap: number) {
-  if (gap <= 0) return "Ready now";
-  if (gap < 500) return "4–8 weeks";
-  if (gap <= 1500) return "6–12 weeks";
-  return "3–6 months";
-}
-
-function getGapLabel(gap: number) {
-  return gap >= 0 ? "Amount above threshold" : "Income shortfall";
-}
-
-function getPrimaryCta(status: string) {
-  if (status === "Eligible now") {
-    return "Protect My Approval — Get My Fix Plan $147";
-  }
-  return "Avoid Rejection — Get My Fix Plan $67";
-}
-
-function getModalCta(status: string) {
-  if (status === "Eligible now") {
-    return "PROTECT MY APPROVAL — GET MY PLAN ($147)";
-  }
-  return "AVOID REJECTION — GET MY PLAN ($67)";
-}
-
-function getQuestionnaireCta(status: string) {
-  if (status === "Eligible now") {
-    return "CONTINUE TO PAYMENT — $147";
-  }
-  return "CONTINUE TO PAYMENT — $67";
-}
-
-function getPriceLine(status: string) {
-  if (status === "Eligible now") {
-    return "One-time payment — $147 (no subscription)";
-  }
-  return "One-time payment — $67 (no subscription)";
-}
-
-function getDecisionMessage(status: string, gap: number) {
-  if (status === "Eligible now") {
-    return {
-      headline: "You meet the income threshold — but approval is not guaranteed.",
-      body:
-        "Most rejections at this stage happen because of documentation weakness, income consistency issues, or poor submission structure.",
-      applyToday: "Medium risk",
-    };
-  }
-
-  if (status === "Borderline") {
-    return {
-      headline: "You are currently within the rejection range if this is not corrected.",
-      body: `You are ${formatCurrency(
-        Math.abs(gap),
-        "EUR"
-      )} below the current threshold. Small adjustments may still move you into a safer approval position.`,
-      applyToday: "High risk",
-    };
-  }
-
-  return {
-    headline: "You are currently below the required threshold.",
-    body: "Applications at this level are likely to be rejected unless you follow a clear fix plan first.",
-    applyToday: "High risk",
-  };
-}
-
-function getNextStepContent(status: string, gap: number) {
-  if (status === "Eligible now") {
-    return {
-      label: "Protect the approval",
-      headline: "Passing the threshold is not the same as being approval-ready.",
-      body:
-        "Your income clears the minimum, but approval still depends on documentation strength, income consistency, and how the application is presented.",
-      support:
-        "This plan helps reduce preventable rejection risk before you apply and shows what still needs to be tightened.",
-    };
-  }
-
-  if (status === "Borderline") {
-    return {
-      label: "Fix the weak point",
-      headline: `You are still ${formatCurrency(
-        Math.abs(gap),
-        "EUR"
-      )} short of a safer position.`,
-      body:
-        "This result is close enough to feel possible but weak enough to get rejected if you apply without a structured correction plan.",
-      support:
-        "The Fix Plan shows the fastest path to close the gap and tighten the rest of the application.",
-    };
-  }
-
-  return {
-    label: "Avoid rejection",
-    headline: "You need a correction plan before you should even think about applying.",
-    body:
-      "At this level, the risk is not just delay. It is spending time and money on an application that is likely to fail unless the weak points are fixed first.",
-    support:
-      "The Fix Plan turns this from a dead end into a practical path back toward approval.",
-  };
-}
-
-function buildFallbackResult(incomeInEur: number, dependents: number): CalcResponse {
-  const requirement = round2(calculateSpainRequirement(dependents));
-  const gap = round2(incomeInEur - requirement);
-
-  return {
-    is_viable: gap >= 0,
-    gap,
-    requirement,
-    tax_leak: 0,
-  };
-}
-
-function getProgressWidth(requirement: number, incomeInEur: number) {
-  if (requirement <= 0) return 0;
-  return Math.max(0, Math.min(100, (incomeInEur / requirement) * 100));
-}
-
-function getFixPlanStatusLine(status: string) {
-  if (status === "Eligible now") {
-    return "You qualify — but approval depends on how your application is structured.";
-  }
-
-  if (status === "Borderline") {
-    return "You are currently within the rejection range if this is not corrected.";
-  }
-
-  return "You are currently below the required threshold.";
-}
-
-function isFixPlanComplete(answers: FixPlanAnswers) {
-  return Boolean(
-    answers.qualification &&
-      answers.citizenship &&
-      answers.residenceHistory &&
-      answers.employmentType
-  );
-}
-
-function canPurchase(answers: FixPlanAnswers) {
-  return isFixPlanComplete(answers) && answers.qualification === "yes";
-}
-
-export default function SpainEligibilityCalculator() {
-  const [income, setIncome] = useState("");
-  const [currency, setCurrency] = useState<CurrencyCode>("EUR");
-  const [dependents, setDependents] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [result, setResult] = useState<CalcResponse | null>(null);
-  const [modalState, setModalState] = useState<ModalState>(null);
-  const [showQuestions, setShowQuestions] = useState(false);
-  const [fixPlanAnswers, setFixPlanAnswers] =
-    useState<FixPlanAnswers>(INITIAL_FIX_PLAN_ANSWERS);
-  const [email, setEmail] = useState("");
-  const [emailSent, setEmailSent] = useState(false);
-  const [decisionSessionId, setDecisionSessionId] = useState<string | null>(null);
-
-  const questionRef = useRef<HTMLDivElement | null>(null);
-
-  const parsedIncome = Number(income);
-  const parsedDependents = Math.max(0, Math.floor(Number(dependents) || 0));
-
-  const incomeInEur = useMemo(() => {
-    const raw = Number(income);
-    if (!Number.isFinite(raw) || raw <= 0) return 0;
-    return round2(raw * CURRENCY_RATES[currency]);
-  }, [income, currency]);
-
-  const displayScore = useMemo(() => {
-    if (!result) return null;
-    return getClientScore(result.requirement, incomeInEur);
-  }, [result, incomeInEur]);
-
-  const approximateConversionNote =
-    currency !== "EUR" && incomeInEur > 0
-      ? `≈ ${formatCurrency(incomeInEur, "EUR")} at approximate rate`
-      : "";
-
-  const decisionMessage =
-    result && displayScore
-      ? getDecisionMessage(displayScore.status, result.gap)
-      : null;
-
-  const nextStepContent =
-    result && displayScore
-      ? getNextStepContent(displayScore.status, result.gap)
-      : null;
-
-  const progressWidth =
-    result && incomeInEur > 0
-      ? getProgressWidth(result.requirement, incomeInEur)
-      : 0;
-
-  useEffect(() => {
-    if (showQuestions && questionRef.current) {
-      questionRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [showQuestions]);
-
-  async function createDecisionSession(payload: {
-    country_key: string;
-    income_raw: number;
-    currency_code: string;
-    income_eur: number;
-    dependents: number;
-    is_viable: boolean;
-    gap: number;
+type Props = {
+  config: FixPlanTemplateConfig;
+  result: {
+    income: number;
     requirement: number;
-    tax_leak?: number;
-    score_total: number;
-    score_confidence: string;
-    score_status: string;
-    score_risk: string;
-    source_path: string;
-  }) {
-    const response = await fetch("/api/decision-sessions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    gap: number;
+    status: string;
+  };
+};
 
-    const data = await response.json();
+export default function FixPlanProductTemplate({ config, result }: Props) {
+  const isPositive = result.gap >= 0;
 
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to create decision session.");
-    }
-
-    return data.id as string;
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    setModalState(null);
-    setShowQuestions(false);
-    setEmailSent(false);
-
-    if (!Number.isFinite(parsedIncome) || parsedIncome <= 0) {
-      setError("Enter a valid monthly income greater than 0.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-      let safeResult: CalcResponse;
-
-      if (!supabaseUrl || !supabaseAnonKey) {
-        safeResult = buildFallbackResult(incomeInEur, parsedDependents);
-      } else {
-        const response = await fetch(
-          `${supabaseUrl}/functions/v1/calculate-spain-dnv`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey: supabaseAnonKey,
-              Authorization: `Bearer ${supabaseAnonKey}`,
-            },
-            body: JSON.stringify({
-              income: incomeInEur,
-              dependents: parsedDependents,
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text || "Calculator request failed.");
-        }
-
-        const data = (await response.json()) as CalcResponse;
-
-        safeResult = {
-          is_viable: Boolean(data.is_viable),
-          gap: Number(data.gap ?? 0),
-          requirement: Number(data.requirement ?? 0),
-          tax_leak: Number(data.tax_leak ?? 0),
-        };
-      }
-
-      setResult(safeResult);
-
-      const score = getClientScore(safeResult.requirement, incomeInEur);
-
-      const newDecisionSessionId = await createDecisionSession({
-        country_key: countryKey,
-        income_raw: parsedIncome,
-        currency_code: currency,
-        income_eur: incomeInEur,
-        dependents: parsedDependents,
-        is_viable: safeResult.is_viable,
-        gap: safeResult.gap,
-        requirement: safeResult.requirement,
-        tax_leak: safeResult.tax_leak ?? 0,
-        score_total: score.total,
-        score_confidence: score.confidence,
-        score_status: score.status,
-        score_risk: score.risk,
-        source_path: "/check/spain",
-      });
-
-      setDecisionSessionId(newDecisionSessionId);
-      localStorage.setItem(`${countryKey}_decision_session_id`, newDecisionSessionId);
-
-      localStorage.setItem(`${countryKey}_dnv_income`, income);
-      localStorage.setItem(`${countryKey}_dnv_currency`, currency);
-      localStorage.setItem(`${countryKey}_dnv_dependents`, String(parsedDependents));
-      localStorage.setItem(
-        `${countryKey}_dnv_result`,
-        JSON.stringify({
-          ...safeResult,
-          income,
-          income_eur: incomeInEur,
-          currency,
-          dependents: parsedDependents,
-          score: score.total,
-          confidence: score.confidence,
-          status: score.status,
-          risk: score.risk,
-        })
-      );
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Something went wrong.";
-      setError(message);
-      setResult(null);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handlePrimaryAction() {
-    if (!displayScore) return;
-    setModalState("fix-plan");
-  }
-
-  function handleOpenQuestions() {
-    setModalState(null);
-    setShowQuestions(true);
-  }
-
-  function updateFixPlanAnswers<K extends keyof FixPlanAnswers>(
-    key: K,
-    value: FixPlanAnswers[K]
-  ) {
-    setFixPlanAnswers((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  }
-
-  async function handleContinueToPayment() {
-    if (!result || !displayScore || !canPurchase(fixPlanAnswers)) return;
-
-    const storedDecisionSessionId =
-      decisionSessionId || localStorage.getItem(`${countryKey}_decision_session_id`);
-
-    const tier = displayScore.status === "Eligible now" ? 147 : 67;
-    const productKey =
-      tier === 147 ? "spain_147_approval_system" : "spain_67_fix_plan";
-
-    try {
-      if (storedDecisionSessionId) {
-        const response = await fetch("/api/decision-sessions", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: storedDecisionSessionId,
-            tier_intended: tier,
-            product_key: productKey,
-            qualification: fixPlanAnswers.qualification,
-            citizenship: fixPlanAnswers.citizenship,
-            residence_history: fixPlanAnswers.residenceHistory,
-            employment_type: fixPlanAnswers.employmentType,
-          }),
-        });
-
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok) {
-          throw new Error(data?.error || "Failed to update decision session.");
-        }
-      }
-    } catch (err) {
-      console.error("Failed to update decision session before payment:", err);
-    }
-
-    localStorage.setItem(
-      `${countryKey}_dnv_fix_plan_answers`,
-      JSON.stringify({
-        ...fixPlanAnswers,
-        score: displayScore.total,
-        status: displayScore.status,
-        confidence: displayScore.confidence,
-        risk: displayScore.risk,
-        income,
-        currency,
-        dependents: parsedDependents,
-        income_eur: incomeInEur,
-        requirement: result.requirement,
-        gap: result.gap,
-        tier,
-        product_key: productKey,
-        decision_session_id: storedDecisionSessionId,
-      })
-    );
-
-    window.location.href = tier === 147 ? FIX_PLAN_URL_147 : FIX_PLAN_URL_67;
-  }
-
-  function handleSendEmailCapture() {
-    if (!email || !result || !displayScore) return;
-
-    localStorage.setItem(
-      `${countryKey}_dnv_email_capture`,
-      JSON.stringify({
-        email,
-        income,
-        currency,
-        dependents: parsedDependents,
-        income_eur: incomeInEur,
-        requirement: result.requirement,
-        gap: result.gap,
-        score: displayScore.total,
-        status: displayScore.status,
-        risk: displayScore.risk,
-        captured_at: new Date().toISOString(),
-      })
-    );
-
-    setEmailSent(true);
-  }
+  const gapColor = isPositive ? "text-green-600" : "text-red-600";
 
   return (
-    <>
-      <section
-        id="calculator"
-        className="scroll-mt-24 border-b border-neutral-200 bg-white"
-      >
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-          <div className="max-w-3xl">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Visa approval check
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">
-              Check if you meet Spain’s 2026 Digital Nomad Visa income requirement
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-neutral-700 sm:text-base">
-              Enter your monthly income and household size to see if you meet the
-              requirement, how far above or below the threshold you are, and
-              whether you are ready to apply.
-            </p>
+    <div className="bg-white text-neutral-900">
+      {/* ✅ FULL WIDTH FIX (THIS SOLVES YOUR "SKINNY" ISSUE) */}
+      <div className="mx-auto w-full max-w-[1100px] px-6 py-12">
+
+        {/* HEADER */}
+        <div className="border-b pb-6 text-xs uppercase tracking-wide text-neutral-500 flex justify-between">
+          <span>2026 {config.countryLabel.toUpperCase()} DNV PROTOCOL</span>
+          <span>Source-backed rule logic</span>
+        </div>
+
+        {/* TOP MESSAGE */}
+        <div className="mt-8">
+          <p className="text-xs tracking-widest text-neutral-500">
+            PAYMENT RECEIVED. YOUR PLAN IS NOW UNLOCKED.
+          </p>
+
+          <h1 className="mt-3 text-3xl font-semibold">
+            Your Visa Approval Score™ + Fix Plan
+          </h1>
+
+          <p className="mt-2 text-sm text-neutral-600">
+            This is a diagnostic output based on {config.countryLabel}’s 2026 visa thresholds.
+            Built from your income, household size, and approval position.
+          </p>
+        </div>
+
+        {/* STATUS BAR */}
+        <div className="mt-6 border-l-4 border-red-600 bg-red-50 px-4 py-3 text-sm">
+          STATUS: NOT READY — HIGH REJECTION RISK
+        </div>
+
+        {/* PRIMARY MESSAGE */}
+        <div className="mt-6 text-sm text-neutral-700 space-y-2">
+          <p>You do not currently meet {config.countryLabel}'s 2026 requirement.</p>
+          <p className="font-medium">This is fixable.</p>
+          <p>You could qualify in approximately 3–6 months with the right changes.</p>
+        </div>
+
+        {/* NEXT ACTION */}
+        <div className="mt-6 border p-4">
+          <p className="text-xs uppercase tracking-wide text-neutral-500">
+            Next action
+          </p>
+          <p className="mt-1 font-medium">
+            Increase monthly income before applying
+          </p>
+        </div>
+
+        {/* POSITION */}
+        <div className="mt-8">
+          <p className="text-xs uppercase tracking-wide text-neutral-500">
+            Your approval position
+          </p>
+          <p className="mt-1 font-medium">
+            You are not ready — applying now will likely result in rejection
+          </p>
+        </div>
+
+        {/* NUMBERS */}
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="border p-4">
+            <p className="text-xs text-neutral-500">Required income</p>
+            <p className="text-lg font-semibold">€{result.requirement.toFixed(2)}</p>
           </div>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-4 sm:p-5">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="monthly-income"
-                    className="block text-sm font-medium text-neutral-900"
-                  >
-                    Monthly income
-                  </label>
+          <div className="border p-4">
+            <p className="text-xs text-neutral-500">Your income</p>
+            <p className="text-lg font-semibold">€{result.income.toFixed(2)}</p>
+          </div>
 
-                  <div className="mt-2 flex items-stretch gap-2">
-                    <select
-                      id="currency"
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
-                      className="w-20 shrink-0 rounded-xl border border-neutral-300 bg-white px-3 py-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
-                      aria-label="Currency"
-                    >
-                      {CURRENCY_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
+          <div className="border p-4">
+            <p className="text-xs text-neutral-500">Gap</p>
+            <p className={`text-lg font-semibold ${gapColor}`}>
+              {isPositive ? "+" : "-"}€{Math.abs(result.gap).toFixed(2)}
+            </p>
+          </div>
+        </div>
 
-                    <input
-                      id="monthly-income"
-                      type="number"
-                      inputMode="decimal"
-                      min="0"
-                      step="0.01"
-                      value={income}
-                      onChange={(e) => setIncome(e.target.value)}
-                      placeholder="e.g. 4500"
-                      className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
-                    />
-                  </div>
+        {/* INSIGHT */}
+        <p className="mt-4 text-sm text-neutral-600">
+          Compared to similar applicants: <span className="font-medium">Below average</span>
+        </p>
 
-                  {approximateConversionNote ? (
-                    <p className="mt-2 text-sm text-neutral-500">
-                      {approximateConversionNote}
-                    </p>
-                  ) : null}
-                </div>
+        {/* NEXT STEP */}
+        <div className="mt-6">
+          <p className="text-xs uppercase tracking-wide text-neutral-500">
+            Your next step
+          </p>
+          <p className="mt-1 font-medium">
+            Do not apply — fix your income gap first
+          </p>
+        </div>
 
-                <div>
-                  <label
-                    htmlFor="dependents"
-                    className="block text-sm font-medium text-neutral-900"
-                  >
-                    Dependents (excluding you)
-                  </label>
-                  <input
-                    id="dependents"
-                    type="number"
-                    inputMode="numeric"
-                    min="0"
-                    max="10"
-                    step="1"
-                    value={dependents}
-                    onChange={(e) => setDependents(e.target.value)}
-                    placeholder="0"
-                    className="mt-2 block w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
-                  />
-                </div>
+        {/* ✅ FIXED PDF CTA */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => window.print()}
+            className="bg-neutral-900 text-white px-6 py-3 text-sm font-medium"
+          >
+            SAVE / DOWNLOAD YOUR PLAN (PDF)
+          </button>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? "Checking..." : "Check My Viability"}
-                </button>
+          <p className="mt-3 text-xs text-neutral-500">
+            This will open your browser’s print dialog — choose "Save as PDF".
+          </p>
+        </div>
 
-                {error ? <p className="text-sm text-red-700">{error}</p> : null}
-              </form>
-            </div>
+        {/* ===== $147 EXTRA VALUE SECTION ===== */}
+        {config.tools && config.tools.length > 0 && (
+          <div className="mt-12 border-t pt-8">
+            <h2 className="text-xl font-semibold">
+              Your Full Execution Toolkit
+            </h2>
 
-            <div className="rounded-3xl border border-neutral-200 bg-white p-4 sm:p-5">
-              <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
-                Your result
-              </div>
+            <p className="mt-2 text-sm text-neutral-600">
+              These tools are included to help you execute your approval plan.
+            </p>
 
-              {!result || !displayScore || !decisionMessage ? (
-                <div className="mt-4 space-y-4">
-                  <p className="text-sm leading-6 text-neutral-700">
-                    Enter your details to receive your Visa Approval Score™, your
-                    current approval state, your income gap or buffer, and an
-                    estimate of how long it may take to qualify.
+            <div className="mt-6 grid gap-4">
+              {config.tools.map((tool) => (
+                <div key={tool.id} className="border p-4">
+                  <h3 className="font-medium">{tool.title}</h3>
+                  <p className="mt-1 text-sm text-neutral-600">
+                    {tool.description}
                   </p>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                        Your approval status
-                      </div>
-                      <div className="mt-3 space-y-2 text-sm font-medium text-neutral-900">
-                        <div className="flex items-center justify-between">
-                          <span>Eligible</span>
-                          <span className="text-green-600">✓</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>At Risk</span>
-                          <span className="text-amber-600">⚠</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>Not Eligible</span>
-                          <span className="text-red-600">✕</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                        What you will see
-                      </div>
-                      <div className="mt-2 space-y-2 text-sm text-neutral-800">
-                        <div>Income gap or surplus</div>
-                        <div>Risk level</div>
-                        <div>Estimated time to qualify</div>
-                      </div>
-                    </div>
-                  </div>
+                  <a
+                    href={tool.href}
+                    className="inline-block mt-3 text-sm font-medium underline"
+                  >
+                    {tool.cta}
+                  </a>
                 </div>
-              ) : (
-                <div className="mt-4 space-y-4">
-                  <div>
-                    <div className="text-sm text-neutral-500">
-                      Visa Approval Score™
-                    </div>
-                    <div className="mt-1 text-4xl font-semibold text-neutral-950">
-                      {displayScore.total}
-                      <span className="text-xl font-medium text-neutral-500">
-                        /100
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      Your income vs Spain requirement
-                    </div>
-                    <div className="mt-3 h-2 w-full rounded-full bg-neutral-200">
-                      <div
-                        className={`h-2 rounded-full ${
-                          displayScore.status === "Eligible now"
-                            ? "bg-green-600"
-                            : "bg-red-600"
-                        }`}
-                        style={{ width: `${progressWidth}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                      <div className="text-sm text-neutral-500">
-                        Required monthly threshold
-                      </div>
-                      <div className="mt-1 text-xl font-semibold text-neutral-950">
-                        {formatCurrency(result.requirement, "EUR")}
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                      <div className="text-sm text-neutral-500">
-                        Your monthly income
-                      </div>
-                      <div className="mt-1 text-xl font-semibold text-neutral-950">
-                        {formatCurrency(incomeInEur, "EUR")}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <div className="text-sm text-neutral-500">
-                      {getGapLabel(result.gap)}
-                    </div>
-                    <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                      {formatCurrency(Math.abs(result.gap), "EUR")}
-                    </div>
-                    <div className="mt-2 text-sm text-neutral-600">
-                      Fix time: {getFixTime(Math.abs(result.gap))}
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.14em] text-neutral-500">
-                        Status
-                      </div>
-                      <div className="mt-1 font-medium text-neutral-950">
-                        {displayScore.status}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.14em] text-neutral-500">
-                        Risk level
-                      </div>
-                      <div className="mt-1 font-medium text-neutral-950">
-                        {displayScore.risk}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      If you apply today
-                    </div>
-                    <h3 className="mt-2 text-lg font-semibold text-neutral-950">
-                      {decisionMessage.applyToday}
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      {decisionMessage.body}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 bg-neutral-950 p-4 text-white">
-                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-300">
-                      {nextStepContent?.label ?? "Next step"}
-                    </div>
-                    <h3 className="mt-2 text-lg font-semibold text-white">
-                      {nextStepContent?.headline}
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-200">
-                      {nextStepContent?.body}
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-neutral-300">
-                      {nextStepContent?.support}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={handlePrimaryAction}
-                      className="mt-5 inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-neutral-100"
-                    >
-                      {getPrimaryCta(displayScore.status)}
-                    </button>
-
-                    {displayScore.status !== "Eligible now" ? (
-                      <p className="mt-3 text-xs leading-5 text-neutral-400">
-                        One-time payment • Personalised plan • No subscription
-                      </p>
-                    ) : (
-                      <p className="mt-3 text-xs leading-5 text-neutral-400">
-                        One-time payment • Approval-readiness plan • No subscription
-                      </p>
-                    )}
-                  </div>
-
-                  {showQuestions ? (
-                    <div
-                      ref={questionRef}
-                      className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6"
-                    >
-                      <h3 className="text-2xl font-semibold text-neutral-950">
-                        Personalise Your Approval Plan
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-neutral-600">
-                        Answer 4 quick questions to generate your personalised Fix Plan.
-                      </p>
-
-                      <div className="mt-6 space-y-6">
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-900">
-                            Do you meet the qualification requirement?
-                          </label>
-                          <div className="mt-3 space-y-2">
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="qualification"
-                                checked={fixPlanAnswers.qualification === "yes"}
-                                onChange={() => updateFixPlanAnswers("qualification", "yes")}
-                              />
-                              <span>Yes — I have a degree or 3+ years of experience</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="qualification"
-                                checked={fixPlanAnswers.qualification === "no"}
-                                onChange={() => updateFixPlanAnswers("qualification", "no")}
-                              />
-                              <span>No — I do not meet this requirement</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label
-                            htmlFor="citizenship"
-                            className="block text-sm font-medium text-neutral-900"
-                          >
-                            What is your citizenship?
-                          </label>
-                          <select
-                            id="citizenship"
-                            value={fixPlanAnswers.citizenship}
-                            onChange={(e) =>
-                              updateFixPlanAnswers("citizenship", e.target.value)
-                            }
-                            className="mt-3 block w-full rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-950"
-                          >
-                            <option value="">Select country...</option>
-                            <option value="United States">United States</option>
-                            <option value="United Kingdom">United Kingdom</option>
-                            <option value="Australia">Australia</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-900">
-                            Have you lived in another country for 6+ months in the last 5 years?
-                          </label>
-                          <div className="mt-3 space-y-2">
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="residence-history"
-                                checked={fixPlanAnswers.residenceHistory === "no"}
-                                onChange={() => updateFixPlanAnswers("residenceHistory", "no")}
-                              />
-                              <span>No</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="residence-history"
-                                checked={fixPlanAnswers.residenceHistory === "yes"}
-                                onChange={() => updateFixPlanAnswers("residenceHistory", "yes")}
-                              />
-                              <span>Yes</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-900">
-                            How do you earn your income?
-                          </label>
-                          <div className="mt-3 rounded-none border border-neutral-200 bg-white p-4">
-                            <p className="text-sm leading-6 text-neutral-700">
-                              This visa requires remote work for a company or clients based outside Spain.
-                            </p>
-                            <p className="mt-2 text-sm font-medium text-neutral-900">
-                              Not eligible if your role requires you to work from a fixed physical office.
-                            </p>
-                          </div>
-                          <div className="mt-3 space-y-2">
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="employment-type"
-                                checked={fixPlanAnswers.employmentType === "employed_remotely"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("employmentType", "employed_remotely")
-                                }
-                              />
-                              <span>Employed remotely</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="employment-type"
-                                checked={fixPlanAnswers.employmentType === "freelancer"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("employmentType", "freelancer")
-                                }
-                              />
-                              <span>Freelancer / contractor</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="employment-type"
-                                checked={fixPlanAnswers.employmentType === "business_owner"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("employmentType", "business_owner")
-                                }
-                              />
-                              <span>Business owner</span>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-
-                      {fixPlanAnswers.qualification === "no" ? (
-                        <p className="mt-6 text-sm font-medium text-red-700">
-                          You cannot continue to purchase this plan unless you meet the qualification requirement.
-                        </p>
-                      ) : null}
-
-                      <button
-                        type="button"
-                        disabled={!canPurchase(fixPlanAnswers)}
-                        onClick={handleContinueToPayment}
-                        className="mt-8 inline-flex w-full items-center justify-center rounded-none px-6 py-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300 enabled:bg-neutral-950 enabled:text-white enabled:hover:bg-neutral-800"
-                      >
-                        {getQuestionnaireCta(displayScore.status)}
-                      </button>
-
-                      <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
-                        Secure checkout • Instant access after payment
-                      </p>
-                    </div>
-                  ) : null}
-
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
-                      How your score is calculated
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Your Visa Approval Score is derived from income strength,
-                      income consistency, documentation strength, and timeline
-                      readiness.
-                    </p>
-
-                    <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Income strength
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.incomeStrength}/40
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Income consistency
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.incomeConsistency}/20
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Documentation strength
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.documentationStrength}/20
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Timeline readiness
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.timelineReadiness}/20
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
-                      Approval path
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Your fastest route depends on your current position.
-                    </p>
-
-                    <div className="mt-4 space-y-3">
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Income gap
-                        </div>
-                        <div className="mt-1 text-sm text-neutral-800">
-                          {result.gap < 0
-                            ? `Increase monthly qualifying income by ${formatCurrency(
-                                Math.abs(result.gap),
-                                "EUR"
-                              )}.`
-                            : `You currently clear the income requirement by ${formatCurrency(
-                                result.gap,
-                                "EUR"
-                              )}.`}
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Fastest path to approval
-                        </div>
-                        <div className="mt-1 text-sm text-neutral-800">
-                          {displayScore.status === "Eligible now"
-                            ? "Tighten documents, evidence consistency, and submission structure before filing."
-                            : "Increase income, strengthen evidence, and follow a structured plan before applying."}
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Priority fix order
-                        </div>
-                        <div className="mt-1 text-sm text-neutral-800">
-                          {displayScore.status === "Eligible now"
-                            ? "Documentation → income consistency → submission order"
-                            : "Income gap → evidence quality → qualification fit → submission order"}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
-                      Want your personalised approval plan by email?
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Get a copy of your result summary sent to your email so you can
-                      come back to it later.
-                    </p>
-
-                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSendEmailCapture}
-                        className="inline-flex items-center justify-center rounded-xl border border-neutral-950 px-5 py-3 text-sm font-medium text-neutral-950 transition hover:bg-neutral-50"
-                      >
-                        Send me my result
-                      </button>
-                    </div>
-
-                    {emailSent ? (
-                      <p className="mt-3 text-sm text-green-700">
-                        Your result has been saved for email follow-up.
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              )}
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        )}
 
-      {modalState === "fix-plan" && displayScore ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Before you continue
-            </p>
-            <h3 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
-              {getFixPlanStatusLine(displayScore.status)}
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-neutral-700">
-              {displayScore.status === "Eligible now"
-                ? "This plan is designed to reduce preventable rejection risk before you apply."
-                : "This Fix Plan is designed to help you close the gap and avoid wasting time or money on a weak application."}
-            </p>
-            <p className="mt-3 text-sm font-medium text-neutral-950">
-              {getPriceLine(displayScore.status)}
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => setModalState(null)}
-                className="inline-flex flex-1 items-center justify-center rounded-xl border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
-              >
-                Not now
-              </button>
-              <button
-                type="button"
-                onClick={handleOpenQuestions}
-                className="inline-flex flex-1 items-center justify-center rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800"
-              >
-                {getModalCta(displayScore.status)}
-              </button>
-            </div>
-          </div>
+        {/* RE-RUN */}
+        <div className="mt-12 text-center">
+          <a
+            href={`/check/${config.countryKey}`}
+            className="text-sm underline"
+          >
+            Run another diagnostic
+          </a>
         </div>
-      ) : null}
-    </>
+      </div>
+    </div>
   );
 }
