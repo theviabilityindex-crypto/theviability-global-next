@@ -105,7 +105,11 @@ type TemplateProps = {
   config: FixPlanTemplateConfig;
 };
 
-function restoreCachedPlan(countryKey: string, setResult: (value: CachedResult | null) => void, setIncomeInEur: (value: number) => void) {
+function restoreCachedPlan(
+  countryKey: string,
+  setResult: (value: CachedResult | null) => void,
+  setIncomeInEur: (value: number) => void
+) {
   const storageKeys = [
     {
       resultKey: `${countryKey}_dnv_result`,
@@ -179,7 +183,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         return;
       }
 
-      setVerifyError("No payment session found. If you completed payment, please contact support.");
+      setVerifyError(
+        "No payment session found. If you completed payment, please contact support."
+      );
       setVerifying(false);
       return;
     }
@@ -203,7 +209,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             return;
           }
 
-          setVerifyError(data.error || "Payment could not be verified. Please contact support.");
+          setVerifyError(
+            data.error || "Payment could not be verified. Please contact support."
+          );
           return;
         }
 
@@ -227,7 +235,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           return;
         }
 
-        setVerifyError("Unable to verify payment. Please refresh the page or contact support.");
+        setVerifyError(
+          "Unable to verify payment. Please refresh the page or contact support."
+        );
       })
       .finally(() => {
         setVerifying(false);
@@ -594,7 +604,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: "#0F172A" }}
           >
-            {result.is_viable ? "READY — APPLY WITH CONFIDENCE" : "NOT READY — HIGH REJECTION RISK"}
+            {result.is_viable
+              ? "READY — APPLY WITH CONFIDENCE"
+              : "NOT READY — HIGH REJECTION RISK"}
           </p>
           <p className="font-bold" style={{ fontSize: "16px", color: "#0F172A" }}>
             {result.is_viable ? config.nextActionReady : config.nextActionNotReady}
@@ -603,7 +615,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
 
         <div style={{ padding: "20px 0" }}>
           <p style={{ fontSize: "16px", color: "#334155", lineHeight: "1.7" }}>
-            {result.is_viable ? config.readinessParagraphReady : config.readinessParagraphNotReady}
+            {result.is_viable
+              ? config.readinessParagraphReady
+              : config.readinessParagraphNotReady}
           </p>
         </div>
 
@@ -622,6 +636,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               </span>
             </p>
           </div>
+
           <div className="rounded-md" style={cardStyle}>
             <p
               className="text-[10px] font-data uppercase tracking-widest mb-1"
@@ -636,6 +651,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               </span>
             </p>
           </div>
+
           <div className="rounded-md" style={cardStyle}>
             <p
               className="text-[10px] font-data uppercase tracking-widest mb-1"
@@ -660,9 +676,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
 
         <p style={{ fontSize: "14px", color: "#64748B" }}>
           Compared to similar applicants:{" "}
-          <strong style={{ color: "#334155" }}>
-            {gapDisplay.compareText}
-          </strong>
+          <strong style={{ color: "#334155" }}>{gapDisplay.compareText}</strong>
         </p>
 
         <div className="pb-2">
@@ -682,6 +696,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             {config.primaryDownloadLabel}
           </a>
+
           <div className="flex items-center justify-center gap-4 print:hidden">
             <button
               onClick={() => window.print()}
@@ -691,6 +706,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               Print / Save as PDF
             </button>
           </div>
+
           <p className="text-center" style={{ fontSize: "12px", color: "#94A3B8" }}>
             {config.primaryDownloadSupportText}
           </p>
@@ -717,6 +733,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Your Approval Gap
           </p>
+
           <div className="space-y-3">
             <div className="flex justify-between items-baseline">
               <span style={{ fontSize: "14px", color: "#334155" }}>Required income</span>
@@ -724,13 +741,16 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 {fmtEurClean(requirementAmount)}/mo
               </span>
             </div>
+
             <div className="flex justify-between items-baseline">
               <span style={{ fontSize: "14px", color: "#334155" }}>Your income</span>
               <span className="font-data font-bold" style={{ fontSize: "16px", color: "#0F172A" }}>
                 {fmtEurClean(incomeInEur)}/mo
               </span>
             </div>
+
             <div className="h-px" style={{ backgroundColor: "#E2E8F0" }} />
+
             <div className="flex justify-between items-baseline">
               <span style={{ fontSize: "14px", color: "#334155" }}>Gap</span>
               <span
@@ -750,12 +770,19 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Your Fastest Path to Approval
           </p>
+
           <p className="font-bold mb-3" style={{ fontSize: "16px", color: "#0F172A" }}>
-            {path.title}
+            {actualGap >= 0 ? "Approval-ready path" : "Gap-closing path"}
           </p>
+
           <p className="mb-4" style={{ fontSize: "15px", color: "#334155", lineHeight: "1.7" }}>
-            {path.method}
+            {actualGap >= 0
+              ? "You meet the financial threshold. Your priority now is preparing a clean application file, tightening evidence, and avoiding technical mistakes that cause otherwise-eligible applicants to get delayed or rejected."
+              : `You are still ${fmtEur(
+                  Math.abs(actualGap)
+                )} below the threshold. Your fastest path is to close that gap first, stabilise the evidence, then apply with a materially stronger case.`}
           </p>
+
           <div className="flex gap-8">
             <div>
               <p
@@ -768,6 +795,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 {path.time}
               </p>
             </div>
+
             <div>
               <p
                 className="text-[10px] font-data uppercase tracking-widest mb-0.5"
@@ -789,6 +817,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Alternative Paths
           </p>
+
           <div className="space-y-3">
             <div className="rounded-md" style={smallCardStyle}>
               <p
@@ -797,12 +826,29 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               >
                 Savings Bridge
               </p>
-              <p style={{ fontSize: "14px", color: "#334155" }}>
+
+              <p style={{ fontSize: "14px", color: "#334155", lineHeight: "1.6" }}>
                 {actualGap >= 0
-                  ? "Not required — your income meets the threshold. Savings can still strengthen your application."
-                  : `Demonstrate approximately ${fmtEurClean(Math.abs(actualGap) * 36)} in accessible savings to cover 36 months of the income shortfall.`}
+                  ? "You do not need to rely on savings to qualify, but accessible savings can still make the application feel stronger and more stable."
+                  : `If increasing income immediately is difficult, your fallback route is to use savings as a bridge. Based on your current shortfall, you would need approximately ${fmtEurClean(
+                      Math.abs(actualGap) * 36
+                    )} in accessible savings to cover 36 months of the gap.`}
               </p>
+
+              {!result.is_viable && config.deliverables[3] && (
+                <div className="mt-4">
+                  <a
+                    href={config.deliverables[3].url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-center bg-primary text-primary-foreground py-2.5 px-4 font-data font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm"
+                  >
+                    Calculate Your Savings Bridge
+                  </a>
+                </div>
+              )}
             </div>
+
             <div className="rounded-md" style={smallCardStyle}>
               <p
                 className="font-data font-bold uppercase tracking-widest mb-1"
@@ -810,9 +856,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               >
                 Household Restructuring
               </p>
-              <p style={{ fontSize: "14px", color: "#334155" }}>
-                Adjusting the number of dependents on your application changes the required threshold.
-                Evaluate whether all dependents need to be included in this application.
+
+              <p style={{ fontSize: "14px", color: "#334155", lineHeight: "1.6" }}>
+                If dependents are making the threshold harder to meet, reassess whether
+                everyone needs to be included in the first application. A cleaner
+                household structure can materially change the numbers.
               </p>
             </div>
           </div>
@@ -825,6 +873,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Risk Flags You Must Fix
           </p>
+
           <div className="space-y-3">
             {riskFlags.map((flag) => (
               <div key={flag.title} className="rounded-md" style={smallCardStyle}>
@@ -836,7 +885,8 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 </p>
                 <p style={{ fontSize: "14px", color: "#334155" }}>{flag.description}</p>
                 <p className="mt-2" style={{ fontSize: "13px", color: "#64748B" }}>
-                  <span style={{ fontWeight: 600, color: "#475569" }}>Action:</span> {flag.action}
+                  <span style={{ fontWeight: 600, color: "#475569" }}>Action:</span>{" "}
+                  {flag.action}
                 </p>
               </div>
             ))}
@@ -850,6 +900,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Your Timeline to Approval
           </p>
+
           <div className="space-y-4">
             {timelineSteps.map((item) => (
               <div key={item.step} className="flex gap-4">
@@ -859,6 +910,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 >
                   {item.step}
                 </span>
+
                 <div>
                   <p className="font-bold" style={{ fontSize: "15px", color: "#0F172A" }}>
                     {item.title}
@@ -885,6 +937,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             Avoid These Mistakes
           </p>
+
           <div className="space-y-3">
             {mistakes.map((item) => (
               <div key={item.mistake}>
@@ -909,11 +962,17 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "14px", color: "#0F172A" }}
           >
-            Download Your Full Execution Kit
+            Download The Complete Pack
           </p>
-          <p className="mb-5 text-muted-foreground" style={{ fontSize: "14px" }}>
-            Download all templates and tools in one package.
+
+          <p
+            className="mb-5 text-muted-foreground"
+            style={{ fontSize: "14px", lineHeight: "1.6" }}
+          >
+            Prefer everything in one place? Download the full execution pack with the
+            calculator, templates, checklist, and support tools bundled together.
           </p>
+
           <a
             href={config.primaryDownloadUrl}
             target="_blank"
@@ -931,8 +990,12 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             {config.includedSystemLabel}
           </p>
-          <p className="mb-6" style={{ fontSize: "14px", color: "#334155" }}>
-            {config.includedSystemIntro}
+          <p
+            className="mb-6"
+            style={{ fontSize: "14px", color: "#334155", lineHeight: "1.6" }}
+          >
+            Use these tools at the stage where they actually matter. This is not a
+            random resource pack — it is the working system that supports the path above.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -959,9 +1022,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                       </span>
                     ) : null}
                   </div>
+
                   <p className="font-bold mb-1 text-foreground" style={{ fontSize: "14px" }}>
                     {item.title}
                   </p>
+
                   <p
                     className="mb-3 text-muted-foreground"
                     style={{ fontSize: "13px", lineHeight: "1.5" }}
@@ -979,6 +1044,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                   >
                     {item.cta}
                   </a>
+
                   <p
                     className="mt-2 text-muted-foreground break-all"
                     style={{ fontSize: "10px", lineHeight: "1.4" }}
@@ -998,7 +1064,10 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           </div>
         </div>
 
-        {config.upsellTitle && config.upsellDescription && config.upsellHref && config.upsellCtaLabel ? (
+        {config.upsellTitle &&
+        config.upsellDescription &&
+        config.upsellHref &&
+        config.upsellCtaLabel ? (
           <>
             <div className="h-px" style={{ backgroundColor: "#E2E8F0" }} />
 
@@ -1009,6 +1078,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               <p className="font-bold text-foreground mb-2" style={{ fontSize: "18px" }}>
                 {config.upsellTitle}
               </p>
+
               <p
                 className="text-muted-foreground mb-6"
                 style={{
@@ -1024,11 +1094,20 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               {config.upsellItems?.length ? (
                 <div className="max-w-xl mx-auto mb-6 text-left space-y-2">
                   {config.upsellItems.map((item) => (
-                    <div key={item.title} className="rounded-sm border border-border bg-white px-4 py-3">
-                      <p className="font-data font-bold uppercase tracking-widest text-foreground" style={{ fontSize: "11px" }}>
+                    <div
+                      key={item.title}
+                      className="rounded-sm border border-border bg-white px-4 py-3"
+                    >
+                      <p
+                        className="font-data font-bold uppercase tracking-widest text-foreground"
+                        style={{ fontSize: "11px" }}
+                      >
                         {item.title}
                       </p>
-                      <p className="mt-1 text-muted-foreground" style={{ fontSize: "13px", lineHeight: "1.5" }}>
+                      <p
+                        className="mt-1 text-muted-foreground"
+                        style={{ fontSize: "13px", lineHeight: "1.5" }}
+                      >
                         {item.desc}
                       </p>
                     </div>
@@ -1038,7 +1117,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
 
               <a
                 href={config.upsellHref}
-                className="inline-block bg-primary text-primary-foreground py-3.5 px-8 font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm"
+                className="inline-block bg-primary text-primary-foreground py-3.5 px-8 font-data font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm"
               >
                 {config.upsellCtaLabel}
               </a>
