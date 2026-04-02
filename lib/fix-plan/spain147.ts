@@ -6,80 +6,111 @@ export const spain147Config: FixPlanTemplateConfig = {
   countryLabel: "Spain",
   visaLabel: "Digital Nomad Visa",
 
-  primaryDownloadUrl: "/downloads/spain-dnv-full-execution-kit.zip",
+  verificationEndpoint:
+    "https://kbgkmubbrdyhmivdhier.functions.supabase.co/verify-purchase",
 
-  tools: [
+  returnPath: "/check/spain",
+
+  pageMicroLabel: "Visa Approval System™",
+
+  nextActionReady:
+    "Begin assembling your full approval package using the system below.",
+
+  nextActionNotReady:
+    "Follow your approval system below to close the gap and prepare your application.",
+
+  readinessParagraphReady:
+    "Your income meets the current estimated threshold for the Spain Digital Nomad Visa. Use the full approval system below to structure a stronger application.",
+
+  readinessParagraphNotReady:
+    "You do not currently meet the estimated income threshold for the Spain Digital Nomad Visa. Use the full approval system below to improve your position before filing.",
+
+  primaryDownloadLabel: "Save My Full Plan as PDF",
+  primaryDownloadUrl: "#",
+  primaryDownloadSupportText:
+    "Click above and choose 'Save as PDF' in your browser.",
+
+  includedSystemLabel: "Your Full Visa Approval System™",
+  includedSystemIntro:
+    "Everything included in your full approval system.",
+
+  deliverables: [
     {
-      id: "01",
+      num: "01",
       title: "Final Submission Checklist",
-      description: "Final control before submitting your application",
-      cta: "VIEW CHECKLIST",
-      href: "https://...",
+      desc: "Final control before submitting your application",
+      cta: "View Checklist",
+      url: "https://drive.google.com/file/d/1eiTAU89NPAVvZJvQDkX1HXmH5cu9tzOM/view?usp=sharing",
+      badge: "START HERE",
     },
     {
-      id: "02",
+      num: "02",
       title: "Remote Work Authorisation Template",
-      description: "Employer/client approval proof for remote work",
-      cta: "USE TEMPLATE",
-      href: "https://...",
+      desc: "Employer/client approval proof for remote work",
+      cta: "Use Template",
+      url: "https://docs.google.com/document/d/1acym1xk-doLHskB4NNKL-i7-BD6EwbB9/edit?usp=sharing",
     },
     {
-      id: "03",
+      num: "03",
       title: "Income Structuring Playbook",
-      description: "Present your income clearly and consistently",
-      cta: "OPEN PLAYBOOK",
-      href: "https://...",
+      desc: "Present your income clearly and consistently",
+      cta: "Open Playbook",
+      url: "https://drive.google.com/file/d/1TJstpyDx699YhOsvY0s5u_6Y5M4AP9HC/view?usp=sharing",
     },
     {
-      id: "04",
+      num: "04",
       title: "Savings Bridge Calculator",
-      description: "Calculate fallback qualification using savings",
-      cta: "OPEN CALCULATOR",
-      href: "https://...",
+      desc: "Calculate fallback qualification using savings",
+      cta: "Open Calculator",
+      url: "https://docs.google.com/spreadsheets/d/1UN95y5tJ1truEzRcYxJLdVDHcyj8nSPR/edit?usp=sharing",
     },
     {
-      id: "05",
+      num: "05",
       title: "Pre-Submission Audit Checklist",
-      description: "Final audit to catch rejection risks",
-      cta: "RUN AUDIT",
-      href: "https://...",
+      desc: "Final audit to catch rejection risks",
+      cta: "Run Audit",
+      url: "https://drive.google.com/file/d/1Go-srz5Cz7blnzNs8K3DLC6wHIV0Wjoq/view?usp=sharing",
     },
     {
-      id: "06",
+      num: "06",
       title: "Approval Strength Scorecard",
-      description: "Self-grade your application before submission",
-      cta: "CHECK MY SCORE",
-      href: "https://...",
+      desc: "Self-grade your application before submission",
+      cta: "Check My Score",
+      url: "https://drive.google.com/file/d/103CPjBz54Wzf2QEZdPgnau74ggwesiN-/view?usp=sharing",
     },
-
-    // ✅ ADD YOUR NEW FILES HERE (7–10)
     {
-      id: "07",
+      num: "07",
       title: "Bank Statement Optimisation Guide",
-      description: "Structure statements to avoid rejection flags",
-      cta: "VIEW GUIDE",
-      href: "https://...",
+      desc: "Structure statements to avoid rejection flags",
+      cta: "View Guide",
+      url: "https://drive.google.com/file/d/1Q-jl7N2QI1o4DaYnTdUmf_-v8XwLgj7A/view?usp=sharing",
     },
     {
-      id: "08",
+      num: "08",
       title: "Consulate Submission Playbook",
-      description: "Navigate consulate process correctly",
-      cta: "OPEN PLAYBOOK",
-      href: "https://...",
+      desc: "Navigate consulate process correctly",
+      cta: "Open Playbook",
+      url: "https://drive.google.com/file/d/1-bJjnLeruJ1_gn_0z7xO3AY4pnrt8V2r/view?usp=sharing",
     },
     {
-      id: "09",
+      num: "09",
       title: "Tax & Compliance Quick Guide",
-      description: "Avoid common compliance mistakes",
-      cta: "VIEW GUIDE",
-      href: "https://...",
+      desc: "Avoid common compliance mistakes",
+      cta: "View Guide",
+      url: "https://drive.google.com/file/d/1mHg35o-0z7mazPUGBUKOCnwAWnr87Ee4/view?usp=sharing",
     },
     {
-      id: "10",
+      num: "10",
       title: "Application Timeline Planner",
-      description: "Track your full approval journey",
-      cta: "OPEN PLANNER",
-      href: "https://...",
+      desc: "Track your full approval journey",
+      cta: "Open Planner",
+      url: "https://drive.google.com/file/d/1hapR79X0rOJakd_t7tewECAv2BWJW31s/view?usp=sharing",
     },
   ],
+
+  disclaimer:
+    "This plan is based on Spain 2026 DNV rules and your provided inputs. It does not constitute legal advice. Consult a licensed immigration attorney before filing.",
+
+  footerLegal:
+    "Based on Spain 2026 official rules • Updated with legal changes",
 };
