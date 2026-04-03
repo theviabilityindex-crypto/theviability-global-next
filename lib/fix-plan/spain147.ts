@@ -17,10 +17,10 @@ export const spain147Config: FixPlanTemplateConfig = {
     "Your income meets the current estimated threshold for the Spain Digital Nomad Visa. Use the full approval system below to structure a stronger application.",
   readinessParagraphNotReady:
     "You do not currently meet the estimated income threshold for the Spain Digital Nomad Visa. Use the full approval system below to improve your position before filing.",
-  primaryDownloadLabel: "Download My Full Approval System",
-  primaryDownloadUrl: "https://drive.google.com/drive/folders/YOUR_MASTER_FOLDER_ID",
+  primaryDownloadLabel: "Save My Full Plan as PDF",
+  primaryDownloadUrl: "#",
   primaryDownloadSupportText:
-    "Use your browser's print function to save this page as a PDF document.",
+    "Click above and choose 'Save as PDF' in your browser.",
   includedSystemLabel: "Your Full Visa Approval System™",
   includedSystemIntro: "Everything included in your full approval system.",
   deliverables: [
@@ -98,5 +98,6 @@ export const spain147Config: FixPlanTemplateConfig = {
   ],
   disclaimer:
     "This plan is based on Spain 2026 DNV rules and your provided inputs. It does not constitute legal advice. Consult a licensed immigration attorney before filing.",
-  footerLegal: "Based on Spain 2026 official rules • Updated with legal changes",
+  footerLegal:
+    "Based on Spain 2026 official rules • Updated with legal changes",
 };

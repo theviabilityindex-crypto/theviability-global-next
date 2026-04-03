@@ -7,7 +7,7 @@ interface PageShellProps {
 const PageShell = ({ children }: PageShellProps) => (
   <div className="min-h-screen bg-background text-foreground font-sans antialiased">
     <TrustBar />
-    <main className="mx-auto max-w-[600px] px-6 py-16">
+    <main className="mx-auto w-full max-w-[1100px] px-6 py-16">
       {children}
     </main>
   </div>

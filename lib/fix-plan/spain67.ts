@@ -7,7 +7,7 @@ export const spain67Config: FixPlanTemplateConfig = {
   visaLabel: "Digital Nomad Visa",
   verificationEndpoint:
     "https://kbgkmubbrdyhmivdhier.functions.supabase.co/verify-purchase",
-  returnPath: "/",
+  returnPath: "/check/spain",
   pageMicroLabel: "Visa Approval Score™ + Fix Plan",
   nextActionReady:
     "Begin gathering your documents — use the checklist in File 01 below.",
@@ -17,10 +17,10 @@ export const spain67Config: FixPlanTemplateConfig = {
     "Your income meets the current estimated threshold for the Spain Digital Nomad Visa. Approval depends on documentation quality, income classification, and submission structure.",
   readinessParagraphNotReady:
     "You do not currently meet the estimated income threshold for the Spain Digital Nomad Visa. This is fixable. Follow the structured path below to reach approval position.",
-  primaryDownloadLabel: "Download My Fix Plan (PDF)",
-  primaryDownloadUrl: "https://drive.google.com/drive/folders/YOUR_MASTER_FOLDER_ID",
+  primaryDownloadLabel: "Save My Plan as PDF",
+  primaryDownloadUrl: "#",
   primaryDownloadSupportText:
-    "Use your browser's print function to save this page as a PDF document.",
+    "Click above and choose 'Save as PDF' in your browser.",
   includedSystemLabel: "Your Visa Approval System™",
   includedSystemIntro: "Tools included with your Fix Plan.",
   deliverables: [
@@ -68,9 +68,9 @@ export const spain67Config: FixPlanTemplateConfig = {
       url: "https://drive.google.com/file/d/103CPjBz54Wzf2QEZdPgnau74ggwesiN-/view?usp=sharing",
     },
   ],
-  upsellTitle: "Need a full approval system?",
+  upsellTitle: "Need a stronger approval system?",
   upsellDescription:
-    "Get the complete structure, submission blueprint, and advanced risk protection. Includes Files 07–10: Application Submission Blueprint, Document Naming System, Rejection Trigger Matrix, and Approval Timeline System.",
+    "Upgrade to the full approval system for more advanced submission structure, deeper risk protection, and a more complete approval workflow.",
   upsellCtaLabel: "Unlock Full Approval System — $147",
   upsellHref: "/check/spain",
   upsellItems: [
@@ -88,10 +88,11 @@ export const spain67Config: FixPlanTemplateConfig = {
     },
     {
       title: "10 — Approval Timeline System",
-      desc: "Track the full process from preparation to submission and follow-up.",
+      desc: "Track your full approval journey.",
     },
   ],
   disclaimer:
     "This plan is based on Spain 2026 DNV rules and your provided inputs. It does not constitute legal advice. Consult a licensed immigration attorney before filing.",
-  footerLegal: "Based on Spain 2026 official rules • Updated with legal changes",
+  footerLegal:
+    "Based on Spain 2026 official rules • Updated with legal changes",
 };
