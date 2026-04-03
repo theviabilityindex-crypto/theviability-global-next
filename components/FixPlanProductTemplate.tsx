@@ -1063,25 +1063,29 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           </p>
         </div>
 
-<div className="space-y-2">
+<div style={{ marginTop: "28px", marginBottom: "10px" }}>
   <button
+    type="button"
     onClick={() => window.print()}
-    className="block w-full bg-primary text-primary-foreground text-center py-4 font-bold uppercase tracking-wider transition-all duration-150 active:scale-[0.98] hover:opacity-90 cursor-pointer print:hidden"
+    className="block w-full bg-primary text-primary-foreground py-4 px-6 font-data font-bold uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm print:hidden"
     style={{ fontSize: "15px" }}
   >
     {config.primaryDownloadLabel}
   </button>
 
-  <p className="text-center" style={{ fontSize: "12px", color: "#94A3B8" }}>
+  <p
+    style={{
+      marginTop: "10px",
+      fontSize: "12px",
+      color: "#94A3B8",
+      textAlign: "center",
+    }}
+  >
     {config.primaryDownloadSupportText}
   </p>
 </div>
-       
 
-          <p className="text-center" style={{ fontSize: "12px", color: "#94A3B8" }}>
-            {config.primaryDownloadSupportText}
-          </p>
-        </div>
+<div className="h-px" style={{ backgroundColor: "#E2E8F0" }} />
 
         <div className="h-px" style={{ backgroundColor: "#E2E8F0" }} />
 
