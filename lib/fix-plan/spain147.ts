@@ -17,10 +17,10 @@ export const spain147Config: FixPlanTemplateConfig = {
     "Your income meets the current estimated threshold for the Spain Digital Nomad Visa. Use the full approval system below to structure a stronger application.",
   readinessParagraphNotReady:
     "You do not currently meet the estimated income threshold for the Spain Digital Nomad Visa. Use the full approval system below to improve your position before filing.",
-  primaryDownloadLabel: "Save My Full Plan as PDF",
-  primaryDownloadUrl: "#",
-  primaryDownloadSupportText:
-    "Click above and choose 'Save as PDF' in your browser.",
+  primaryDownloadLabel: "Save My Full Approval System as PDF",
+primaryDownloadUrl: "#",
+primaryDownloadSupportText:
+  "Click the button above. Your browser will open the print window so you can save this full approval system as a PDF.",
   includedSystemLabel: "Your Full Visa Approval System™",
   includedSystemIntro: "Everything included in your full approval system.",
   deliverables: [

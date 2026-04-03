@@ -1063,26 +1063,20 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           </p>
         </div>
 
-        <div className="space-y-2">
-          <a
-            href={config.primaryDownloadUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full bg-primary text-primary-foreground text-center py-4 font-bold uppercase tracking-wider transition-all duration-150 active:scale-[0.98] hover:opacity-90 cursor-pointer print:hidden"
-            style={{ fontSize: "15px" }}
-          >
-            {config.primaryDownloadLabel}
-          </a>
+<div className="space-y-2">
+  <button
+    onClick={() => window.print()}
+    className="block w-full bg-primary text-primary-foreground text-center py-4 font-bold uppercase tracking-wider transition-all duration-150 active:scale-[0.98] hover:opacity-90 cursor-pointer print:hidden"
+    style={{ fontSize: "15px" }}
+  >
+    {config.primaryDownloadLabel}
+  </button>
 
-          <div className="flex items-center justify-center gap-4 print:hidden">
-            <button
-              onClick={() => window.print()}
-              className="text-xs font-data uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              style={{ background: "none", border: "none" }}
-            >
-              Print / Save as PDF
-            </button>
-          </div>
+  <p className="text-center" style={{ fontSize: "12px", color: "#94A3B8" }}>
+    {config.primaryDownloadSupportText}
+  </p>
+</div>
+       
 
           <p className="text-center" style={{ fontSize: "12px", color: "#94A3B8" }}>
             {config.primaryDownloadSupportText}
