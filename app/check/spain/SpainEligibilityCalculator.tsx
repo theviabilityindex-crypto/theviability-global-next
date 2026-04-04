@@ -44,9 +44,6 @@ const BASE_THRESHOLD = 2849;
 const FIRST_DEPENDENT = 1068.38;
 const ADDITIONAL_DEPENDENT = 356.13;
 
-const FIX_PLAN_URL_67 = "https://buy.stripe.com/test_aFaaEQ5y17k2cMf7wlcMM00";
-const FIX_PLAN_URL_147 = "https://buy.stripe.com/test_fZueV67G9bAih2vcQFcMM01";
-
 const INITIAL_FIX_PLAN_ANSWERS: FixPlanAnswers = {
   qualification: "",
   citizenship: "",
@@ -273,6 +270,7 @@ export default function SpainEligibilityCalculator() {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [decisionSessionId, setDecisionSessionId] = useState<string | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const questionRef = useRef<HTMLDivElement | null>(null);
 
@@ -478,64 +476,93 @@ export default function SpainEligibilityCalculator() {
   }
 
   async function handleContinueToPayment() {
-    if (!result || !displayScore || !canPurchase(fixPlanAnswers)) return;
+    if (!result || !displayScore || !canPurchase(fixPlanAnswers) || checkoutLoading) {
+      return;
+    }
 
     const storedDecisionSessionId =
       decisionSessionId || localStorage.getItem(`${countryKey}_decision_session_id`);
+
+    if (!storedDecisionSessionId) {
+      setError("We could not restore your payment session. Please run the check again.");
+      return;
+    }
 
     const tier = displayScore.status === "Eligible now" ? 147 : 67;
     const productKey =
       tier === 147 ? "spain_147_approval_system" : "spain_67_fix_plan";
 
+    setCheckoutLoading(true);
+    setError("");
+
     try {
-      if (storedDecisionSessionId) {
-        const response = await fetch("/api/decision-sessions", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: storedDecisionSessionId,
-            tier_intended: tier,
-            product_key: productKey,
-            qualification: fixPlanAnswers.qualification,
-            citizenship: fixPlanAnswers.citizenship,
-            residence_history: fixPlanAnswers.residenceHistory,
-            employment_type: fixPlanAnswers.employmentType,
-          }),
-        });
+      const response = await fetch("/api/decision-sessions", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: storedDecisionSessionId,
+          tier_intended: tier,
+          product_key: productKey,
+          qualification: fixPlanAnswers.qualification,
+          citizenship: fixPlanAnswers.citizenship,
+          residence_history: fixPlanAnswers.residenceHistory,
+          employment_type: fixPlanAnswers.employmentType,
+        }),
+      });
 
-        const data = await response.json().catch(() => null);
+      const patchData = await response.json().catch(() => null);
 
-        if (!response.ok) {
-          throw new Error(data?.error || "Failed to update decision session.");
-        }
+      if (!response.ok) {
+        throw new Error(patchData?.error || "Failed to update decision session.");
       }
+
+      localStorage.setItem(
+        `${countryKey}_dnv_fix_plan_answers`,
+        JSON.stringify({
+          ...fixPlanAnswers,
+          score: displayScore.total,
+          status: displayScore.status,
+          confidence: displayScore.confidence,
+          risk: displayScore.risk,
+          income,
+          currency,
+          dependents: parsedDependents,
+          income_eur: incomeInEur,
+          requirement: result.requirement,
+          gap: result.gap,
+          tier,
+          product_key: productKey,
+          decision_session_id: storedDecisionSessionId,
+        })
+      );
+
+      const checkoutResponse = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          decision_session_id: storedDecisionSessionId,
+          tier,
+          product_key: productKey,
+        }),
+      });
+
+      const checkoutData = await checkoutResponse.json().catch(() => null);
+
+      if (!checkoutResponse.ok || !checkoutData?.url) {
+        throw new Error(checkoutData?.error || "Failed to create checkout session.");
+      }
+
+      window.location.href = checkoutData.url as string;
     } catch (err) {
-      console.error("Failed to update decision session before payment:", err);
+      const message =
+        err instanceof Error ? err.message : "Unable to continue to secure checkout.";
+      setError(message);
+      setCheckoutLoading(false);
     }
-
-    localStorage.setItem(
-      `${countryKey}_dnv_fix_plan_answers`,
-      JSON.stringify({
-        ...fixPlanAnswers,
-        score: displayScore.total,
-        status: displayScore.status,
-        confidence: displayScore.confidence,
-        risk: displayScore.risk,
-        income,
-        currency,
-        dependents: parsedDependents,
-        income_eur: incomeInEur,
-        requirement: result.requirement,
-        gap: result.gap,
-        tier,
-        product_key: productKey,
-        decision_session_id: storedDecisionSessionId,
-      })
-    );
-
-    window.location.href = tier === 147 ? FIX_PLAN_URL_147 : FIX_PLAN_URL_67;
   }
 
   function handleSendEmailCapture() {
@@ -980,11 +1007,11 @@ export default function SpainEligibilityCalculator() {
 
                       <button
                         type="button"
-                        disabled={!canPurchase(fixPlanAnswers)}
+                        disabled={!canPurchase(fixPlanAnswers) || checkoutLoading}
                         onClick={handleContinueToPayment}
                         className="mt-8 inline-flex w-full items-center justify-center rounded-none px-6 py-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300 enabled:bg-neutral-950 enabled:text-white enabled:hover:bg-neutral-800"
                       >
-                        {getQuestionnaireCta(displayScore.status)}
+                        {checkoutLoading ? "REDIRECTING TO SECURE CHECKOUT..." : getQuestionnaireCta(displayScore.status)}
                       </button>
 
                       <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
@@ -1003,99 +1030,75 @@ export default function SpainEligibilityCalculator() {
                       readiness.
                     </p>
 
-                    <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Income strength
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.incomeStrength}/40
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Income consistency
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.incomeConsistency}/20
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Documentation strength
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.documentationStrength}/20
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Timeline readiness
-                        </div>
-                        <div className="mt-1 font-semibold text-neutral-950">
-                          {displayScore.timelineReadiness}/20
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
-                      Approval path
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Your fastest route depends on your current position.
-                    </p>
-
                     <div className="mt-4 space-y-3">
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Income gap
+                      <div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Income strength</span>
+                          <span>{displayScore.incomeStrength}/40</span>
                         </div>
-                        <div className="mt-1 text-sm text-neutral-800">
-                          {result.gap < 0
-                            ? `Increase monthly qualifying income by ${formatCurrency(
-                                Math.abs(result.gap),
-                                "EUR"
-                              )}.`
-                            : `You currently clear the income requirement by ${formatCurrency(
-                                result.gap,
-                                "EUR"
-                              )}.`}
+                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
+                          <div
+                            className="h-2 rounded-full bg-neutral-950"
+                            style={{
+                              width: `${(displayScore.incomeStrength / 40) * 100}%`,
+                            }}
+                          />
                         </div>
                       </div>
 
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Fastest path to approval
+                      <div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Income consistency</span>
+                          <span>{displayScore.incomeConsistency}/20</span>
                         </div>
-                        <div className="mt-1 text-sm text-neutral-800">
-                          {displayScore.status === "Eligible now"
-                            ? "Tighten documents, evidence consistency, and submission structure before filing."
-                            : "Increase income, strengthen evidence, and follow a structured plan before applying."}
+                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
+                          <div
+                            className="h-2 rounded-full bg-neutral-950"
+                            style={{
+                              width: `${(displayScore.incomeConsistency / 20) * 100}%`,
+                            }}
+                          />
                         </div>
                       </div>
 
-                      <div className="rounded-xl border border-neutral-200 p-3">
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-                          Priority fix order
+                      <div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Documentation strength</span>
+                          <span>{displayScore.documentationStrength}/20</span>
                         </div>
-                        <div className="mt-1 text-sm text-neutral-800">
-                          {displayScore.status === "Eligible now"
-                            ? "Documentation → income consistency → submission order"
-                            : "Income gap → evidence quality → qualification fit → submission order"}
+                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
+                          <div
+                            className="h-2 rounded-full bg-neutral-950"
+                            style={{
+                              width: `${(displayScore.documentationStrength / 20) * 100}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Timeline readiness</span>
+                          <span>{displayScore.timelineReadiness}/20</span>
+                        </div>
+                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
+                          <div
+                            className="h-2 rounded-full bg-neutral-950"
+                            style={{
+                              width: `${(displayScore.timelineReadiness / 20) * 100}%`,
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-neutral-200 p-4">
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                     <h3 className="text-lg font-semibold text-neutral-950">
-                      Want your personalised approval plan by email?
+                      Get your free summary by email
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Get a copy of your result summary sent to your email so you can
-                      come back to it later.
+                      Send this result to your inbox so you can review it later.
                     </p>
 
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -1103,21 +1106,21 @@ export default function SpainEligibilityCalculator() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
+                        placeholder="Enter your email"
+                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
                       />
                       <button
                         type="button"
                         onClick={handleSendEmailCapture}
-                        className="inline-flex items-center justify-center rounded-xl border border-neutral-950 px-5 py-3 text-sm font-medium text-neutral-950 transition hover:bg-neutral-50"
+                        className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
                       >
-                        Send me my result
+                        Send My Summary
                       </button>
                     </div>
 
                     {emailSent ? (
                       <p className="mt-3 text-sm text-green-700">
-                        Your result has been saved for email follow-up.
+                        Your summary has been saved for follow-up.
                       </p>
                     ) : null}
                   </div>
@@ -1127,44 +1130,6 @@ export default function SpainEligibilityCalculator() {
           </div>
         </div>
       </section>
-
-      {modalState === "fix-plan" && displayScore ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-              Before you continue
-            </p>
-            <h3 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
-              {getFixPlanStatusLine(displayScore.status)}
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-neutral-700">
-              {displayScore.status === "Eligible now"
-                ? "This plan is designed to reduce preventable rejection risk before you apply."
-                : "This Fix Plan is designed to help you close the gap and avoid wasting time or money on a weak application."}
-            </p>
-            <p className="mt-3 text-sm font-medium text-neutral-950">
-              {getPriceLine(displayScore.status)}
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => setModalState(null)}
-                className="inline-flex flex-1 items-center justify-center rounded-xl border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
-              >
-                Not now
-              </button>
-              <button
-                type="button"
-                onClick={handleOpenQuestions}
-                className="inline-flex flex-1 items-center justify-center rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800"
-              >
-                {getModalCta(displayScore.status)}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </>
   );
 }

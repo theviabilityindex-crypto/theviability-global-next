@@ -74,6 +74,16 @@ type TemplateProps = {
   config: FixPlanTemplateConfig;
 };
 
+type StoryTone = "ready" | "borderline" | "not_ready";
+
+type StorySection = {
+  id: string;
+  label: string;
+  title: string;
+  body: string;
+  fileNums?: string[];
+};
+
 const fmtEurAbs = (v: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -148,20 +158,113 @@ function restoreCachedPlan(
   return false;
 }
 
+function getStoryTone(actualGap: number) {
+  if (actualGap >= 0) return "ready" as StoryTone;
+  if (Math.abs(actualGap) <= 500) return "borderline" as StoryTone;
+  return "not_ready" as StoryTone;
+}
+
+function getStorySections(
+  tone: StoryTone,
+  actualGap: number,
+  requirementAmount: number,
+  incomeInEur: number,
+  tier: 67 | 147
+): StorySection[] {
+  if (tone === "ready") {
+    const sections: StorySection[] = [
+      {
+        id: "meaning",
+        label: "What this means",
+        title: "You meet the income threshold — now the job is protecting the approval.",
+        body: `Your current income of ${fmtEur(
+          incomeInEur
+        )} is above the estimated threshold of ${fmtEur(
+          requirementAmount
+        )}. That clears the income gate, but approval still depends on documentation quality, remote-work proof, consistency of earnings, and how the file is assembled.`,
+        fileNums: ["01", "02", "05", "06"],
+      },
+      {
+        id: "path",
+        label: "Your next move",
+        title: "Build a cleaner submission before you apply.",
+        body:
+          "The strongest path now is not chasing more income. It is tightening the application package so the case is easy to approve, consistent on paper, and free of preventable friction.",
+        fileNums: tier === 147 ? ["07", "08", "09", "10"] : ["01", "05"],
+      },
+    ];
+
+    return sections;
+  }
+
+  if (tone === "borderline") {
+    const sections: StorySection[] = [
+      {
+        id: "meaning",
+        label: "What this means",
+        title: "You are close — but still inside the rejection range.",
+        body: `You are currently ${fmtEurAbs(
+          actualGap
+        )} below the estimated threshold of ${fmtEur(
+          requirementAmount
+        )}. This is the dangerous zone: close enough to feel possible, weak enough to get rejected if the structure is poor or the income case is not presented cleanly.`,
+        fileNums: ["03", "04"],
+      },
+      {
+        id: "path",
+        label: "Your fastest path",
+        title: "Close the shortfall, then tighten the file.",
+        body:
+          "The fastest path is usually a combination of clearer income presentation, a savings bridge where available, and stronger submission control before filing.",
+        fileNums: tier === 147 ? ["03", "04", "01", "05", "07"] : ["03", "04", "01"],
+      },
+    ];
+
+    return sections;
+  }
+
+  return [
+    {
+      id: "meaning",
+      label: "What this means",
+      title: "You should not apply yet.",
+      body: `Your current income of ${fmtEur(
+        incomeInEur
+      )} is ${fmtEurAbs(actualGap)} below the estimated threshold of ${fmtEur(
+        requirementAmount
+      )}. At this level, the risk is not just delay — it is wasting time and money on an application that is likely to fail unless the weak points are fixed first.`,
+      fileNums: ["03", "04"],
+    },
+    {
+      id: "path",
+      label: "Your fastest path",
+      title: "Fix the gap first. Then prepare the application properly.",
+      body:
+        "Your plan is to close the financial gap, strengthen how income is evidenced, secure the remote-work proof, and only then move toward submission.",
+      fileNums: tier === 147 ? ["03", "04", "02", "01", "05", "07"] : ["03", "04", "02", "01"],
+    },
+  ];
+}
+
 function ToolCard({
   file,
   subtitle,
+  accent = "default",
 }: {
   file: DeliverableItem;
   subtitle?: string;
+  accent?: "default" | "highlight";
 }) {
+  const isHighlight = accent === "highlight";
+
   return (
     <div
       style={{
         marginTop: "16px",
-        padding: "16px 18px",
-        backgroundColor: "#F8FAFC",
-        border: "1px solid #E2E8F0",
+        padding: "18px 20px",
+        backgroundColor: isHighlight ? "#F8FAFC" : "#FFFFFF",
+        border: isHighlight ? "1px solid #CBD5E1" : "1px solid #E2E8F0",
+        borderLeft: isHighlight ? "3px solid #0F172A" : "1px solid #E2E8F0",
         borderRadius: "2px",
       }}
     >
@@ -196,15 +299,15 @@ function ToolCard({
         ) : null}
       </div>
 
-      <p style={{ fontSize: "14px", fontWeight: 700, color: "#0F172A", margin: "0 0 4px 0" }}>
+      <p style={{ fontSize: "15px", fontWeight: 700, color: "#0F172A", margin: "0 0 4px 0" }}>
         {file.title}
       </p>
 
-      <p style={{ fontSize: "13px", color: "#475569", lineHeight: "1.55", margin: 0 }}>
+      <p style={{ fontSize: "13px", color: "#475569", lineHeight: "1.6", margin: 0 }}>
         {subtitle || file.desc}
       </p>
 
-      <div style={{ marginTop: "12px" }}>
+      <div style={{ marginTop: "14px" }}>
         <a
           href={file.url}
           target="_blank"
@@ -214,23 +317,98 @@ function ToolCard({
           {file.cta}
         </a>
 
-        <a
-          href={file.url}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
           className="hidden print:block"
           style={{
             marginTop: "8px",
-            fontSize: "11px",
-            lineHeight: "1.5",
-            color: "#2563EB",
-            wordBreak: "break-all",
-            textDecoration: "underline",
           }}
         >
-          {file.url}
-        </a>
+          <div
+            style={{
+              fontSize: "10px",
+              color: "#64748B",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              marginBottom: "4px",
+            }}
+          >
+            File link
+          </div>
+          <a
+            href={file.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: "11px",
+              lineHeight: "1.5",
+              color: "#2563EB",
+              wordBreak: "break-all",
+              textDecoration: "underline",
+            }}
+          >
+            {file.url}
+          </a>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function StorySectionCard({
+  section,
+  files,
+}: {
+  section: StorySection;
+  files: DeliverableItem[];
+}) {
+  return (
+    <div style={cardStyle}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          marginBottom: "10px",
+          flexWrap: "wrap",
+        }}
+      >
+        <span style={{ ...microLabelStyle, color: "#64748B" }}>{section.label}</span>
+      </div>
+
+      <h2
+        style={{
+          fontSize: "20px",
+          lineHeight: "1.35",
+          fontWeight: 700,
+          color: "#0F172A",
+          margin: "0 0 10px 0",
+        }}
+      >
+        {section.title}
+      </h2>
+
+      <p
+        style={{
+          fontSize: "15px",
+          color: "#334155",
+          lineHeight: "1.75",
+          margin: 0,
+        }}
+      >
+        {section.body}
+      </p>
+
+      {files.length > 0 ? (
+        <div style={{ marginTop: "18px" }}>
+          {files.map((file) => (
+            <ToolCard
+              key={`${section.id}-${file.num}`}
+              file={file}
+              accent="highlight"
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -328,11 +506,25 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     return incomeInEur - requirementAmount;
   }, [incomeInEur, requirementAmount, result]);
 
-  const isReady = actualGap >= 0;
-  const gapColor = isReady ? "#166534" : "#B91C1C";
+  const tone = getStoryTone(actualGap);
+  const isReady = tone === "ready";
+  const gapColor =
+    tone === "ready" ? "#166534" : tone === "borderline" ? "#92400E" : "#B91C1C";
 
-  const coreFiles = config.deliverables.slice(0, 6);
-  const advancedFiles = config.tier === 147 ? config.deliverables.slice(6, 10) : [];
+  const allDeliverables = config.deliverables;
+  const coreFiles = allDeliverables.slice(0, 6);
+  const advancedFiles = config.tier === 147 ? allDeliverables.slice(6, 10) : [];
+
+  const fileMap = useMemo(() => {
+    return new Map(allDeliverables.map((file) => [file.num, file]));
+  }, [allDeliverables]);
+
+  const storySections = useMemo(
+    () => getStorySections(tone, actualGap, requirementAmount, incomeInEur, config.tier),
+    [tone, actualGap, requirementAmount, incomeInEur, config.tier]
+  );
+
+  const nextAction = isReady ? config.nextActionReady : config.nextActionNotReady;
 
   if (verifying) {
     return (
@@ -418,21 +610,28 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           {config.pageMicroLabel}
         </p>
 
-        <div style={cardStyle}>
+        <div
+          style={{
+            ...cardStyle,
+            padding: "28px",
+            borderColor: tone === "ready" ? "#BBF7D0" : tone === "borderline" ? "#FDE68A" : "#FECACA",
+            backgroundColor: tone === "ready" ? "#F0FDF4" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
+          }}
+        >
           <p
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: gapColor }}
           >
-            {isReady ? "Approval Ready" : "High Rejection Risk"}
+            {isReady ? "Approval Ready" : tone === "borderline" ? "Borderline Risk" : "High Rejection Risk"}
           </p>
 
           <h1
             style={{
-              fontSize: "20px",
-              lineHeight: "1.3",
+              fontSize: "28px",
+              lineHeight: "1.2",
               fontWeight: 700,
               color: "#0F172A",
-              margin: "0 0 8px 0",
+              margin: "0 0 10px 0",
             }}
           >
             {isReady
@@ -440,17 +639,25 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               : `You are ${fmtEurAbs(actualGap)} short of the requirement.`}
           </h1>
 
-          <p style={{ fontSize: "15px", color: "#334155", lineHeight: "1.7", margin: 0 }}>
+          <p
+            style={{
+              fontSize: "16px",
+              color: "#334155",
+              lineHeight: "1.75",
+              margin: 0,
+              maxWidth: "880px",
+            }}
+          >
             {isReady ? config.readinessParagraphReady : config.readinessParagraphNotReady}
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div style={cardStyle}>
             <p className="text-[10px] font-data uppercase tracking-widest mb-1" style={{ color: "#64748B" }}>
               Required Income
             </p>
-            <p className="font-data font-bold" style={{ fontSize: "18px", color: "#0F172A" }}>
+            <p className="font-data font-bold" style={{ fontSize: "22px", color: "#0F172A" }}>
               {fmtEur(requirementAmount)}
               <span className="text-xs font-normal" style={{ color: "#64748B" }}>
                 /mo
@@ -462,7 +669,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             <p className="text-[10px] font-data uppercase tracking-widest mb-1" style={{ color: "#64748B" }}>
               Your Income
             </p>
-            <p className="font-data font-bold" style={{ fontSize: "18px", color: "#0F172A" }}>
+            <p className="font-data font-bold" style={{ fontSize: "22px", color: "#0F172A" }}>
               {fmtEur(incomeInEur)}
               <span className="text-xs font-normal" style={{ color: "#64748B" }}>
                 /mo
@@ -473,35 +680,103 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           <div
             style={{
               ...cardStyle,
-              backgroundColor: isReady ? "#F0FDF4" : "#FEF2F2",
-              borderColor: isReady ? "#BBF7D0" : "#FECACA",
+              backgroundColor: isReady ? "#F0FDF4" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
+              borderColor: isReady ? "#BBF7D0" : tone === "borderline" ? "#FDE68A" : "#FECACA",
             }}
           >
             <p className="text-[10px] font-data uppercase tracking-widest mb-1" style={{ color: "#64748B" }}>
               The Gap
             </p>
-            <p className="font-data font-bold" style={{ fontSize: "18px", color: gapColor }}>
+            <p className="font-data font-bold" style={{ fontSize: "22px", color: gapColor }}>
               {isReady ? "+" : "-"}
               {fmtEurAbs(actualGap)}
             </p>
           </div>
         </div>
 
-        <div className="text-center space-y-2">
+        <div
+          style={{
+            ...cardStyle,
+            textAlign: "center",
+            padding: "28px",
+            borderColor: "#CBD5E1",
+            boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
+          }}
+        >
+          <p
+            className="font-data font-bold uppercase tracking-widest"
+            style={{ fontSize: "11px", color: "#64748B", marginBottom: "10px" }}
+          >
+            Save Your Product
+          </p>
+
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-block bg-primary text-primary-foreground py-3 px-6 font-data font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm print:hidden"
+            className="inline-block bg-primary text-primary-foreground py-4 px-8 font-data font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm print:hidden"
+            style={{
+              minWidth: "280px",
+              boxShadow: "0 10px 28px rgba(15,23,42,0.16)",
+            }}
           >
             {config.primaryDownloadLabel}
           </button>
 
-          <p style={{ fontSize: "12px", color: "#94A3B8", textAlign: "center" }}>
+          <p
+            style={{
+              fontSize: "12px",
+              color: "#64748B",
+              textAlign: "center",
+              marginTop: "12px",
+              lineHeight: "1.6",
+            }}
+          >
             {config.primaryDownloadSupportText}
+          </p>
+
+          <div className="hidden print:block" style={{ marginTop: "8px" }}>
+            <p
+              style={{
+                fontSize: "11px",
+                color: "#64748B",
+                lineHeight: "1.6",
+                margin: 0,
+              }}
+            >
+              Save this page as PDF in your browser print dialog. All file links are shown inline below.
+            </p>
+          </div>
+        </div>
+
+        <div style={cardStyle}>
+          <p
+            className="font-data font-bold uppercase tracking-widest mb-2"
+            style={{ fontSize: "11px", color: "#64748B" }}
+          >
+            Next Action
+          </p>
+
+          <p
+            style={{
+              fontSize: "18px",
+              lineHeight: "1.55",
+              fontWeight: 700,
+              color: "#0F172A",
+              margin: 0,
+            }}
+          >
+            {nextAction}
           </p>
         </div>
 
-        <div className="h-px" style={{ backgroundColor: "#E2E8F0" }} />
+        {storySections.map((section) => {
+          const files =
+            section.fileNums
+              ?.map((num) => fileMap.get(num))
+              .filter((file): file is DeliverableItem => Boolean(file)) || [];
+
+          return <StorySectionCard key={section.id} section={section} files={files} />;
+        })}
 
         <div style={cardStyle}>
           <p
