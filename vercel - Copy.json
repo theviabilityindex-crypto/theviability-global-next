@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/check/:country",
-      "destination": "https://app.theviabilityindex.com/"
-    }
-  ]
-}

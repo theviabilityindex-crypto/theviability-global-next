@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripePriceId67 = process.env.STRIPE_PRICE_ID_67;
+const stripePriceId147 = process.env.STRIPE_PRICE_ID_147;
+
+if (!stripeSecretKey) {
+  throw new Error("Missing STRIPE_SECRET_KEY");
+}
+
+const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-06-20",
 });
 
@@ -18,11 +26,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔒 PRICE IDS — REPLACE THESE
-    const PRICE_ID_67 = "price_1TCs5D2YLN4TCqZiD3aCmTQk";
-    const PRICE_ID_147 = "price_1TFYJX2YLN4TCqZiKcwshr8J";
+    if (!stripePriceId67 || !stripePriceId147) {
+      return NextResponse.json(
+        { error: "Missing Stripe price configuration" },
+        { status: 500 }
+      );
+    }
 
-    const priceId = tier === 147 ? PRICE_ID_147 : PRICE_ID_67;
+    const normalizedTier = Number(tier);
+    const priceId = normalizedTier === 147 ? stripePriceId147 : stripePriceId67;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -33,13 +45,20 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `https://theviabilityindex.com/check/spain/success?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `https://theviabilityindex.com/check/spain/success?payment=success&tier=${normalizedTier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://theviabilityindex.com/check/spain`,
       metadata: {
-        decision_session_id,
-        tier: String(tier),
+        decision_session_id: String(decision_session_id),
+        tier: String(normalizedTier),
       },
     });
+
+    if (!session.url) {
+      return NextResponse.json(
+        { error: "Stripe session created but no checkout URL returned" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
