@@ -1009,9 +1009,11 @@ export default function SpainEligibilityCalculator() {
                         type="button"
                         disabled={!canPurchase(fixPlanAnswers) || checkoutLoading}
                         onClick={handleContinueToPayment}
-                        className="mt-8 inline-flex w-full items-center justify-center rounded-none px-6 py-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300 enabled:bg-neutral-950 enabled:text-white enabled:hover:bg-neutral-800"
+                        className="mt-8 inline-flex w-full items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {checkoutLoading ? "REDIRECTING TO SECURE CHECKOUT..." : getQuestionnaireCta(displayScore.status)}
+                        {checkoutLoading
+                          ? "SECURING CHECKOUT..."
+                          : getQuestionnaireCta(displayScore.status)}
                       </button>
 
                       <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
@@ -1020,85 +1022,68 @@ export default function SpainEligibilityCalculator() {
                     </div>
                   ) : null}
 
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
                       How your score is calculated
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-neutral-700">
                       Your Visa Approval Score is derived from income strength,
-                      income consistency, documentation strength, and timeline
-                      readiness.
+                      income consistency, documentation strength, and timeline readiness.
                     </p>
 
-                    <div className="mt-4 space-y-3">
-                      <div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Income strength</span>
-                          <span>{displayScore.incomeStrength}/40</span>
-                        </div>
-                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
-                          <div
-                            className="h-2 rounded-full bg-neutral-950"
-                            style={{
-                              width: `${(displayScore.incomeStrength / 40) * 100}%`,
-                            }}
-                          />
-                        </div>
+                    <div className="mt-4 space-y-3 text-sm text-neutral-900">
+                      <div className="flex items-center justify-between">
+                        <span>Income strength</span>
+                        <span>{displayScore.incomeStrength}/40</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
+                        <div
+                          className="h-1.5 rounded-full bg-neutral-950"
+                          style={{ width: `${(displayScore.incomeStrength / 40) * 100}%` }}
+                        />
                       </div>
 
-                      <div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Income consistency</span>
-                          <span>{displayScore.incomeConsistency}/20</span>
-                        </div>
-                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
-                          <div
-                            className="h-2 rounded-full bg-neutral-950"
-                            style={{
-                              width: `${(displayScore.incomeConsistency / 20) * 100}%`,
-                            }}
-                          />
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <span>Income consistency</span>
+                        <span>{displayScore.incomeConsistency}/20</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
+                        <div
+                          className="h-1.5 rounded-full bg-neutral-950"
+                          style={{ width: `${(displayScore.incomeConsistency / 20) * 100}%` }}
+                        />
                       </div>
 
-                      <div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Documentation strength</span>
-                          <span>{displayScore.documentationStrength}/20</span>
-                        </div>
-                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
-                          <div
-                            className="h-2 rounded-full bg-neutral-950"
-                            style={{
-                              width: `${(displayScore.documentationStrength / 20) * 100}%`,
-                            }}
-                          />
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <span>Documentation strength</span>
+                        <span>{displayScore.documentationStrength}/20</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
+                        <div
+                          className="h-1.5 rounded-full bg-neutral-950"
+                          style={{ width: `${(displayScore.documentationStrength / 20) * 100}%` }}
+                        />
                       </div>
 
-                      <div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Timeline readiness</span>
-                          <span>{displayScore.timelineReadiness}/20</span>
-                        </div>
-                        <div className="mt-1 h-2 rounded-full bg-neutral-200">
-                          <div
-                            className="h-2 rounded-full bg-neutral-950"
-                            style={{
-                              width: `${(displayScore.timelineReadiness / 20) * 100}%`,
-                            }}
-                          />
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <span>Timeline readiness</span>
+                        <span>{displayScore.timelineReadiness}/20</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
+                        <div
+                          className="h-1.5 rounded-full bg-neutral-950"
+                          style={{ width: `${(displayScore.timelineReadiness / 20) * 100}%` }}
+                        />
                       </div>
                     </div>
                   </div>
 
                   <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
-                      Get your free summary by email
-                    </h3>
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      Get this result by email
+                    </div>
                     <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Send this result to your inbox so you can review it later.
+                      Save your current result and approval status for reference.
                     </p>
 
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -1112,24 +1097,81 @@ export default function SpainEligibilityCalculator() {
                       <button
                         type="button"
                         onClick={handleSendEmailCapture}
-                        className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
+                        disabled={!email}
+                        className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        Send My Summary
+                        {emailSent ? "Saved" : "Send My Results"}
                       </button>
                     </div>
-
-                    {emailSent ? (
-                      <p className="mt-3 text-sm text-green-700">
-                        Your summary has been saved for follow-up.
-                      </p>
-                    ) : null}
                   </div>
+
+                  <p className="text-sm leading-6 text-neutral-600">
+                    This is the threshold and viability layer only. Documentation,
+                    structure, and submission quality still affect the full outcome.
+                  </p>
                 </div>
               )}
             </div>
           </div>
         </div>
       </section>
+
+      {modalState === "fix-plan" && displayScore ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+          <div className="w-full max-w-xl rounded-none bg-white p-6 shadow-2xl sm:p-8">
+            <h3 className="text-2xl font-semibold text-neutral-950">
+              Unlock Your Personal Approval Plan
+            </h3>
+
+            <p className="mt-4 text-sm font-medium text-red-600">
+              {getFixPlanStatusLine(displayScore.status)}
+            </p>
+
+            <p className="mt-4 text-sm leading-6 text-neutral-700">
+              Without a structured plan, applications at your level are frequently
+              rejected or significantly delayed.
+            </p>
+
+            <div className="mt-5 space-y-3 rounded-none border border-neutral-200 bg-neutral-50 p-4">
+              <div className="text-sm font-medium text-neutral-950">
+                What’s included:
+              </div>
+              <ul className="space-y-2 text-sm leading-6 text-neutral-700">
+                <li>• Your exact approval gap</li>
+                <li>• Your fastest path to approval</li>
+                <li>• What to fix — in order</li>
+                <li>• How to avoid rejection</li>
+              </ul>
+            </div>
+
+            <p className="mt-5 text-sm font-medium text-neutral-950">
+              {getPriceLine(displayScore.status)}
+            </p>
+
+            <p className="mt-3 text-sm leading-6 text-neutral-600">
+              Before we generate your plan, answer 4 quick questions to personalise your result.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleOpenQuestions}
+                className="inline-flex items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
+              >
+                {getModalCta(displayScore.status)}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalState(null)}
+                className="inline-flex items-center justify-center rounded-none border border-neutral-300 bg-white px-6 py-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+              >
+                Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
