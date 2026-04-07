@@ -588,6 +588,11 @@ export default function SpainEligibilityCalculator() {
     setEmailSent(true);
   }
 
+  const approvalPathSummary =
+    displayScore?.status === "Eligible now"
+      ? "Documentation → income consistency → submission order"
+      : "Income gap → evidence quality → qualification fit → submission order";
+
   return (
     <>
       <section
@@ -1009,12 +1014,16 @@ export default function SpainEligibilityCalculator() {
                         type="button"
                         disabled={!canPurchase(fixPlanAnswers) || checkoutLoading}
                         onClick={handleContinueToPayment}
-                        className="mt-8 inline-flex w-full items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="mt-8 inline-flex w-full items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300"
                       >
                         {checkoutLoading
-                          ? "SECURING CHECKOUT..."
+                          ? "REDIRECTING TO SECURE CHECKOUT..."
                           : getQuestionnaireCta(displayScore.status)}
                       </button>
+
+                      {error ? (
+                        <p className="mt-4 text-center text-sm text-red-700">{error}</p>
+                      ) : null}
 
                       <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
                         Secure checkout • Instant access after payment
@@ -1031,59 +1040,93 @@ export default function SpainEligibilityCalculator() {
                       income consistency, documentation strength, and timeline readiness.
                     </p>
 
-                    <div className="mt-4 space-y-3 text-sm text-neutral-900">
-                      <div className="flex items-center justify-between">
-                        <span>Income strength</span>
-                        <span>{displayScore.incomeStrength}/40</span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
-                        <div
-                          className="h-1.5 rounded-full bg-neutral-950"
-                          style={{ width: `${(displayScore.incomeStrength / 40) * 100}%` }}
-                        />
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+                          Income strength
+                        </div>
+                        <div className="mt-1 text-sm font-semibold text-neutral-950">
+                          {displayScore.incomeStrength}/40
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <span>Income consistency</span>
-                        <span>{displayScore.incomeConsistency}/20</span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
-                        <div
-                          className="h-1.5 rounded-full bg-neutral-950"
-                          style={{ width: `${(displayScore.incomeConsistency / 20) * 100}%` }}
-                        />
+                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+                          Income consistency
+                        </div>
+                        <div className="mt-1 text-sm font-semibold text-neutral-950">
+                          {displayScore.incomeConsistency}/20
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <span>Documentation strength</span>
-                        <span>{displayScore.documentationStrength}/20</span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
-                        <div
-                          className="h-1.5 rounded-full bg-neutral-950"
-                          style={{ width: `${(displayScore.documentationStrength / 20) * 100}%` }}
-                        />
+                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+                          Documentation strength
+                        </div>
+                        <div className="mt-1 text-sm font-semibold text-neutral-950">
+                          {displayScore.documentationStrength}/20
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <span>Timeline readiness</span>
-                        <span>{displayScore.timelineReadiness}/20</span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-neutral-200">
-                        <div
-                          className="h-1.5 rounded-full bg-neutral-950"
-                          style={{ width: `${(displayScore.timelineReadiness / 20) * 100}%` }}
-                        />
+                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+                          Timeline readiness
+                        </div>
+                        <div className="mt-1 text-sm font-semibold text-neutral-950">
+                          {displayScore.timelineReadiness}/20
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      Get this result by email
-                    </div>
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <h3 className="text-lg font-semibold text-neutral-950">
+                      Approval path
+                    </h3>
                     <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Save your current result and approval status for reference.
+                      Your safest next step depends on your current position.
+                    </p>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+                          Income gap
+                        </div>
+                        <div className="mt-1 text-sm text-neutral-950">
+                          You currently {result.gap >= 0 ? "clear" : "miss"} the income requirement by{" "}
+                          {formatCurrency(Math.abs(result.gap), "EUR")}.
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+                          Fastest path to approval
+                        </div>
+                        <div className="mt-1 text-sm text-neutral-950">
+                          {displayScore.status === "Eligible now"
+                            ? "Maintain clean evidence, tighten documentation, and follow a structured submission plan before applying."
+                            : "Increase income, strengthen evidence, and follow a structured plan before applying."}
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+                          Priority fix order
+                        </div>
+                        <div className="mt-1 text-sm text-neutral-950">
+                          {approvalPathSummary}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <h3 className="text-lg font-semibold text-neutral-950">
+                      Want your personalised approval plan by email?
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                      Get a copy of your result summary sent to your email so you can
+                      come back to it later.
                     </p>
 
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -1091,18 +1134,23 @@ export default function SpainEligibilityCalculator() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
+                        placeholder="you@example.com"
+                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
                       />
                       <button
                         type="button"
                         onClick={handleSendEmailCapture}
-                        disabled={!email}
-                        className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center rounded-xl border border-neutral-950 px-5 py-3 text-sm font-medium text-neutral-950 transition hover:bg-neutral-50"
                       >
-                        {emailSent ? "Saved" : "Send My Results"}
+                        Send me my result
                       </button>
                     </div>
+
+                    {emailSent ? (
+                      <p className="mt-3 text-sm text-green-700">
+                        Your result has been saved for email follow-up.
+                      </p>
+                    ) : null}
                   </div>
 
                   <p className="text-sm leading-6 text-neutral-600">
@@ -1117,56 +1165,37 @@ export default function SpainEligibilityCalculator() {
       </section>
 
       {modalState === "fix-plan" && displayScore ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-xl rounded-none bg-white p-6 shadow-2xl sm:p-8">
-            <h3 className="text-2xl font-semibold text-neutral-950">
-              Unlock Your Personal Approval Plan
-            </h3>
-
-            <p className="mt-4 text-sm font-medium text-red-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
+              Before you continue
+            </p>
+            <h3 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
               {getFixPlanStatusLine(displayScore.status)}
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-neutral-700">
+              {displayScore.status === "Eligible now"
+                ? "This plan is designed to reduce preventable rejection risk before you apply."
+                : "This Fix Plan is designed to help you close the gap and avoid wasting time or money on a weak application."}
             </p>
-
-            <p className="mt-4 text-sm leading-6 text-neutral-700">
-              Without a structured plan, applications at your level are frequently
-              rejected or significantly delayed.
-            </p>
-
-            <div className="mt-5 space-y-3 rounded-none border border-neutral-200 bg-neutral-50 p-4">
-              <div className="text-sm font-medium text-neutral-950">
-                What’s included:
-              </div>
-              <ul className="space-y-2 text-sm leading-6 text-neutral-700">
-                <li>• Your exact approval gap</li>
-                <li>• Your fastest path to approval</li>
-                <li>• What to fix — in order</li>
-                <li>• How to avoid rejection</li>
-              </ul>
-            </div>
-
-            <p className="mt-5 text-sm font-medium text-neutral-950">
+            <p className="mt-3 text-sm font-medium text-neutral-950">
               {getPriceLine(displayScore.status)}
-            </p>
-
-            <p className="mt-3 text-sm leading-6 text-neutral-600">
-              Before we generate your plan, answer 4 quick questions to personalise your result.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={handleOpenQuestions}
-                className="inline-flex items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
+                onClick={() => setModalState(null)}
+                className="inline-flex flex-1 items-center justify-center rounded-xl border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
               >
-                {getModalCta(displayScore.status)}
+                Not now
               </button>
-
               <button
                 type="button"
-                onClick={() => setModalState(null)}
-                className="inline-flex items-center justify-center rounded-none border border-neutral-300 bg-white px-6 py-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+                onClick={handleOpenQuestions}
+                className="inline-flex flex-1 items-center justify-center rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800"
               >
-                Go Back
+                {getModalCta(displayScore.status)}
               </button>
             </div>
           </div>
