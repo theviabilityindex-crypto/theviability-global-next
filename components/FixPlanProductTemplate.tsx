@@ -172,33 +172,31 @@ function getStorySections(
   tier: 67 | 147
 ): StorySection[] {
   if (tone === "ready") {
-    const sections: StorySection[] = [
+    return [
       {
         id: "meaning",
         label: "What this means",
-        title: "You meet the income threshold — now the job is protecting the approval.",
+        title: "You clear the income threshold — now the real job is protecting the approval.",
         body: `Your current income of ${fmtEur(
           incomeInEur
         )} is above the estimated threshold of ${fmtEur(
           requirementAmount
-        )}. That clears the income gate, but approval still depends on documentation quality, remote-work proof, consistency of earnings, and how the file is assembled.`,
+        )}. That gets you through the income gate, but approval still depends on documentation quality, remote-work proof, consistency of earnings, and how the application is assembled.`,
         fileNums: ["01", "02", "05", "06"],
       },
       {
         id: "path",
-        label: "Your next move",
-        title: "Build a cleaner submission before you apply.",
+        label: "Your path to approval",
+        title: "Build a cleaner submission before you file.",
         body:
           "The strongest path now is not chasing more income. It is tightening the application package so the case is easy to approve, consistent on paper, and free of preventable friction.",
         fileNums: tier === 147 ? ["07", "08", "09", "10"] : ["01", "05"],
       },
     ];
-
-    return sections;
   }
 
   if (tone === "borderline") {
-    const sections: StorySection[] = [
+    return [
       {
         id: "meaning",
         label: "What this means",
@@ -212,15 +210,13 @@ function getStorySections(
       },
       {
         id: "path",
-        label: "Your fastest path",
+        label: "Your path to approval",
         title: "Close the shortfall, then tighten the file.",
         body:
           "The fastest path is usually a combination of clearer income presentation, a savings bridge where available, and stronger submission control before filing.",
         fileNums: tier === 147 ? ["03", "04", "01", "05", "07"] : ["03", "04", "01"],
       },
     ];
-
-    return sections;
   }
 
   return [
@@ -237,7 +233,7 @@ function getStorySections(
     },
     {
       id: "path",
-      label: "Your fastest path",
+      label: "Your path to approval",
       title: "Fix the gap first. Then prepare the application properly.",
       body:
         "Your plan is to close the financial gap, strengthen how income is evidenced, secure the remote-work proof, and only then move toward submission.",
@@ -317,12 +313,7 @@ function ToolCard({
           {file.cta}
         </a>
 
-        <div
-          className="hidden print:block"
-          style={{
-            marginTop: "8px",
-          }}
-        >
+        <div className="hidden print:block" style={{ marginTop: "8px" }}>
           <div
             style={{
               fontSize: "10px",
@@ -332,7 +323,7 @@ function ToolCard({
               marginBottom: "4px",
             }}
           >
-            File link
+            PDF access
           </div>
           <a
             href={file.url}
@@ -342,11 +333,10 @@ function ToolCard({
               fontSize: "11px",
               lineHeight: "1.5",
               color: "#2563EB",
-              wordBreak: "break-all",
               textDecoration: "underline",
             }}
           >
-            {file.url}
+            Open {file.title}
           </a>
         </div>
       </div>
@@ -377,7 +367,7 @@ function StorySectionCard({
 
       <h2
         style={{
-          fontSize: "20px",
+          fontSize: "22px",
           lineHeight: "1.35",
           fontWeight: 700,
           color: "#0F172A",
@@ -391,7 +381,7 @@ function StorySectionCard({
         style={{
           fontSize: "15px",
           color: "#334155",
-          lineHeight: "1.75",
+          lineHeight: "1.8",
           margin: 0,
         }}
       >
@@ -409,6 +399,73 @@ function StorySectionCard({
           ))}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function DownloadCard({
+  label,
+  supportText,
+}: {
+  label: string;
+  supportText: string;
+}) {
+  return (
+    <div
+      style={{
+        ...cardStyle,
+        textAlign: "center",
+        padding: "30px",
+        borderColor: "#CBD5E1",
+        boxShadow: "0 10px 28px rgba(15,23,42,0.10)",
+      }}
+    >
+      <p
+        className="font-data font-bold uppercase tracking-widest"
+        style={{ fontSize: "11px", color: "#64748B", marginBottom: "10px" }}
+      >
+        Secure Your Full Plan
+      </p>
+
+      <button
+        type="button"
+        onClick={() => window.print()}
+        className="inline-block bg-primary text-primary-foreground py-4 px-8 font-data font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm print:hidden"
+        style={{
+          width: "100%",
+          maxWidth: "420px",
+          boxShadow: "0 12px 28px rgba(15,23,42,0.18)",
+        }}
+      >
+        {label}
+      </button>
+
+      <p
+        style={{
+          fontSize: "13px",
+          color: "#64748B",
+          textAlign: "center",
+          marginTop: "12px",
+          lineHeight: "1.7",
+          maxWidth: "620px",
+          marginInline: "auto",
+        }}
+      >
+        {supportText}
+      </p>
+
+      <div className="hidden print:block" style={{ marginTop: "8px" }}>
+        <p
+          style={{
+            fontSize: "11px",
+            color: "#64748B",
+            lineHeight: "1.6",
+            margin: 0,
+          }}
+        >
+          Save this page as PDF in your browser print dialog. Your file links are shown below as clean, clickable document links.
+        </p>
+      </div>
     </div>
   );
 }
@@ -525,6 +582,17 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
   );
 
   const nextAction = isReady ? config.nextActionReady : config.nextActionNotReady;
+  const riskLabel = isReady
+    ? "Medium Rejection Risk"
+    : tone === "borderline"
+    ? "Borderline Rejection Risk"
+    : "High Rejection Risk";
+
+  const riskBody = isReady
+    ? "You meet the threshold, but approval can still fail if the documentation, evidence order, or remote-work proof is weak."
+    : tone === "borderline"
+    ? "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan."
+    : "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.";
 
   if (verifying) {
     return (
@@ -613,51 +681,102 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         <div
           style={{
             ...cardStyle,
-            padding: "28px",
+            padding: "30px",
             borderColor: tone === "ready" ? "#BBF7D0" : tone === "borderline" ? "#FDE68A" : "#FECACA",
             backgroundColor: tone === "ready" ? "#F0FDF4" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
+            boxShadow: "0 10px 28px rgba(15,23,42,0.08)",
           }}
         >
           <p
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: gapColor }}
           >
-            {isReady ? "Approval Ready" : tone === "borderline" ? "Borderline Risk" : "High Rejection Risk"}
+            {isReady ? "Approval Position: Above Threshold" : "Approval Position: Below Threshold"}
           </p>
 
           <h1
             style={{
-              fontSize: "28px",
-              lineHeight: "1.2",
-              fontWeight: 700,
+              fontSize: "32px",
+              lineHeight: "1.15",
+              fontWeight: 800,
               color: "#0F172A",
               margin: "0 0 10px 0",
+              maxWidth: "900px",
             }}
           >
             {isReady
-              ? "Your Approval Path Is Clear."
-              : `You are ${fmtEurAbs(actualGap)} short of the requirement.`}
+              ? "You meet the threshold — now the goal is protecting the approval."
+              : `You are ${fmtEurAbs(actualGap)} below a safe approval position.`}
           </h1>
 
           <p
             style={{
               fontSize: "16px",
               color: "#334155",
-              lineHeight: "1.75",
+              lineHeight: "1.8",
               margin: 0,
-              maxWidth: "880px",
+              maxWidth: "920px",
             }}
           >
             {isReady ? config.readinessParagraphReady : config.readinessParagraphNotReady}
           </p>
         </div>
 
+        <div
+          style={{
+            ...cardStyle,
+            padding: "26px",
+            borderColor: tone === "ready" ? "#D1FAE5" : tone === "borderline" ? "#FDE68A" : "#FECACA",
+            backgroundColor: tone === "ready" ? "#ECFDF5" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
+          }}
+        >
+          <p
+            className="font-data font-bold uppercase tracking-widest mb-2"
+            style={{ fontSize: "11px", color: gapColor }}
+          >
+            If You Apply Today
+          </p>
+
+          <h2
+            style={{
+              fontSize: "24px",
+              lineHeight: "1.25",
+              fontWeight: 800,
+              color: gapColor,
+              margin: "0 0 10px 0",
+            }}
+          >
+            {riskLabel}
+          </h2>
+
+          <p
+            style={{
+              fontSize: "15px",
+              color: "#334155",
+              lineHeight: "1.75",
+              margin: 0,
+              maxWidth: "880px",
+            }}
+          >
+            {riskBody}
+          </p>
+        </div>
+
+        {storySections.map((section) => {
+          const files =
+            section.fileNums
+              ?.map((num) => fileMap.get(num))
+              .filter((file): file is DeliverableItem => Boolean(file)) || [];
+
+          return <StorySectionCard key={section.id} section={section} files={files} />;
+        })}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div style={cardStyle}>
             <p className="text-[10px] font-data uppercase tracking-widest mb-1" style={{ color: "#64748B" }}>
               Required Income
             </p>
-            <p className="font-data font-bold" style={{ fontSize: "22px", color: "#0F172A" }}>
+            <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
               {fmtEur(requirementAmount)}
               <span className="text-xs font-normal" style={{ color: "#64748B" }}>
                 /mo
@@ -669,7 +788,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             <p className="text-[10px] font-data uppercase tracking-widest mb-1" style={{ color: "#64748B" }}>
               Your Income
             </p>
-            <p className="font-data font-bold" style={{ fontSize: "22px", color: "#0F172A" }}>
+            <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
               {fmtEur(incomeInEur)}
               <span className="text-xs font-normal" style={{ color: "#64748B" }}>
                 /mo
@@ -685,65 +804,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             }}
           >
             <p className="text-[10px] font-data uppercase tracking-widest mb-1" style={{ color: "#64748B" }}>
-              The Gap
+              Your Gap
             </p>
-            <p className="font-data font-bold" style={{ fontSize: "22px", color: gapColor }}>
+            <p className="font-data font-bold" style={{ fontSize: "24px", color: gapColor }}>
               {isReady ? "+" : "-"}
               {fmtEurAbs(actualGap)}
-            </p>
-          </div>
-        </div>
-
-        <div
-          style={{
-            ...cardStyle,
-            textAlign: "center",
-            padding: "28px",
-            borderColor: "#CBD5E1",
-            boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
-          }}
-        >
-          <p
-            className="font-data font-bold uppercase tracking-widest"
-            style={{ fontSize: "11px", color: "#64748B", marginBottom: "10px" }}
-          >
-            Save Your Product
-          </p>
-
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-block bg-primary text-primary-foreground py-4 px-8 font-data font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm print:hidden"
-            style={{
-              minWidth: "280px",
-              boxShadow: "0 10px 28px rgba(15,23,42,0.16)",
-            }}
-          >
-            {config.primaryDownloadLabel}
-          </button>
-
-          <p
-            style={{
-              fontSize: "12px",
-              color: "#64748B",
-              textAlign: "center",
-              marginTop: "12px",
-              lineHeight: "1.6",
-            }}
-          >
-            {config.primaryDownloadSupportText}
-          </p>
-
-          <div className="hidden print:block" style={{ marginTop: "8px" }}>
-            <p
-              style={{
-                fontSize: "11px",
-                color: "#64748B",
-                lineHeight: "1.6",
-                margin: 0,
-              }}
-            >
-              Save this page as PDF in your browser print dialog. All file links are shown inline below.
             </p>
           </div>
         </div>
@@ -753,12 +818,12 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: "#64748B" }}
           >
-            Next Action
+            Your Fastest Path To Approval
           </p>
 
           <p
             style={{
-              fontSize: "18px",
+              fontSize: "20px",
               lineHeight: "1.55",
               fontWeight: 700,
               color: "#0F172A",
@@ -769,14 +834,10 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           </p>
         </div>
 
-        {storySections.map((section) => {
-          const files =
-            section.fileNums
-              ?.map((num) => fileMap.get(num))
-              .filter((file): file is DeliverableItem => Boolean(file)) || [];
-
-          return <StorySectionCard key={section.id} section={section} files={files} />;
-        })}
+        <DownloadCard
+          label={config.primaryDownloadLabel}
+          supportText={config.primaryDownloadSupportText}
+        />
 
         <div style={cardStyle}>
           <p
@@ -786,7 +847,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             {config.includedSystemLabel}
           </p>
 
-          <p style={{ fontSize: "15px", color: "#334155", lineHeight: "1.7", marginBottom: "8px" }}>
+          <p style={{ fontSize: "15px", color: "#334155", lineHeight: "1.75", marginBottom: "8px" }}>
             {config.includedSystemIntro}
           </p>
 
@@ -804,7 +865,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               Extended Approval System
             </p>
 
-            <p style={{ fontSize: "15px", color: "#334155", lineHeight: "1.7", marginBottom: "8px" }}>
+            <p style={{ fontSize: "15px", color: "#334155", lineHeight: "1.75", marginBottom: "8px" }}>
               These additional systems are only included in the full approval package.
             </p>
 
@@ -860,6 +921,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             ) : null}
           </div>
         ) : null}
+
+        <DownloadCard
+          label={config.primaryDownloadLabel}
+          supportText="Keep a saved copy of this plan so your checklist, file access, and action path stay in one place."
+        />
 
         <div className="text-center space-y-2">
           <p style={{ fontSize: "13px", color: "#64748B", lineHeight: "1.6" }}>
