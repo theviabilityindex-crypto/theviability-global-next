@@ -273,14 +273,14 @@ export default function HomePage() {
                       : "View route";
 
                 return \`
-                  <article class="rounded-3xl border border-stone-300 bg-white p-5 shadow-sm">
+                  <article class="flex h-full flex-col rounded-3xl border border-stone-300 bg-white p-5 shadow-sm">
                     <div class="mb-4 flex items-start justify-between gap-4">
-                      <div>
+                      <div class="min-w-0">
                         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Top match \${index + 1}</p>
                         <h3 class="mt-2 text-2xl font-semibold tracking-tight text-stone-950">\${item.label}</h3>
                         <p class="mt-1 text-sm text-stone-600">\${item.visa}</p>
                       </div>
-                      <span class="rounded-full border px-3 py-1 text-xs font-semibold \${item.status.badgeClass}">
+                      <span class="shrink-0 rounded-full border px-3 py-1 text-xs font-semibold \${item.status.badgeClass}">
                         \${item.status.label}
                       </span>
                     </div>
@@ -296,13 +296,15 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <p class="mb-4 text-sm text-stone-700">\${item.status.message}</p>
+                    <p class="text-sm leading-6 text-stone-700">\${item.status.message}</p>
 
-                    <div class="flex flex-wrap items-center gap-3">
-                      <a href="\${item.route}" class="inline-flex items-center rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700">
-                        \${primaryLabel}
-                      </a>
-                      <span class="text-xs text-stone-500">Source: \${item.source}</span>
+                    <div class="mt-auto pt-5">
+                      <div class="flex flex-col gap-3 border-t border-stone-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                        <a href="\${item.route}" class="inline-flex h-11 items-center justify-center rounded-full bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-700">
+                          \${primaryLabel}
+                        </a>
+                        <span class="text-xs text-stone-500">Source: \${item.source}</span>
+                      </div>
                     </div>
                   </article>
                 \`;
@@ -545,7 +547,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div id="result-cards" className="grid gap-5 xl:grid-cols-3" />
+          <div id="result-cards" className="grid gap-5 items-stretch xl:grid-cols-3" />
         </section>
 
         <section className="mt-8 grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
