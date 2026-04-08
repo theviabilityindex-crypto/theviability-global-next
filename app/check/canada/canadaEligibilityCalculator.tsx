@@ -60,43 +60,6 @@ function getTrackLabel(track: BirthTrack) {
   return track === "before_cutoff" ? "Track A" : "Track B";
 }
 
-function getGenerationLabel(generation: GenerationDepth) {
-  switch (generation) {
-    case "parent":
-      return "Parent";
-    case "grandparent":
-      return "Grandparent";
-    case "great_grandparent":
-      return "Great-grandparent";
-    case "great_great_or_beyond":
-      return "Great-great-grandparent or beyond";
-    default:
-      return "Not sure";
-  }
-}
-
-function getAnchorLabel(anchor: AnchorType) {
-  switch (anchor) {
-    case "born_in_canada":
-      return "Born in Canada";
-    case "naturalized_canadian":
-      return "Naturalized Canadian";
-    default:
-      return "Not sure";
-  }
-}
-
-function getDocsLabel(docs: DocumentsState) {
-  switch (docs) {
-    case "full_chain":
-      return "Full chain available";
-    case "partial":
-      return "Partial documents only";
-    case "none":
-      return "No documents yet";
-  }
-}
-
 function getTimeline(status: CalcResponse["status"], documents: DocumentsState) {
   if (status === "Eligible now" && documents === "full_chain") {
     return "Best case: certificate filing can start as soon as the document pack is organized.";
@@ -135,6 +98,18 @@ function getPriceLine(status: CalcResponse["status"]) {
   return status === "Eligible now"
     ? "One-time payment — $147 (no subscription)"
     : "One-time payment — $67 (no subscription)";
+}
+
+function getFixPlanStatusLine(status: CalcResponse["status"]) {
+  if (status === "Eligible now") {
+    return "Your claim looks strong — but proof and sequencing still matter.";
+  }
+
+  if (status === "Likely eligible") {
+    return "Your claim may work — but the chain needs tightening before filing.";
+  }
+
+  return "Your claim has real chain risk right now and needs investigation first.";
 }
 
 function isFixPlanComplete(answers: FixPlanAnswers) {
