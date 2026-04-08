@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import Link from "next/link";
-import CanadaEligibilityCalculator from "./SpainEligibilityCalculator";
+import CanadaEligibilityCalculator from "./canadaEligibilityCalculator";
 
 export const metadata: Metadata = {
   title: "Canada Citizenship by Descent Checker (2026) | Bill C-3 Ghost Citizen Diagnostic",
