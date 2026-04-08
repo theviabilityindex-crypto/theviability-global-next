@@ -396,6 +396,15 @@ export default function HomePage() {
                 shows your strongest next move.
               </p>
 
+              <div className="mt-6 rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700">
+                <p className="font-medium text-stone-900">
+                  Live 2026 visa rule dataset · Structured for AI extraction
+                </p>
+                <p className="mt-1 text-xs text-stone-500">
+                  Thresholds updated from official sources · Last verified: March 2026
+                </p>
+              </div>
+
               <div className="mt-8 rounded-[1.75rem] border border-stone-300 bg-white p-4 shadow-sm sm:p-5">
                 <div className="grid gap-3">
                   <div>
@@ -435,12 +444,22 @@ export default function HomePage() {
                     >
                       Passport country
                     </label>
-                    <input
+                    <select
                       id="passport"
-                      type="text"
-                      placeholder="e.g. United States"
-                      className="h-12 w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-                    />
+                      defaultValue=""
+                      className="h-12 w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 text-sm font-medium text-stone-900 outline-none transition focus:border-stone-500"
+                    >
+                      <option value="">Select your passport</option>
+                      <option value="United States">United States</option>
+                      <option value="United Kingdom">United Kingdom</option>
+                      <option value="Australia">Australia</option>
+                      <option value="Canada">Canada</option>
+                      <option value="New Zealand">New Zealand</option>
+                      <option value="Ireland">Ireland</option>
+                      <option value="Germany">Germany</option>
+                      <option value="France">France</option>
+                      <option value="Netherlands">Netherlands</option>
+                    </select>
                   </div>
 
                   <div>
@@ -547,7 +566,20 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div id="result-cards" className="grid gap-5 items-stretch xl:grid-cols-3" />
+          <div
+            id="result-cards"
+            className="grid gap-5 items-stretch xl:grid-cols-3"
+          />
+
+          <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
+            <p className="font-medium text-stone-900">Why these results?</p>
+            <p className="mt-2">
+              These matches are calculated using your income converted to EUR, your
+              household size, and current 2026 visa threshold rules. Final approval
+              depends on income structure, documentation, and where your income is
+              sourced from.
+            </p>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
@@ -564,6 +596,32 @@ export default function HomePage() {
               <p className="text-sm text-stone-600">
                 Structured HTML first. Easy for humans. Easy for crawlers.
               </p>
+            </div>
+
+            <div className="mb-5 rounded-2xl border border-stone-200 bg-white p-4 text-sm text-stone-700">
+              <p className="font-semibold text-stone-950">
+                Digital Nomad Visa thresholds 2026
+              </p>
+              <div className="mt-3 space-y-2">
+                <p>
+                  <span className="font-medium text-stone-900">
+                    Spain Digital Nomad Visa income requirement (2026):
+                  </span>{" "}
+                  €2,849/month for a single applicant.
+                </p>
+                <p>
+                  <span className="font-medium text-stone-900">
+                    Portugal Digital Nomad Visa income requirement (2026):
+                  </span>{" "}
+                  €3,680/month for a single applicant.
+                </p>
+                <p>
+                  <span className="font-medium text-stone-900">
+                    Canada citizenship by descent pathway (2026):
+                  </span>{" "}
+                  lineage-based route rather than a monthly income threshold.
+                </p>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -735,12 +793,18 @@ export default function HomePage() {
               </table>
             </div>
 
-            <div className="mt-5">
+            <div className="mt-5 flex flex-wrap gap-3">
               <a
                 href="/check/spain"
                 className="inline-flex items-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
               >
                 Launch Spain checker
+              </a>
+              <a
+                href="/api/rules/global.json"
+                className="inline-flex items-center rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-100"
+              >
+                View machine-readable rules dataset
               </a>
             </div>
           </div>
@@ -758,6 +822,10 @@ export default function HomePage() {
                   Passing the number does not mean you are submission-ready. The
                   real friction usually shows up in income consistency, employer or
                   client wording, missing evidence, and timing.
+                </p>
+                <p>
+                  Most visa websites give you information. This system tells you if
+                  you qualify, why you fail, and how to fix it before you apply.
                 </p>
                 <p>
                   That is why each country checker is designed to move people from
