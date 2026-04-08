@@ -184,7 +184,8 @@ function getStorySections(
       {
         id: "meaning",
         label: "What this means",
-        title: "You clear the income threshold — now the real job is protecting the approval.",
+        title:
+          "You clear the income threshold — now the real job is protecting the approval.",
         body: `Your current income of ${fmtEur(
           incomeInEur
         )} is above the estimated threshold of ${fmtEur(
@@ -195,7 +196,10 @@ function getStorySections(
       {
         id: "path",
         label: "Your path to approval",
-        title: tier === 147 ? "Move from qualifying on paper to submission control." : "Build a cleaner submission before you file.",
+        title:
+          tier === 147
+            ? "Move from qualifying on paper to submission control."
+            : "Build a cleaner submission before you file.",
         body:
           tier === 147
             ? "At this stage, the risk shifts from basic qualification to how well the case is organised, evidenced, and submitted. The full system helps reduce preventable errors before filing."
@@ -221,7 +225,10 @@ function getStorySections(
       {
         id: "path",
         label: "Your path to approval",
-        title: tier === 147 ? "Close the shortfall, then take control of the submission." : "Close the shortfall, then tighten the file.",
+        title:
+          tier === 147
+            ? "Close the shortfall, then take control of the submission."
+            : "Close the shortfall, then tighten the file.",
         body:
           tier === 147
             ? "The fastest path is to close the shortfall, strengthen the evidence, and then use the advanced system to control the submission stage properly."
@@ -246,12 +253,17 @@ function getStorySections(
     {
       id: "path",
       label: "Your path to approval",
-      title: tier === 147 ? "Fix the gap first. Then prepare the case like a serious applicant." : "Fix the gap first. Then prepare the application properly.",
+      title:
+        tier === 147
+          ? "Fix the gap first. Then prepare the case like a serious applicant."
+          : "Fix the gap first. Then prepare the application properly.",
       body:
         tier === 147
           ? "Your plan is to close the financial gap, strengthen the evidence, secure the remote-work proof, and then use the advanced files to prepare a cleaner final submission."
           : "Your plan is to close the financial gap, strengthen how income is evidenced, secure the remote-work proof, and only then move toward submission.",
-      fileNums: tier === 147 ? ["03", "04", "02", "01", "05", "07"] : ["03", "04", "02", "01"],
+      fileNums: tier === 147
+        ? ["03", "04", "02", "01", "05", "07"]
+        : ["03", "04", "02", "01"],
     },
   ];
 }
@@ -668,9 +680,10 @@ function DownloadCard({
         style={{
           width: "100%",
           maxWidth: "460px",
-          backgroundColor: "#0F172A",
+          backgroundColor: "#000000",
           color: "#FFFFFF",
-          boxShadow: "0 12px 28px rgba(15,23,42,0.18)",
+          boxShadow: "0 14px 32px rgba(0,0,0,0.25)",
+          letterSpacing: "0.08em",
         }}
       >
         {label}
@@ -832,8 +845,8 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
   const riskBody = isReady
     ? "You meet the threshold, but approval can still fail if the documentation, evidence order, or remote-work proof is weak."
     : tone === "borderline"
-    ? "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan."
-    : "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.";
+      ? "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan."
+      : "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.";
 
   const orientationHeading = getOrientationHeading(tone, config.tier);
   const orientationBody = getOrientationBody(
@@ -935,14 +948,14 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               tone === "ready"
                 ? "#BBF7D0"
                 : tone === "borderline"
-                ? "#FDE68A"
-                : "#FECACA",
+                  ? "#FDE68A"
+                  : "#FECACA",
             backgroundColor:
               tone === "ready"
                 ? "#F0FDF4"
                 : tone === "borderline"
-                ? "#FFFBEB"
-                : "#FEF2F2",
+                  ? "#FFFBEB"
+                  : "#FEF2F2",
             boxShadow: "0 10px 28px rgba(15,23,42,0.08)",
           }}
         >
@@ -990,6 +1003,18 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           >
             {isReady ? config.readinessParagraphReady : config.readinessParagraphNotReady}
           </p>
+
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#475569",
+              lineHeight: "1.7",
+              marginTop: "10px",
+              maxWidth: "900px",
+            }}
+          >
+            Do not move to submission until the steps below are complete. This page is your working plan — follow it in order.
+          </p>
         </div>
 
         <DownloadCard
@@ -1005,14 +1030,14 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               tone === "ready"
                 ? "#D1FAE5"
                 : tone === "borderline"
-                ? "#FDE68A"
-                : "#FECACA",
+                  ? "#FDE68A"
+                  : "#FECACA",
             backgroundColor:
               tone === "ready"
                 ? "#ECFDF5"
                 : tone === "borderline"
-                ? "#FFFBEB"
-                : "#FEF2F2",
+                  ? "#FFFBEB"
+                  : "#FEF2F2",
           }}
         >
           <p
