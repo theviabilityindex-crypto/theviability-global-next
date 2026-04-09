@@ -14,106 +14,42 @@ export const canada147Config: FixPlanTemplateConfig = {
   pageMicroLabel: "Ghost Citizen Protection System™",
 
   nextActionReady:
-    "Begin assembling your full proof and certificate-readiness package using the system below.",
+    "Begin assembling your full citizenship proof system using the files below.",
 
   nextActionNotReady:
-    "Use the protection system below to tighten the chain, strengthen your proof, and prepare the cleanest possible certificate application.",
+    "Use this system to strengthen your claim and prepare a clean submission.",
 
   readinessParagraphReady:
-    "Your result suggests a strong potential claim under Bill C-3. At this stage, the goal is no longer just eligibility — it is protecting the claim, structuring the evidence correctly, and reducing preventable delay before the citizenship certificate stage.",
+    "Your claim appears viable. Now the goal is protecting it — structuring evidence correctly and reducing preventable delay.",
 
   readinessParagraphNotReady:
-    "Your claim may still have weaknesses, but this full system is designed to help you tighten the lineage chain, organize the proof correctly, and move toward a safer filing position before submission.",
+    "Your claim needs strengthening. This system helps you fix weak links and prepare for submission.",
 
-  primaryDownloadLabel: "Save My Full Citizenship Protection System as PDF",
-
+  primaryDownloadLabel: "Save My Full Citizenship System as PDF",
   primaryDownloadUrl: "#",
-
   primaryDownloadSupportText:
-    "Click the button above. Your browser will open the print window so you can save this full citizenship protection system as a PDF and keep the complete process in one place.",
+    "Save your full system so you can follow each step from proof validation through to submission.",
 
-  includedSystemLabel: "Your Full Citizenship Protection System™",
-
+  includedSystemLabel: "Your Full Citizenship Protection System",
   includedSystemIntro:
-    "Everything included in your full citizenship-by-descent protection system.",
+    "This complete system gives you full control over your citizenship-by-descent application.",
 
   deliverables: [
-    {
-      num: "01",
-      title: "Citizenship Proof Checklist",
-      desc: "Final control before you move into the citizenship certificate process.",
-      cta: "View Checklist",
-      url: "#",
-      badge: "START HERE",
-    },
-    {
-      num: "02",
-      title: "Lineage Chain Mapping Template",
-      desc: "Map the direct ancestry chain clearly from the qualifying Canadian ancestor through to you.",
-      cta: "Open Template",
-      url: "#",
-    },
-    {
-      num: "03",
-      title: "Proof Document Pack Guide",
-      desc: "See exactly which birth, citizenship, identity, and supporting records should sit in your evidence pack.",
-      cta: "Open Guide",
-      url: "#",
-    },
-    {
-      num: "04",
-      title: "Name & Identity Consistency Checker",
-      desc: "Catch spelling mismatches, date inconsistencies, and identity issues before they weaken the claim.",
-      cta: "Run Check",
-      url: "#",
-    },
-    {
-      num: "05",
-      title: "Pre-Submission Risk Audit",
-      desc: "Run a final audit to catch chain breaks, renunciation uncertainty, and proof weakness before filing.",
-      cta: "Run Audit",
-      url: "#",
-    },
-    {
-      num: "06",
-      title: "Citizenship Strength Scorecard",
-      desc: "Reassess how strong the claim is before submission and identify the remaining weak points.",
-      cta: "Check My Score",
-      url: "#",
-    },
-    {
-      num: "07",
-      title: "Certificate Submission Blueprint",
-      desc: "Use the correct order and structure for assembling the strongest possible citizenship certificate application.",
-      cta: "Open Blueprint",
-      url: "#",
-    },
-    {
-      num: "08",
-      title: "Document Naming & Filing System",
-      desc: "Keep every proof file clean, consistent, and easy for IRCC to navigate.",
-      cta: "Open Filing System",
-      url: "#",
-    },
-    {
-      num: "09",
-      title: "Chain Break Risk Matrix",
-      desc: "See the common break points that can weaken citizenship-by-descent claims before submission.",
-      cta: "Open Risk Matrix",
-      url: "#",
-    },
-    {
-      num: "10",
-      title: "Certificate Timeline System",
-      desc: "Track your preparation, filing order, and follow-up path from lineage validation through certificate readiness.",
-      cta: "Open Timeline",
-      url: "#",
-    },
+    { num: "01", title: "Citizenship Proof Checklist", desc: "Start here.", cta: "Open", url: "https://drive.google.com/file/d/189vydzEC4QWF3WOajpwGLNePrAlh905R/view?usp=sharing", badge: "START HERE" },
+    { num: "02", title: "Lineage Chain Mapping Template", desc: "Map ancestry clearly.", cta: "Open", url: "https://drive.google.com/file/d/1HeYMoctE8Xh9U5ywxT9_SpgH7XqZp9FK/view?usp=sharing" },
+    { num: "03", title: "Proof Document Pack Guide", desc: "Structure your evidence.", cta: "Open", url: "https://drive.google.com/file/d/1G4sJQnwKAByWqp2PgpYpHylMo09DSiYC/view?usp=sharing" },
+    { num: "04", title: "Identity Consistency Checker", desc: "Remove inconsistencies.", cta: "Open", url: "https://drive.google.com/file/d/1teIuSMuvJtJN7TXTDXSNBo-UffgRhbaa/view?usp=sharing" },
+    { num: "05", title: "Risk Audit", desc: "Catch weaknesses.", cta: "Open", url: "https://drive.google.com/file/d/1V4YNlr2Kb0mBlOnXYE67rYKr8jaBg2pU/view?usp=sharing" },
+    { num: "06", title: "Scorecard", desc: "Measure strength.", cta: "Open", url: "https://drive.google.com/file/d/1EduYMAvchRJIkxQFedcRs77T8UEA1EFY/view?usp=sharing" },
+    { num: "07", title: "Submission Blueprint", desc: "Structure correctly.", cta: "Open", url: "https://drive.google.com/file/d/1-gW1xpJuBkd0zGtP4Y3BHzmNpv4f5gAO/view?usp=sharing" },
+    { num: "08", title: "Document Naming System", desc: "Organize files.", cta: "Open", url: "https://drive.google.com/file/d/1vr-2k_rUiftStvnBEJqXY6gWI-h5GBOy/view?usp=sharing" },
+    { num: "09", title: "Risk Matrix", desc: "Identify failure points.", cta: "Open", url: "https://drive.google.com/file/d/102RupPvve9mgXNgCpZI8v4YsU_4PaVVn/view?usp=sharing" },
+    { num: "10", title: "Timeline System", desc: "Track progress.", cta: "Open", url: "https://drive.google.com/file/d/1_Q0tnTMal3hPzzZ-aQj-0Um3TzI2wwjl/view?usp=sharing" },
   ],
 
   disclaimer:
-    "This system is based on Canada Citizenship Act updates under Bill C-3 (2025–2026) and your provided inputs. It is designed for guidance only and does not constitute legal advice. Always confirm details with official Canadian authorities before applying.",
+    "This system is based on Canada Citizenship Act updates under Bill C-3 (2025–2026). It does not constitute legal advice.",
 
   footerLegal:
-    "Based on Canada Citizenship Act (Bill C-3) • Updated for 2026 rule changes",
+    "Based on Canada Citizenship Act (Bill C-3) • Updated for 2026",
 };

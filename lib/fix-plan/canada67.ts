@@ -20,100 +20,96 @@ export const canada67Config: FixPlanTemplateConfig = {
     "Do not apply yet — your claim has gaps in lineage, proof, or chain integrity. Fix these first before submitting a citizenship certificate application.",
 
   readinessParagraphReady:
-    "Your result suggests a potentially viable claim under Bill C-3, but viability is not the same as filing readiness. At this stage, success depends on how clearly your ancestry chain is proven, how complete your records are, and whether any break-risk is resolved before submission.",
+    "Your result suggests a potentially viable claim under Bill C-3, but viability is not the same as filing readiness. Approval depends on how clearly your ancestry chain is proven, how complete your records are, and whether any break-risk is resolved before submission.",
 
   readinessParagraphNotReady:
-    "Your current result indicates real weakness in the claim — usually missing proof, unclear lineage, renunciation uncertainty, or an unresolved substantial-connection issue. This is fixable. The steps below show you how to strengthen the claim before you spend time or money filing too early.",
+    "Your current result indicates real weakness in the claim — usually missing proof, unclear lineage, renunciation uncertainty, or an unresolved substantial-connection issue. This is fixable. The steps below show you exactly how to strengthen the claim before filing too early.",
 
   primaryDownloadLabel: "SAVE YOUR CITIZENSHIP FIX PLAN (PDF)",
-
   primaryDownloadUrl: "#",
-
   primaryDownloadSupportText:
     "Save this page now. Your full ancestry validation plan, document checklist, and proof strategy are structured here so you can follow them step by step without losing your place.",
 
   includedSystemLabel: "Your Citizenship Fix Plan — Core Files",
-
   includedSystemIntro:
-    "These 6 files are designed to help you strengthen your Canadian citizenship-by-descent claim, tighten your proof chain, and avoid rejection or unnecessary delay.",
+    "These 6 files are designed to help you strengthen your claim, repair weak links, and move toward a safer submission position.",
 
   deliverables: [
     {
       num: "01",
       title: "Citizenship Proof Checklist",
-      desc: "Strategic purpose: Ensure your direct ancestry chain is documented correctly before applying for a citizenship certificate.",
+      desc: "Strategic purpose: Ensure your direct ancestry chain is complete and valid before progressing further.",
       cta: "Open Checklist",
-      url: "#",
+      url: "https://drive.google.com/file/d/189vydzEC4QWF3WOajpwGLNePrAlh905R/view?usp=sharing",
       badge: "START HERE",
     },
     {
       num: "02",
       title: "Lineage Chain Mapping Template",
-      desc: "Strategic purpose: Map parent → grandparent → ancestor clearly so your claim is easy to assess and weak links are visible early.",
+      desc: "Strategic purpose: Map your ancestry clearly to expose weak links early.",
       cta: "Open Template",
-      url: "#",
+      url: "https://drive.google.com/file/d/1HeYMoctE8Xh9U5ywxT9_SpgH7XqZp9FK/view?usp=sharing",
     },
     {
       num: "03",
       title: "Proof Document Pack Guide",
-      desc: "Strategic purpose: Understand exactly which birth, citizenship, name-change, and identity records are required at each generation.",
+      desc: "Strategic purpose: Identify exactly which records are required at each generation.",
       cta: "Open Guide",
-      url: "#",
+      url: "https://drive.google.com/file/d/1G4sJQnwKAByWqp2PgpYpHylMo09DSiYC/view?usp=sharing",
     },
     {
       num: "04",
       title: "Name & Identity Consistency Checker",
-      desc: "Strategic purpose: Identify mismatches across records that could weaken the claim or trigger avoidable delay.",
+      desc: "Strategic purpose: Eliminate inconsistencies that can weaken your claim.",
       cta: "Run Check",
-      url: "#",
+      url: "https://drive.google.com/file/d/1teIuSMuvJtJN7TXTDXSNBo-UffgRhbaa/view?usp=sharing",
     },
     {
       num: "05",
-      title: "Pre-Submission Risk Audit",
-      desc: "Strategic purpose: Catch chain breaks, renunciation uncertainty, missing links, or weak evidence before submission.",
+      title: "Chain Break Risk Audit",
+      desc: "Strategic purpose: Identify structural weaknesses before submission.",
       cta: "Run Audit",
-      url: "#",
+      url: "https://drive.google.com/file/d/1V4YNlr2Kb0mBlOnXYE67rYKr8jaBg2pU/view?usp=sharing",
     },
     {
       num: "06",
       title: "Citizenship Strength Scorecard",
-      desc: "Strategic purpose: Reassess how strong your claim is before submission and identify what still needs fixing.",
+      desc: "Strategic purpose: Assess readiness before committing to application.",
       cta: "Check My Score",
-      url: "#",
+      url: "https://drive.google.com/file/d/1EduYMAvchRJIkxQFedcRs77T8UEA1EFY/view?usp=sharing",
     },
   ],
 
-  upsellTitle: "When You're Ready To Protect A Stronger Claim",
+  upsellTitle: "When You're Ready To Protect The Claim Properly",
 
   upsellDescription:
-    "This Fix Plan helps you identify and repair the weak points in your citizenship claim. The full system is the next step for applicants who want complete control over their evidence pack, submission order, and final certificate-readiness strategy.",
+    "This Fix Plan helps you repair weak points. The full system is for applicants who want complete control over their evidence, structure, and submission outcome.",
 
   upsellCtaLabel: "Unlock Full Citizenship System — $147",
-
   upsellHref: "/check/canada",
 
   upsellItems: [
     {
-      title: "Citizenship Application Blueprint",
-      desc: "Structure your application clearly so IRCC can assess your claim without unnecessary confusion.",
+      title: "Certificate Submission Blueprint",
+      desc: "Build your application in the correct order.",
     },
     {
-      title: "Document Naming & Organisation System",
-      desc: "Keep your ancestry proof clean, structured, and easy to review at certificate stage.",
+      title: "Document Naming System",
+      desc: "Keep your file structure clean and professional.",
     },
     {
-      title: "Chain Break Risk Matrix",
-      desc: "Identify exactly where the lineage could fail before you submit.",
+      title: "Risk Matrix",
+      desc: "Identify where claims fail before submission.",
     },
     {
-      title: "Submission Readiness Timeline",
-      desc: "Track progress from ancestry validation through to certificate submission.",
+      title: "Timeline System",
+      desc: "Track progress from validation to certificate.",
     },
   ],
 
   disclaimer:
-    "This plan is based on Canada Citizenship Act updates under Bill C-3 (2025–2026) and your provided inputs. It is designed for guidance only and does not constitute legal advice. Always confirm details with official Canadian authorities before applying.",
+    "This plan is based on Canada Citizenship Act updates under Bill C-3 (2025–2026) and your provided inputs. It does not constitute legal advice.",
 
   footerLegal:
-    "Based on Canada Citizenship Act (Bill C-3) • Updated for 2026 rule changes",
+    "Based on Canada Citizenship Act (Bill C-3) • Updated for 2026",
 };
