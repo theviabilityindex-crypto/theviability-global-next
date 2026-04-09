@@ -1,6 +1,6 @@
 import FixPlanProductTemplate from "@/components/FixPlanProductTemplate";
-import { spain67Config } from "@/lib/fix-plan/spain67";
-import { spain147Config } from "@/lib/fix-plan/spain147";
+import { canada67Config } from "@/lib/fix-plan/canada67";
+import { canada147Config } from "@/lib/fix-plan/canada147";
 
 type PageProps = {
   searchParams: Promise<{
@@ -11,7 +11,7 @@ type PageProps = {
 export default async function SuccessPage({ searchParams }: PageProps) {
   const { tier } = await searchParams;
 
-  const config = tier === "147" ? spain147Config : spain67Config;
+  const config = tier === "147" ? canada147Config : canada67Config;
 
   return <FixPlanProductTemplate config={config} />;
 }
