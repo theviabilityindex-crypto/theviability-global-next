@@ -425,7 +425,8 @@ export default function CanadaEligibilityCalculator() {
 
   function handlePrimaryAction() {
     if (!displayScore) return;
-    setModalState("fix-plan");
+    setModalState(null);
+    setShowQuestions(true);
   }
 
   function handleOpenQuestions() {
