@@ -1,80 +1,96 @@
 export async function GET() {
   return Response.json({
-    country: "Spain",
-    visa_type: "Digital Nomad Visa",
+    country: "Canada",
+    visa_type: "Citizenship by Descent",
     year: 2026,
 
-    currency: "EUR",
-    unit: "monthly",
+    category: "citizenship",
+    route_type: "descent",
+    law: "Bill C-3",
 
-    thresholds: {
-      main_applicant: 2849,
-      spouse: 1068.38,
-      additional_dependent: 356.13
+    eligibility_model: {
+      type: "lineage_and_rule_split",
+      pre_cutoff_track: "Track A",
+      post_cutoff_track: "Track B",
+      cutoff_date: "2025-12-15",
     },
 
-    annual_thresholds: {
-      main_applicant: 34188,
-      spouse: 12820.56,
-      additional_dependent: 4273.56
+    tracks: {
+      track_a: {
+        label: "Track A",
+        applies_if: "Born before 2025-12-15",
+        summary:
+          "Claims are assessed under the stronger pre-December 15, 2025 Bill C-3 pathway, subject to proof of lineage and citizenship chain.",
+      },
+      track_b: {
+        label: "Track B",
+        applies_if: "Born on or after 2025-12-15",
+        summary:
+          "Claims may require proof that the relevant Canadian parent born abroad satisfied the substantial connection requirement before birth.",
+        substantial_connection_rule: {
+          required_days_in_canada: 1095,
+          unit: "days",
+        },
+      },
     },
 
-    calculation_basis: {
-      type: "SMI",
-      base_value: 1424.5,
-      multiplier_main: 2.0,
-      multiplier_spouse: 0.75,
-      multiplier_additional: 0.25
+    minimum_viable_claim: {
+      requirements: [
+        "A qualifying Canadian exists in the direct lineage",
+        "Each generation in the ancestry chain can be proven",
+        "The Canadian ancestor's status can be documented",
+        "No unresolved chain-break issue invalidates the claim",
+      ],
     },
 
-    verification_chain: {
-      base_value: 1424.5,
-      multiplier: 2.0,
-      final_threshold: 2849,
-      legal_source: "BOE-A-2026-126"
-    },
-
-    summary:
-      "Spain Digital Nomad Visa requires \u20AC2,849/month for a single applicant in 2026.",
-
-    rules: [
-      "Income must be from outside Spain",
-      "Income must be consistent and provable via bank statements",
-      "Combined household income allowed",
-      "At least 80% of income must originate outside Spain"
+    core_factors: [
+      "Direct lineage clarity",
+      "Canadian citizenship proof",
+      "Parent-child relationship evidence",
+      "Name and identity consistency across documents",
+      "Renunciation or chain-break risk",
+      "Track A vs Track B rule alignment",
     ],
 
+    required_documents: [
+      "Birth certificates across the direct lineage",
+      "Identity documents where needed to support continuity",
+      "Canadian birth certificate or citizenship certificate for the anchor ancestor",
+      "Name change or marriage records where identities differ",
+      "Adoption or legal parentage records where applicable",
+    ],
+
+    common_failure_points: [
+      "Missing generation in the chain",
+      "No official proof that the ancestor was Canadian",
+      "Inconsistent names across documents",
+      "Unclear legal parent-child relationship",
+      "Possible renunciation in lineage",
+      "Track B substantial connection requirement not proven",
+    ],
+
+    summary:
+      "Canada citizenship by descent under Bill C-3 depends on proving a complete citizenship chain, the qualifying Canadian ancestor, and the correct pre- or post-December 15, 2025 rule track.",
+
     notes: [
-      "Savings alone are not sufficient to meet the requirement",
-      "Thresholds are based on annualised SMI",
-      "Figures may change annually with SMI updates"
+      "Eligibility by story is not enough; the claim must be document-supported.",
+      "Track B cases may require additional substantial-connection proof.",
+      "Complex lineage, identity, or renunciation issues can weaken an otherwise plausible claim.",
     ],
 
     source: {
-      name: "Royal Decree 126/2026",
+      name: "Canada Citizenship Act / Bill C-3 framework",
       type: "government",
-      code: "BOE-A-2026-126",
-      country: "Spain",
-      verified_date: "2026-03-21"
+      code: "Bill C-3",
+      country: "Canada",
+      verified_date: "2026-04-09",
     },
 
-    version: "2026.2",
-    last_updated: "2026-03-21",
+    version: "2026.1",
+    last_updated: "2026-04-09",
 
     routes: {
-      authority_page: "/spain-digital-nomad-visa-income-2026",
-      calculator: "/check/spain"
+      calculator: "/check/canada",
     },
-
-    savings_bridge_rule: {
-      type: "income_gap_support",
-      description:
-        "Savings may be considered by some consulates to support an income shortfall, but there is no fixed official formula.",
-      example: {
-        monthly_shortfall: 1000,
-        illustrative_savings: 36000
-      },
-      confidence: "conditional"
-    }
   });
 }
