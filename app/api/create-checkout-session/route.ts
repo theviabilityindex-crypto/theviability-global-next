@@ -14,12 +14,20 @@ const stripe = new Stripe(stripeSecretKey, {
 });
 
 function getCountryKeyFromProductKey(productKey?: string): "spain" | "canada" {
-  if (!productKey) return "spain";
+  if (!productKey) {
+    console.warn("No product_key provided — defaulting to spain");
+    return "spain";
+  }
 
-  if (productKey.startsWith("canada_")) return "canada";
-  if (productKey.startsWith("spain_")) return "spain";
+  const key = productKey.toLowerCase();
 
-  return "spain";
+  // ✅ robust detection
+  if (key.includes("canada")) return "canada";
+  if (key.includes("spain")) return "spain";
+
+  console.warn("Unknown product_key format:", productKey);
+
+  return "spain"; // safe fallback
 }
 
 export async function POST(req: Request) {
@@ -66,9 +74,10 @@ export async function POST(req: Request) {
       normalizedTier === 147 ? stripePriceId147 : stripePriceId67;
 
     const countryKey = getCountryKeyFromProductKey(product_key);
+
     const basePath = `https://theviabilityindex.com/check/${countryKey}`;
 
-    console.log("Using price ID:", priceId);
+    console.log("Resolved countryKey:", countryKey);
     console.log("Using checkout base path:", basePath);
 
     const session = await stripe.checkout.sessions.create({
