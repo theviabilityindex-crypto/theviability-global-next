@@ -2,12 +2,6 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2024-06-20",
 });
@@ -26,7 +20,7 @@ export async function POST(req: Request) {
 
   const rawBody = await req.text();
 
-  let event;
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
@@ -45,6 +39,8 @@ export async function POST(req: Request) {
 
       const decisionSessionId = session.metadata?.decision_session_id;
       const tier = Number(session.metadata?.tier);
+      const countryKey = session.metadata?.country_key;
+      const productKey = session.metadata?.product_key;
 
       if (!decisionSessionId) {
         console.error("Missing decision_session_id in metadata");
@@ -57,6 +53,10 @@ export async function POST(req: Request) {
           stripe_checkout_session_id: session.id,
           stripe_payment_status: "paid",
           tier_purchased: tier,
+
+          // ✅ NEW — store for scaling + debugging
+          country_key: countryKey ?? undefined,
+          product_key: productKey ?? undefined,
         })
         .eq("id", decisionSessionId);
 
