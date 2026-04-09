@@ -14,17 +14,32 @@ function getSupabaseAdmin() {
   });
 }
 
+function normalizeNullableString(value: unknown) {
+  if (value === undefined || value === null || value === "") return null;
+  return String(value);
+}
+
+function normalizeNullableNumber(value: unknown) {
+  if (value === undefined || value === null || value === "") return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
     const supabase = getSupabaseAdmin();
 
+    const calculatorPayload = body.calculator_payload ?? {};
+    const resultPayload = body.result_payload ?? {};
+
     const payload = {
       country_key: body.country_key,
       tier_intended: body.tier_intended ?? null,
       product_key: body.product_key ?? null,
 
+      // Spain flat fields
       income_raw: body.income_raw ?? null,
       currency_code: body.currency_code ?? null,
       income_eur: body.income_eur ?? null,
@@ -35,20 +50,52 @@ export async function POST(request: NextRequest) {
       residence_history: body.residence_history ?? null,
       employment_type: body.employment_type ?? null,
 
-      is_viable: body.is_viable ?? null,
+      is_viable: body.is_viable ?? resultPayload.is_viable ?? null,
       gap: body.gap ?? null,
       requirement: body.requirement ?? null,
       tax_leak: body.tax_leak ?? null,
 
-      score_total: body.score_total ?? null,
-      score_confidence: body.score_confidence ?? null,
-      score_status: body.score_status ?? null,
-      score_risk: body.score_risk ?? null,
+      score_total:
+        body.score_total ??
+        normalizeNullableNumber(resultPayload.score),
+      score_confidence:
+        body.score_confidence ??
+        normalizeNullableString(resultPayload.confidence),
+      score_status:
+        body.score_status ??
+        normalizeNullableString(resultPayload.status),
+      score_risk:
+        body.score_risk ??
+        normalizeNullableString(resultPayload.risk),
 
       stripe_checkout_session_id: body.stripe_checkout_session_id ?? null,
       stripe_payment_status: body.stripe_payment_status ?? null,
 
       source_path: body.source_path ?? null,
+
+      // Shared fallback mappings for Canada-style nested calculator data
+      // These reuse existing columns so the session still captures useful state
+      // without breaking Spain.
+      currency_code:
+        body.currency_code ??
+        normalizeNullableString(calculatorPayload.anchor_type) ??
+        null,
+      qualification:
+        body.qualification ??
+        normalizeNullableString(calculatorPayload.birth_track) ??
+        null,
+      citizenship:
+        body.citizenship ??
+        normalizeNullableString(calculatorPayload.generation_depth) ??
+        null,
+      residence_history:
+        body.residence_history ??
+        normalizeNullableString(calculatorPayload.renunciation_risk) ??
+        null,
+      employment_type:
+        body.employment_type ??
+        normalizeNullableString(calculatorPayload.documents_state) ??
+        null,
     };
 
     const { data, error } = await supabase
@@ -85,15 +132,30 @@ export async function PATCH(request: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
+    const questionnairePayload = body.questionnaire_payload ?? {};
+
     const updates = {
       tier_intended: body.tier_intended ?? undefined,
       tier_purchased: body.tier_purchased ?? undefined,
       product_key: body.product_key ?? undefined,
 
-      qualification: body.qualification ?? undefined,
-      citizenship: body.citizenship ?? undefined,
-      residence_history: body.residence_history ?? undefined,
-      employment_type: body.employment_type ?? undefined,
+      // Spain flat questionnaire fields
+      qualification:
+        body.qualification ??
+        normalizeNullableString(questionnairePayload.ancestor_known) ??
+        undefined,
+      citizenship:
+        body.citizenship ??
+        normalizeNullableString(questionnairePayload.renunciation_check) ??
+        undefined,
+      residence_history:
+        body.residence_history ??
+        normalizeNullableString(questionnairePayload.province_known) ??
+        undefined,
+      employment_type:
+        body.employment_type ??
+        normalizeNullableString(questionnairePayload.documents_state) ??
+        undefined,
 
       stripe_checkout_session_id: body.stripe_checkout_session_id ?? undefined,
       stripe_payment_status: body.stripe_payment_status ?? undefined,
