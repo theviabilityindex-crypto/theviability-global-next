@@ -4,16 +4,17 @@ import Link from "next/link";
 import CanadaEligibilityCalculator from "./canadaEligibilityCalculator";
 
 export const metadata: Metadata = {
-  title: "Canada Citizenship by Descent Checker (2026) | Bill C-3 Ghost Citizen Diagnostic",
+  title:
+    "Canada Citizenship by Descent Checker (2026) | Bill C-3 Ghost Citizen Diagnostic",
   description:
-    "Bill C-3 changed Canadian citizenship by descent rules on December 15, 2025. Check the key cutoff, the 1,095-day rule, chain-break risks, and whether your claim looks viable.",
+    "Bill C-3 changed Canadian citizenship by descent rules on December 15, 2025. Check the key cutoff, the 1,095-day rule, chain-break risks, proof requirements, and whether your claim looks viable.",
   alternates: {
     canonical: "https://theviabilityindex.com/check/canada",
   },
   openGraph: {
     title: "Canada Citizenship by Descent Checker (2026)",
     description:
-      "Bill C-3 changed Canadian citizenship by descent rules on December 15, 2025. Check the cutoff, chain risks, and your likely path.",
+      "Bill C-3 changed Canadian citizenship by descent rules on December 15, 2025. Check the cutoff, chain risks, proof requirements, and your likely path.",
     url: "https://theviabilityindex.com/check/canada",
     siteName: "The Viability Index",
     type: "website",
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Canada Citizenship by Descent Checker (2026)",
     description:
-      "Bill C-3 changed Canadian citizenship by descent rules on December 15, 2025. Check the cutoff, chain risks, and your likely path.",
+      "Bill C-3 changed Canadian citizenship by descent rules on December 15, 2025. Check the cutoff, chain risks, proof requirements, and your likely path.",
   },
 };
 
@@ -33,186 +34,672 @@ const keyFacts = {
   substantialConnectionDays: "1,095 days",
   proofStep: "Citizenship certificate required",
   reportedCertificateWait: "Up to 10 months",
+  chainConcept: "Unbroken parent-child chain required",
 };
 
+const faqs = [
+  {
+    question: "Did Bill C-3 remove the first-generation limit in Canada?",
+    answer:
+      "Bill C-3 changed the first-generation limit on December 15, 2025. For people born outside Canada before that date, the change can restore or confirm citizenship beyond the old first-generation limit. For certain births on or after that date, the substantial connection test becomes critical.",
+  },
+  {
+    question:
+      "Can I claim Canadian citizenship through a grandparent or earlier ancestor?",
+    answer:
+      "Potentially, yes. The key question is whether there is an unbroken direct line to a Canadian citizen or a person whose citizenship was restored by the 2025 law change. That is why chain integrity matters more than just saying 'my grandparent was Canadian.'",
+  },
+  {
+    question: "When does the 1,095-day rule apply?",
+    answer:
+      "The 1,095-day substantial connection rule matters for people born outside Canada on or after December 15, 2025 to a Canadian parent who was also born outside Canada. If that parent does not meet the physical-presence requirement, the child’s claim may fail.",
+  },
+  {
+    question: "If I think I qualify, am I automatically done?",
+    answer:
+      "No. Even if Bill C-3 appears to help you, you still need a citizenship certificate as proof. Without that proof, you do not have the document needed to move cleanly toward a Canadian passport.",
+  },
+  {
+    question: "What can break a citizenship-by-descent claim?",
+    answer:
+      "A known renunciation, a broken documentary chain, inconsistent records, or uncertainty around how citizenship flowed through the direct line can all create risk. This is why document readiness matters as much as the legal rule itself.",
+  },
+  {
+    question: "What counts as a valid Canadian ancestor for a claim?",
+    answer:
+      "The question is not simply whether someone in the family was Canadian. The key issue is whether a qualifying Canadian citizen sits in your direct parent-child line and whether citizenship can be shown to pass cleanly through each generation without a break.",
+  },
+  {
+    question:
+      "What is the difference between this checker and official confirmation?",
+    answer:
+      "This checker is an interpretation and decision-support layer based on the current law. Official confirmation only occurs through the citizenship certificate process and the evidence accepted by the relevant Canadian authority.",
+  },
+];
+
+const examples = [
+  {
+    label: "Born outside Canada before Dec 15, 2025 to a Canadian parent",
+    result: "Strong starting position",
+    explanation:
+      "If your parent was already a Canadian citizen when you were born, Bill C-3 may mean you are already Canadian and now need proof.",
+  },
+  {
+    label:
+      "Grandparent was Canadian, parent was born abroad, you were born before the cutoff",
+    result: "Potentially viable",
+    explanation:
+      "This is exactly the type of situation that created mass confusion. The question is no longer just 'grandparent yes or no' but whether the chain still holds.",
+  },
+  {
+    label:
+      "Born outside Canada on or after Dec 15, 2025 to a Canadian parent also born abroad",
+    result: "Depends on 1,095 days",
+    explanation:
+      "This is where the substantial connection test applies. If the Canadian parent cannot prove 1,095 days in Canada before birth, the claim may fail.",
+  },
+  {
+    label: "You suspect someone in the direct line renounced citizenship",
+    result: "Chain risk",
+    explanation:
+      "This is not an instant no in every case, but it is a serious risk flag and usually means records investigation should happen before filing.",
+  },
+];
+
+const factCards = [
+  {
+    label: "Bill C-3 in force",
+    value: keyFacts.inForceDate,
+    explanation: "New citizenship-by-descent framework live",
+  },
+  {
+    label: "Future-birth test",
+    value: keyFacts.substantialConnectionDays,
+    explanation: "Physical presence for certain births abroad",
+  },
+  {
+    label: "Proof step",
+    value: "Certificate",
+    explanation: "You still need proof of citizenship",
+  },
+  {
+    label: "Reported wait",
+    value: keyFacts.reportedCertificateWait,
+    explanation: "Recent certificate wait context",
+  },
+];
+
+const hardRuleExamples = [
+  {
+    title: "Parent born in Canada → stronger path",
+    copy:
+      "If your parent was Canadian and the direct line is clean, your claim usually starts from a much stronger position.",
+  },
+  {
+    title: "Grandparent-only story → chain matters",
+    copy:
+      "Saying 'my grandparent was Canadian' is not enough by itself. The real question is whether citizenship can be shown to pass through parent → child → you without a break.",
+  },
+  {
+    title: "Parent born abroad + post-cutoff birth → 1,095-day issue",
+    copy:
+      "For births on or after December 15, 2025, the substantial connection test becomes a central decision point when the Canadian parent was also born abroad.",
+  },
+  {
+    title: "Renunciation or missing proof → major risk",
+    copy:
+      "A suspected renunciation, missing core records, or inconsistent names across generations can weaken a claim that otherwise looks promising.",
+  },
+];
+
 export default function CanadaCheckPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
+  const datasetJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: "Canada Citizenship by Descent Rules 2026",
+    description:
+      "Machine-readable Bill C-3 citizenship-by-descent rule summary used by The Viability Index Canada checker.",
+    url: "https://theviabilityindex.com/api/rules/canada.json",
+    creator: {
+      "@type": "Organization",
+      name: "The Viability Index",
+      url: "https://theviabilityindex.com",
+    },
+    keywords: [
+      "Canada citizenship by descent 2026",
+      "Canadian citizenship eligibility by lineage",
+      "Bill C-3 2026",
+      "Lost Canadians",
+      "1,095 day rule",
+      "Canadian citizenship checker",
+    ],
+    license: "https://theviabilityindex.com",
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+      contentUrl: "https://theviabilityindex.com/api/rules/canada.json",
+    },
+    variableMeasured: [
+      {
+        "@type": "PropertyValue",
+        name: "Bill C-3 in-force date",
+        value: keyFacts.inForceDate,
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Substantial connection requirement",
+        value: keyFacts.substantialConnectionDays,
+        unitText: "days",
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Proof of citizenship step",
+        value: keyFacts.proofStep,
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Reported citizenship certificate wait",
+        value: keyFacts.reportedCertificateWait,
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Lineage logic requirement",
+        value: keyFacts.chainConcept,
+      },
+    ],
+  };
+
+  const webApplicationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Ghost Citizen Diagnostic (2026)",
+    applicationCategory: "GovernmentApplication",
+    operatingSystem: "Any",
+    url: "https://theviabilityindex.com/check/canada",
+    description:
+      "Diagnostic that checks likely Canadian citizenship-by-descent viability under Bill C-3 using cutoff-date logic, lineage-chain integrity, proof-state clarity, and document-readiness signals.",
+    isAccessibleForFree: true,
+    creator: {
+      "@type": "Organization",
+      name: "The Viability Index",
+      url: "https://theviabilityindex.com",
+    },
+    about: {
+      "@type": "Thing",
+      name: "Canada citizenship by descent under Bill C-3",
+    },
+    subjectOf: {
+      "@type": "Dataset",
+      name: "Canada Citizenship by Descent Rules 2026",
+      url: "https://theviabilityindex.com/api/rules/canada.json",
+    },
+    featureList: [
+      "Checks the December 15, 2025 cutoff",
+      "Flags the 1,095-day substantial connection issue",
+      "Explains chain-break and proof-state risk",
+      "Clarifies parent, grandparent, and multi-generation lineage logic",
+      "Routes users toward the right next step",
+    ],
+  };
+
   return (
     <>
+      <Script
+        id="jsonld-webapplication-canada-check"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationJsonLd) }}
+      />
+      <Script
+        id="jsonld-dataset-canada-check"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
+      />
+      <Script
+        id="jsonld-faq-canada-check"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+
       <main className="min-h-screen bg-white text-neutral-950">
-        
-        {/* HERO */}
         <section className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-10">
-            
-            <p className="text-sm uppercase text-neutral-500">
-              Canada • Citizenship by Descent • 2026
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+            <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-neutral-500">
+              Canada • Bill C-3 • 2026 Rules
             </p>
 
-            <h1 className="mt-2 text-4xl font-semibold">
-              Canada Citizenship by Descent Checker (2026)
-            </h1>
+            <div className="max-w-4xl">
+              <h1 className="text-4xl font-semibold tracking-tight text-neutral-950 sm:text-5xl">
+                Canada Citizenship by Descent Checker (2026)
+              </h1>
 
-            <p className="mt-4 text-lg text-neutral-700">
-              Bill C-3 changed Canadian citizenship by descent on{" "}
-              <strong>{keyFacts.inForceDate}</strong>.  
-              This page helps you understand whether your claim looks strong,
-              unclear, or at risk — before you apply.
-            </p>
-
-            {/* ✅ LEGAL AUTHORITY BLOCK */}
-            <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
-              <p className="text-sm text-blue-900">
-                This page is based on updates to the Canadian Citizenship Act under Bill C-3,
-                in force from <strong>December 15, 2025</strong>.  
-                It reflects the current legal structure used to assess citizenship by descent.
+              <p className="mt-4 text-lg leading-8 text-neutral-700">
+                Bill C-3 changed Canadian citizenship by descent on{" "}
+                <strong className="text-neutral-950">{keyFacts.inForceDate}</strong>.
+                If you were born outside Canada before that date and have a direct
+                Canadian line, you may already be Canadian. If you were born on or
+                after that date to a Canadian parent who was also born abroad, the{" "}
+                <strong className="text-neutral-950">
+                  {keyFacts.substantialConnectionDays}
+                </strong>{" "}
+                rule becomes critical.
               </p>
             </div>
 
-            {/* CTA */}
-            <div className="mt-6 flex gap-3">
-              <a href="#calculator" className="bg-blue-600 text-white px-6 py-3 rounded-xl">
-                Check My Claim
-              </a>
+            <div className="mt-5 max-w-4xl rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
+              <p className="text-sm leading-7 text-blue-950">
+                <strong>Legal basis:</strong> This checker is built on the Canadian
+                Citizenship Act changes under Bill C-3, in force from{" "}
+                <strong>{keyFacts.inForceDate}</strong>. It is an interpretation and
+                decision-support layer of the current law, not a substitute for
+                official confirmation through the citizenship certificate process.
+              </p>
             </div>
 
+            <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+              <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
+                <div className="text-sm font-medium uppercase tracking-[0.16em] text-neutral-500">
+                  Quick answer
+                </div>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+                  You might already be Canadian — but the real question is whether
+                  your lineage chain holds and whether you can prove it cleanly.
+                </h2>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-700">
+                  This page does two jobs. First, it explains the Bill C-3 rule
+                  change clearly enough for humans and AI systems to extract. Then
+                  it moves you into the Ghost Citizen Diagnostic so you can find out
+                  whether your situation looks strong, unclear, or risky before you
+                  waste time filing blind.
+                </p>
+
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <a
+                    href="#calculator"
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  >
+                    Check My Claim
+                  </a>
+
+                  <a
+                    href="#rules"
+                    className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+                  >
+                    See the Rule Split
+                  </a>
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5">
+                  <h3 className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                    Canada citizenship by descent — core checkpoints
+                  </h3>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-neutral-900">
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Bill C-3 in force</span>
+                      <span className="font-semibold">Dec 15, 2025</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Future-birth test</span>
+                      <span className="font-semibold">1,095 days</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Proof needed</span>
+                      <span className="font-semibold">Certificate</span>
+                    </div>
+                    <div className="flex justify-between rounded-xl bg-neutral-50 px-3 py-3">
+                      <span>Reported wait</span>
+                      <span className="font-semibold">10 months</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5">
+                  <h3 className="text-sm font-medium uppercase tracking-[0.14em] text-neutral-500">
+                    What happens after the free result
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-neutral-700">
+                    If your result shows risk, uncertainty, or missing proof, the
+                    next step is a structured readiness plan{" "}
+                    <strong className="text-neutral-950">($67)</strong>. If your
+                    claim looks strong, the goal shifts to protecting the claim,
+                    tightening the evidence pack, and moving properly through the
+                    certificate stage{" "}
+                    <strong className="text-neutral-950">($147)</strong>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-neutral-200 bg-white p-5 sm:p-6">
+                <div className="text-sm font-medium uppercase tracking-[0.16em] text-neutral-500">
+                  Source basis
+                </div>
+                <dl className="mt-4 space-y-3">
+                  <div>
+                    <dt className="text-sm text-neutral-500">Law in force</dt>
+                    <dd className="mt-1 text-xl font-semibold text-neutral-950">
+                      {keyFacts.inForceDate}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">
+                      Substantial connection test
+                    </dt>
+                    <dd className="mt-1 text-xl font-semibold text-neutral-950">
+                      {keyFacts.substantialConnectionDays}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Proof step</dt>
+                    <dd className="mt-1 text-base font-medium text-neutral-900">
+                      {keyFacts.proofStep}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-neutral-500">Last verified</dt>
+                    <dd className="mt-1 text-base font-medium text-neutral-900">
+                      {lastVerified}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mt-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                    Official vs system
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-neutral-700">
+                    This checker estimates your likely position under current law.
+                    Official confirmation only occurs when the Canadian authority
+                    accepts your citizenship certificate evidence.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* LINEAGE (GOAT SECTION) */}
         <section className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8">
-            
-            <h2 className="text-2xl font-semibold">
-              How citizenship by descent actually works
-            </h2>
-
-            <p className="mt-4 text-neutral-700">
-              Canadian citizenship by descent is not based on a single ancestor.
-              It depends on an unbroken chain.
-            </p>
-
-            <div className="mt-4 space-y-3 text-neutral-800">
-              <div>Parent → You</div>
-              <div>Grandparent → Parent → You</div>
-              <div>Great-grandparent → Grandparent → Parent → You</div>
+          <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+            <div className="max-w-3xl">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {factCards.map((card) => (
+                  <div
+                    key={card.label}
+                    className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3 sm:p-4"
+                  >
+                    <div className="text-xs sm:text-sm text-neutral-500">
+                      {card.label}
+                    </div>
+                    <div className="mt-1 text-xl font-semibold leading-none text-neutral-950 sm:text-2xl">
+                      {card.value}
+                    </div>
+                    <div className="mt-2 text-[11px] leading-4 text-neutral-600 sm:text-sm sm:leading-5">
+                      {card.explanation}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-
-            <p className="mt-4 text-neutral-700">
-              If the chain breaks at any point — through renunciation, missing records,
-              or legal limits — the claim weakens or fails.
-            </p>
-
           </div>
         </section>
 
-        {/* RULES */}
-        <section className="border-b border-neutral-200 bg-neutral-50">
-          <div className="mx-auto max-w-6xl px-4 py-8">
-            
-            <h2 className="text-2xl font-semibold">
-              The 2026 rule split (Bill C-3)
-            </h2>
-
-            <div className="mt-4 space-y-3 text-neutral-800">
-              <div>
-                <strong>Before December 15, 2025:</strong>  
-                Claims may be restored beyond the first-generation limit.
-              </div>
-
-              <div>
-                <strong>After December 15, 2025:</strong>  
-                The 1,095-day rule applies if the parent was also born abroad.
-              </div>
-
-              <div>
-                <strong>Proof is always required:</strong>  
-                A citizenship certificate is needed regardless of eligibility.
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* EXAMPLES */}
         <section className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8">
-            
-            <h2 className="text-2xl font-semibold">
-              Example outcomes
-            </h2>
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                How Canadian citizenship by descent actually works
+              </h2>
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                Canadian citizenship by descent is not based on a single ancestor.
+                It depends on an unbroken direct line and on where the chain breaks.
+                That is why the real question is not just{" "}
+                <em>“Was my grandparent Canadian?”</em> but whether the path can be
+                shown clearly from generation to generation.
+              </p>
 
-            <div className="mt-5 grid grid-cols-2 gap-4">
-              
-              <div className="border p-4 rounded-xl">
-                <strong>Parent Canadian, born before cutoff</strong>
-                <div className="mt-2">Strong position</div>
+              <div className="mt-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 sm:p-5">
+                <div className="space-y-3 text-base text-neutral-800">
+                  <div>
+                    <strong>Parent → You</strong>
+                  </div>
+                  <div>
+                    <strong>Grandparent → Parent → You</strong>
+                  </div>
+                  <div>
+                    <strong>Great-grandparent → Grandparent → Parent → You</strong>
+                  </div>
+                  <div>
+                    <strong>
+                      Great-great-grandparent → Great-grandparent → Grandparent →
+                      Parent → You
+                    </strong>
+                  </div>
+                </div>
               </div>
 
-              <div className="border p-4 rounded-xl">
-                <strong>Grandparent Canadian</strong>
-                <div className="mt-2">Depends on chain</div>
-              </div>
-
-              <div className="border p-4 rounded-xl">
-                <strong>Post-cutoff birth</strong>
-                <div className="mt-2">1,095-day rule applies</div>
-              </div>
-
-              <div className="border p-4 rounded-xl">
-                <strong>Renunciation in chain</strong>
-                <div className="mt-2">High risk</div>
-              </div>
-
+              <p className="mt-4 text-base leading-7 text-neutral-700">
+                If the chain breaks at any point through renunciation, missing
+                records, inconsistent identity documents, or a legal limit, the
+                claim weakens or fails. This is why the page focuses so heavily on
+                lineage logic and proof-state clarity.
+              </p>
             </div>
-
           </div>
         </section>
 
-        {/* CALCULATOR */}
         <CanadaEligibilityCalculator />
 
-        {/* WHAT THIS PAGE DOES */}
+        <section
+          id="rules"
+          className="border-b border-neutral-200 bg-neutral-50 scroll-mt-24"
+        >
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                How the Bill C-3 split works
+              </h2>
+
+              <p className="mt-2 text-sm text-neutral-600">
+                This checker uses the post-December 15, 2025 citizenship-by-descent
+                framework.
+              </p>
+
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                The biggest mistake people make is treating this like one universal
+                rule. It is not. The first question is when you were born. That one
+                answer can change the entire path.
+              </p>
+
+              <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4">
+                <ul className="space-y-3 text-base text-neutral-800">
+                  <li>
+                    <strong>Track A — Born before December 15, 2025:</strong>{" "}
+                    Bill C-3 may already have restored or confirmed citizenship
+                    beyond the old first-generation limit.
+                  </li>
+                  <li>
+                    <strong>Track B — Born on or after December 15, 2025:</strong>{" "}
+                    if your Canadian parent was also born abroad, they usually need{" "}
+                    {keyFacts.substantialConnectionDays} of physical presence in
+                    Canada before your birth.
+                  </li>
+                  <li>
+                    <strong>Proof still matters:</strong> even if the law helps you,
+                    you still need a citizenship certificate as evidence.
+                  </li>
+                  <li>
+                    <strong>Chain risk matters:</strong> a broken documentary line or
+                    a known renunciation can turn a strong story into a weak filing.
+                  </li>
+                </ul>
+              </div>
+
+              <p className="mt-4 text-xs text-neutral-500">
+                Machine-readable rule source: /api/rules/canada.json
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8">
-
-            <h2 className="text-2xl font-semibold">
-              What this tool does
-            </h2>
-
-            <p className="mt-4 text-neutral-700">
-              This tool estimates your likelihood of eligibility based on current law.
-              It does not replace official confirmation.
-            </p>
-
-            {/* ✅ SYSTEM VS OFFICIAL */}
-            <div className="mt-4 rounded-xl border p-4">
-              <p className="text-sm text-neutral-700">
-                Official confirmation only occurs after applying for a Canadian citizenship certificate.
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Hard rule examples
+              </h2>
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                These are the kinds of practical examples AI systems and real users
+                both need. They turn the law into decisions.
               </p>
             </div>
 
-            {/* CTA reinforcement */}
-            <p className="mt-4 text-neutral-700">
-              If your result shows risk or uncertainty, the next step is a structured fix plan ($67).  
-              If your claim looks strong, the goal shifts to protecting it properly ($147).
-            </p>
-
+            <div className="mt-5 grid max-w-4xl gap-4 sm:grid-cols-2">
+              {hardRuleExamples.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
+                >
+                  <div className="text-base font-semibold text-neutral-950">
+                    {item.title}
+                  </div>
+                  <div className="mt-2 text-sm leading-7 text-neutral-700">
+                    {item.copy}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* DISCLAIMER */}
+        <section className="border-b border-neutral-200 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Worked examples
+              </h2>
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                These examples show why this product is not just about whether you
+                have a Canadian grandparent. It is about date split, lineage
+                chain strength, and proof.
+              </p>
+            </div>
+
+            <div className="mt-5 grid max-w-3xl grid-cols-2 gap-4">
+              {examples.map((example) => (
+                <div
+                  key={example.label}
+                  className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
+                >
+                  <div className="text-sm text-neutral-500">{example.label}</div>
+                  <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                    {example.result}
+                  </div>
+                  <div className="mt-2 text-sm text-neutral-600">
+                    {example.explanation}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-neutral-200 bg-neutral-50">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                What this page does
+              </h2>
+              <p className="mt-3 text-base leading-7 text-neutral-700">
+                This tool explains the current Canada citizenship-by-descent rule
+                change, shows the key December 15, 2025 split, flags the
+                {` ${keyFacts.substantialConnectionDays} `}
+                issue where relevant, and lets you check whether your claim looks
+                strong, unclear, or document-heavy before you move into a paid
+                readiness product.
+              </p>
+
+              <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5">
+                <p className="text-sm leading-7 text-neutral-700">
+                  <strong>Important distinction:</strong> This tool estimates your
+                  likelihood of eligibility under current law. Official confirmation
+                  only occurs after applying for a Canadian citizenship certificate.
+                </p>
+              </div>
+
+              <p className="mt-4 text-base leading-7 text-neutral-700">
+                If your result shows risk or uncertainty, the next step is a
+                structured fix plan designed to identify missing proof, chain-break
+                risk, and document gaps. If your claim looks strong, the goal shifts
+                to protecting it properly and moving cleanly through the proof stage.
+              </p>
+
+              <div className="mt-4 flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                <Link
+                  href="/check/spain"
+                  className="font-medium text-blue-700 underline underline-offset-4 transition hover:text-blue-800"
+                >
+                  See the Spain checker
+                </Link>
+
+                <Link
+                  href="/"
+                  className="font-medium text-blue-700 underline underline-offset-4 transition hover:text-blue-800"
+                >
+                  Back to global dashboard
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-neutral-200 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl font-semibold tracking-tight">FAQ</h2>
+            </div>
+
+            <div className="mt-5 divide-y divide-neutral-200 rounded-2xl border border-neutral-200 bg-white">
+              {faqs.map((faq) => (
+                <details key={faq.question} className="group p-4 open:bg-neutral-50">
+                  <summary className="cursor-pointer list-none text-base font-medium text-neutral-950">
+                    {faq.question}
+                  </summary>
+                  <p className="mt-3 text-sm leading-7 text-neutral-700">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8">
-            <div className="border border-amber-200 bg-amber-50 p-4 rounded-xl">
-              <strong>Important:</strong>
-              <p className="mt-2 text-sm">
-                This is not legal advice. Outcomes depend on documentation,
-                lineage integrity, and government assessment.
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+              <div className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-900">
+                Important disclaimer
+              </div>
+              <p className="mt-3 text-sm leading-7 text-amber-950">
+                This page is an informational viability tool, not legal advice.
+                Final outcomes depend on chain integrity, documentary proof, name
+                consistency across generations, any renunciation history, and how
+                the relevant Canadian authority assesses the evidence you submit.
               </p>
             </div>
           </div>
         </section>
-
       </main>
     </>
   );
