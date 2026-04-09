@@ -126,44 +126,31 @@ function restoreCachedPlan(
   setResult: (value: CachedResult | null) => void,
   setIncomeInEur: (value: number) => void
 ) {
-  const storageKeys = [
-    {
-      resultKey: `${countryKey}_dnv_result`,
-      incomeKey: `${countryKey}_dnv_income`,
-      currencyKey: `${countryKey}_dnv_currency`,
-    },
-    {
-      resultKey: "dnv_result",
-      incomeKey: "dnv_income",
-      currencyKey: "dnv_currency",
-    },
-  ];
+  const keys = {
+    resultKey: `${countryKey}_dnv_result`,
+    incomeKey: `${countryKey}_dnv_income`,
+    currencyKey: `${countryKey}_dnv_currency`,
+  };
 
-  for (const keys of storageKeys) {
-    try {
-      const savedResult = localStorage.getItem(keys.resultKey);
-      const savedIncome = localStorage.getItem(keys.incomeKey);
-      const savedCurrency = localStorage.getItem(keys.currencyKey);
+  try {
+    const savedResult = localStorage.getItem(keys.resultKey);
+    const savedIncome = localStorage.getItem(keys.incomeKey);
+    const savedCurrency = localStorage.getItem(keys.currencyKey);
 
-      if (savedResult) {
-        setResult(JSON.parse(savedResult) as CachedResult);
-      }
-
-      if (savedIncome && savedCurrency) {
-        const raw = Number(savedIncome);
-        const rate = CURRENCY_TO_EUR[savedCurrency] || 1;
-        setIncomeInEur(Math.round(raw * rate * 100) / 100);
-      }
-
-      if (savedResult && savedIncome && savedCurrency) {
-        return true;
-      }
-    } catch {
-      // graceful fallback
+    if (savedResult) {
+      setResult(JSON.parse(savedResult) as CachedResult);
     }
-  }
 
-  return false;
+    if (savedIncome && savedCurrency) {
+      const raw = Number(savedIncome);
+      const rate = CURRENCY_TO_EUR[savedCurrency] || 1;
+      setIncomeInEur(Math.round(raw * rate * 100) / 100);
+    }
+
+    return !!(savedResult && savedIncome && savedCurrency);
+  } catch {
+    return false;
+  }
 }
 
 function getStoryTone(actualGap: number) {
@@ -282,28 +269,33 @@ function inferFileType(file: DeliverableItem) {
   return "Strategy";
 }
 
-function getOrientationHeading(tone: StoryTone, tier: 67 | 147) {
+function getOrientationHeading(
+  tone: StoryTone,
+  tier: 67 | 147,
+  countryLabel: string
+) {
   if (tier === 147) {
-    if (tone === "ready") return "Your Spain Approval System Is Ready";
-    return "Your Spain Approval System Is Ready — But You Should Not Apply Yet";
+    if (tone === "ready") return `Your ${countryLabel} Approval System Is Ready`;
+    return `Your ${countryLabel} Approval System Is Ready — But You Should Not Apply Yet`;
   }
 
-  if (tone === "ready") return "Your Spain Fix Plan Is Ready";
-  return "Your Spain Fix Plan Is Ready — Here Is Why You Should Not Apply Yet";
+  if (tone === "ready") return `Your ${countryLabel} Fix Plan Is Ready`;
+  return `Your ${countryLabel} Fix Plan Is Ready — Here Is Why You Should Not Apply Yet`;
 }
 
 function getOrientationBody(
   tone: StoryTone,
   tier: 67 | 147,
   actualGap: number,
-  requirementAmount: number
+  requirementAmount: number,
+  countryLabel: string
 ) {
   if (tier === 147) {
     if (tone === "ready") {
-      return `You purchased the full approval system because passing the threshold alone is not enough. This page shows what you bought, why it matters, and how to move from eligibility to a cleaner submission.`;
+      return "You purchased the full approval system because passing the threshold alone is not enough. This page shows what you bought, why it matters, and how to move from eligibility to a cleaner submission.";
     }
 
-    return `Based on your Spain 2026 viability result, you are currently ${fmtEurAbs(
+    return `Based on your ${countryLabel} 2026 viability result, you are currently ${fmtEurAbs(
       actualGap
     )} below the estimated threshold of ${fmtEur(
       requirementAmount
@@ -314,7 +306,7 @@ function getOrientationBody(
     return "You purchased the Fix Plan to reduce preventable rejection risk before you apply. This page explains what your result means, what to do first, and which files help you tighten the case.";
   }
 
-  return `Based on your Spain 2026 viability result, you are currently ${fmtEurAbs(
+  return `Based on your ${countryLabel} 2026 viability result, you are currently ${fmtEurAbs(
     actualGap
   )} below the estimated threshold of ${fmtEur(
     requirementAmount
@@ -848,12 +840,17 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       ? "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan."
       : "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.";
 
-  const orientationHeading = getOrientationHeading(tone, config.tier);
+  const orientationHeading = getOrientationHeading(
+    tone,
+    config.tier,
+    config.countryLabel
+  );
   const orientationBody = getOrientationBody(
     tone,
     config.tier,
     actualGap,
-    requirementAmount
+    requirementAmount,
+    config.countryLabel
   );
 
   if (verifying) {
