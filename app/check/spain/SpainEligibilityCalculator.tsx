@@ -122,18 +122,23 @@ function getGapLabel(gap: number) {
   return gap >= 0 ? "Amount above threshold" : "Income shortfall";
 }
 
+function getGapPercent(requirement: number, gap: number) {
+  if (requirement <= 0) return 0;
+  return round2((Math.abs(gap) / requirement) * 100);
+}
+
 function getPrimaryCta(status: string) {
   if (status === "Eligible now") {
-    return "Protect My Approval — Get My Fix Plan $147";
+    return "Get My Approval Plan — $147";
   }
-  return "Avoid Rejection — Get My Fix Plan $67";
+  return "Get My Fix Plan — $67";
 }
 
 function getModalCta(status: string) {
   if (status === "Eligible now") {
-    return "PROTECT MY APPROVAL — GET MY PLAN ($147)";
+    return "CONTINUE TO MY APPROVAL PLAN — $147";
   }
-  return "AVOID REJECTION — GET MY PLAN ($67)";
+  return "CONTINUE TO MY FIX PLAN — $67";
 }
 
 function getQuestionnaireCta(status: string) {
@@ -156,7 +161,9 @@ function getDecisionMessage(status: string, gap: number) {
       headline: "You meet the income threshold — but approval is not guaranteed.",
       body:
         "Most rejections at this stage happen because of documentation weakness, income consistency issues, or poor submission structure.",
-      applyToday: "Medium risk",
+      applyToday: "Likely approvable, but still exposed to preventable rejection risk",
+      verdict:
+        "If you applied today, your application would likely be approvable — assuming your income is consistent, clearly documented, and your submission is structured properly.",
     };
   }
 
@@ -167,14 +174,19 @@ function getDecisionMessage(status: string, gap: number) {
         Math.abs(gap),
         "EUR"
       )} below the current threshold. Small adjustments may still move you into a safer approval position.`,
-      applyToday: "High risk",
+      applyToday: "High rejection risk",
+      verdict:
+        "If you applied today, your application would likely be rejected unless you first close the shortfall and tighten the evidence behind the case.",
     };
   }
 
   return {
     headline: "You are currently below the required threshold.",
-    body: "Applications at this level are likely to be rejected unless you follow a clear fix plan first.",
-    applyToday: "High risk",
+    body:
+      "Applications at this level are likely to be rejected unless you follow a clear fix plan first.",
+    applyToday: "Very high rejection risk",
+    verdict:
+      "If you applied today, your application would likely be rejected because your current income position is below the estimated minimum threshold.",
   };
 }
 
@@ -243,6 +255,18 @@ function getFixPlanStatusLine(status: string) {
   return "You are currently below the required threshold.";
 }
 
+function getConfidenceSupport(status: string, confidence: string) {
+  if (status === "Eligible now") {
+    return `${confidence} confidence — your income clears the threshold, but documentation quality, consistency, and submission structure still matter.`;
+  }
+
+  if (status === "Borderline") {
+    return `${confidence} confidence — you are close enough that small changes can improve the outcome, but weak documentation or unstable income can still kill the case.`;
+  }
+
+  return `${confidence} confidence — the income shortfall is material enough that the case should be fixed before any submission attempt.`;
+}
+
 function isFixPlanComplete(answers: FixPlanAnswers) {
   return Boolean(
     answers.qualification &&
@@ -307,6 +331,16 @@ export default function SpainEligibilityCalculator() {
     result && incomeInEur > 0
       ? getProgressWidth(result.requirement, incomeInEur)
       : 0;
+
+  const gapPercent =
+    result && result.requirement > 0 ? getGapPercent(result.requirement, result.gap) : 0;
+
+  const applyTodayTone =
+    displayScore?.status === "Eligible now"
+      ? "border-emerald-200 bg-emerald-50"
+      : displayScore?.status === "Borderline"
+      ? "border-amber-200 bg-amber-50"
+      : "border-red-200 bg-red-50";
 
   useEffect(() => {
     if (showQuestions && questionRef.current) {
@@ -734,6 +768,7 @@ export default function SpainEligibilityCalculator() {
                       <div className="mt-2 space-y-2 text-sm text-neutral-800">
                         <div>Income gap or surplus</div>
                         <div>Risk level</div>
+                        <div>Confidence level</div>
                         <div>Estimated time to qualify</div>
                       </div>
                     </div>
@@ -762,6 +797,8 @@ export default function SpainEligibilityCalculator() {
                         className={`h-2 rounded-full ${
                           displayScore.status === "Eligible now"
                             ? "bg-green-600"
+                            : displayScore.status === "Borderline"
+                            ? "bg-amber-500"
                             : "bg-red-600"
                         }`}
                         style={{ width: `${progressWidth}%` }}
@@ -789,20 +826,37 @@ export default function SpainEligibilityCalculator() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-neutral-200 p-4">
-                    <div className="text-sm text-neutral-500">
-                      {getGapLabel(result.gap)}
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-neutral-200 p-4">
+                      <div className="text-sm text-neutral-500">
+                        {getGapLabel(result.gap)}
+                      </div>
+                      <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                        {formatCurrency(Math.abs(result.gap), "EUR")}
+                      </div>
                     </div>
-                    <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                      {formatCurrency(Math.abs(result.gap), "EUR")}
+
+                    <div className="rounded-2xl border border-neutral-200 p-4">
+                      <div className="text-sm text-neutral-500">
+                        Gap as % of requirement
+                      </div>
+                      <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                        {gapPercent}%
+                      </div>
                     </div>
-                    <div className="mt-2 text-sm text-neutral-600">
-                      Fix time: {getFixTime(Math.abs(result.gap))}
+
+                    <div className="rounded-2xl border border-neutral-200 p-4">
+                      <div className="text-sm text-neutral-500">
+                        Estimated fix time
+                      </div>
+                      <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                        {getFixTime(Math.abs(result.gap))}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                       <div className="text-xs uppercase tracking-[0.14em] text-neutral-500">
                         Status
                       </div>
@@ -810,7 +864,8 @@ export default function SpainEligibilityCalculator() {
                         {displayScore.status}
                       </div>
                     </div>
-                    <div>
+
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                       <div className="text-xs uppercase tracking-[0.14em] text-neutral-500">
                         Risk level
                       </div>
@@ -818,17 +873,38 @@ export default function SpainEligibilityCalculator() {
                         {displayScore.risk}
                       </div>
                     </div>
+
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                      <div className="text-xs uppercase tracking-[0.14em] text-neutral-500">
+                        Confidence
+                      </div>
+                      <div className="mt-1 font-medium text-neutral-950">
+                        {displayScore.confidence}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                  <div className={`rounded-2xl border p-4 ${applyTodayTone}`}>
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-600">
                       If you apply today
                     </div>
                     <h3 className="mt-2 text-lg font-semibold text-neutral-950">
                       {decisionMessage.applyToday}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                    <p className="mt-2 text-sm leading-6 text-neutral-800">
+                      {decisionMessage.verdict}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-neutral-700">
                       {decisionMessage.body}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      Confidence reading
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                      {getConfidenceSupport(displayScore.status, displayScore.confidence)}
                     </p>
                   </div>
 
@@ -1014,119 +1090,30 @@ export default function SpainEligibilityCalculator() {
                         type="button"
                         disabled={!canPurchase(fixPlanAnswers) || checkoutLoading}
                         onClick={handleContinueToPayment}
-                        className="mt-8 inline-flex w-full items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300"
+                        className="mt-6 inline-flex items-center justify-center rounded-xl bg-neutral-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {checkoutLoading
-                          ? "REDIRECTING TO SECURE CHECKOUT..."
+                          ? "Redirecting..."
                           : getQuestionnaireCta(displayScore.status)}
                       </button>
-
-                      {error ? (
-                        <p className="mt-4 text-center text-sm text-red-700">{error}</p>
-                      ) : null}
-
-                      <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
-                        Secure checkout • Instant access after payment
-                      </p>
                     </div>
                   ) : null}
 
                   <div className="rounded-2xl border border-neutral-200 bg-white p-4">
                     <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      How your score is calculated
+                      Approval path summary
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-neutral-700">
-                      Your Visa Approval Score is derived from income strength,
-                      income consistency, documentation strength, and timeline readiness.
+                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                      {approvalPathSummary}
                     </p>
-
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Income strength
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.incomeStrength}/40
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Income consistency
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.incomeConsistency}/20
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Documentation strength
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.documentationStrength}/20
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Timeline readiness
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.timelineReadiness}/20
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
-                      Approval path
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Your safest next step depends on your current position.
-                    </p>
-
-                    <div className="mt-4 space-y-3">
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Income gap
-                        </div>
-                        <div className="mt-1 text-sm text-neutral-950">
-                          You currently {result.gap >= 0 ? "clear" : "miss"} the income requirement by{" "}
-                          {formatCurrency(Math.abs(result.gap), "EUR")}.
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Fastest path to approval
-                        </div>
-                        <div className="mt-1 text-sm text-neutral-950">
-                          {displayScore.status === "Eligible now"
-                            ? "Maintain clean evidence, tighten documentation, and follow a structured submission plan before applying."
-                            : "Increase income, strengthen evidence, and follow a structured plan before applying."}
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Priority fix order
-                        </div>
-                        <div className="mt-1 text-sm text-neutral-950">
-                          {approvalPathSummary}
-                        </div>
-                      </div>
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      Want this result saved for follow-up?
                     </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                    <h3 className="text-lg font-semibold text-neutral-950">
-                      Want your personalised approval plan by email?
-                    </h3>
                     <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Get a copy of your result summary sent to your email so you can
-                      come back to it later.
+                      Enter your email to save this result locally for follow-up workflows and future reminders.
                     </p>
 
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -1134,15 +1121,15 @@ export default function SpainEligibilityCalculator() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 outline-none transition focus:border-neutral-950"
+                        placeholder="Enter your email"
+                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
                       />
                       <button
                         type="button"
                         onClick={handleSendEmailCapture}
-                        className="inline-flex items-center justify-center rounded-xl border border-neutral-950 px-5 py-3 text-sm font-medium text-neutral-950 transition hover:bg-neutral-50"
+                        className="inline-flex items-center justify-center rounded-xl border border-neutral-300 px-5 py-3 text-sm font-medium text-neutral-800 transition hover:bg-neutral-50"
                       >
-                        Send me my result
+                        Save result
                       </button>
                     </div>
 
