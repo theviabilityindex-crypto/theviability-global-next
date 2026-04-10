@@ -111,10 +111,10 @@ function getClientScore(requirement: number, incomeInEur: number) {
   };
 }
 
-function getFixTime(gap: number) {
-  if (gap <= 0) return "Ready now";
-  if (gap < 500) return "4–8 weeks";
-  if (gap <= 1500) return "6–12 weeks";
+function getFixTime(gapMagnitude: number) {
+  if (gapMagnitude <= 0) return "Ready now";
+  if (gapMagnitude < 500) return "4–8 weeks";
+  if (gapMagnitude <= 1500) return "6–12 weeks";
   return "3–6 months";
 }
 
@@ -340,6 +340,20 @@ export default function SpainEligibilityCalculator() {
     result && result.requirement > 0
       ? getGapPercent(result.requirement, result.gap)
       : 0;
+
+  const gapMagnitude = result ? Math.abs(result.gap) : 0;
+
+  const gapLabel = result
+    ? result.gap < 0
+      ? "Income shortfall"
+      : "Amount above threshold"
+    : "";
+
+  const gapDirectionLabel = result
+    ? result.gap < 0
+      ? "Below requirement"
+      : "Above requirement"
+    : "";
 
   const applyTodayTone =
     displayScore?.status === "Eligible now"
@@ -844,16 +858,16 @@ export default function SpainEligibilityCalculator() {
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-2xl border border-neutral-200 p-4">
                       <div className="text-sm text-neutral-500">
-                        {result.gap < 0 ? "Income shortfall" : "Amount above threshold"}
+                        {gapLabel}
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                        {formatCurrency(Math.abs(result.gap), "EUR")}
+                        {formatCurrency(gapMagnitude, "EUR")}
                       </div>
                     </div>
 
                     <div className="rounded-2xl border border-neutral-200 p-4">
                       <div className="text-sm text-neutral-500">
-                        {result.gap < 0 ? "Below requirement" : "Above requirement"}
+                        {gapDirectionLabel}
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
                         {gapPercent}%
@@ -865,7 +879,7 @@ export default function SpainEligibilityCalculator() {
                         Estimated fix time
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                        {getFixTime(Math.abs(result.gap))}
+                        {getFixTime(gapMagnitude)}
                       </div>
                     </div>
                   </div>
