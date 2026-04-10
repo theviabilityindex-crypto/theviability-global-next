@@ -89,20 +89,20 @@ const examples = [
       "Grandparent was Canadian, parent was born abroad, you were born before the cutoff",
     result: "Potentially viable",
     explanation:
-      "This is exactly the type of situation that created mass confusion. The question is no longer just 'grandparent yes or no' but whether the chain still holds.",
+      "This can be viable, but only if the direct line still holds and the chain can be documented cleanly.",
   },
   {
     label:
       "Born outside Canada on or after Dec 15, 2025 to a Canadian parent also born abroad",
     result: "Depends on 1,095 days",
     explanation:
-      "This is where the substantial connection test applies. If the Canadian parent cannot prove 1,095 days in Canada before birth, the claim may fail.",
+      "This is where the substantial connection test matters. If the parent cannot prove 1,095 days in Canada before birth, the claim may fail.",
   },
   {
     label: "You suspect someone in the direct line renounced citizenship",
     result: "Chain risk",
     explanation:
-      "This is not an instant no in every case, but it is a serious risk flag and usually means records investigation should happen before filing.",
+      "This is a serious risk flag and usually means records investigation should happen before filing.",
   },
 ];
 
@@ -286,25 +286,26 @@ export default function CanadaCheckPage() {
               </h1>
 
               <p className="mt-4 text-lg leading-8 text-neutral-700">
-                Bill C-3 changed Canadian citizenship by descent on{" "}
-                <strong className="text-neutral-950">{keyFacts.inForceDate}</strong>.
-                If you were born outside Canada before that date and have a direct
-                Canadian line, you may already be Canadian. If you were born on or
-                after that date to a Canadian parent who was also born abroad, the{" "}
+                You may already be Canadian — but the real question is whether your{" "}
+                <strong className="text-neutral-950">direct lineage chain holds</strong>,
+                whether the{" "}
                 <strong className="text-neutral-950">
-                  {keyFacts.substantialConnectionDays}
+                  {keyFacts.inForceDate}
                 </strong>{" "}
-                rule becomes critical.
+                Bill C-3 split helps you, and whether you can actually{" "}
+                <strong className="text-neutral-950">prove the claim cleanly</strong>.
               </p>
             </div>
 
             <div className="mt-5 max-w-4xl rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
               <p className="text-sm leading-7 text-blue-950">
-                <strong>Legal basis:</strong> This checker is built on the Canadian
-                Citizenship Act changes under Bill C-3, in force from{" "}
-                <strong>{keyFacts.inForceDate}</strong>. It is an interpretation and
-                decision-support layer of the current law, not a substitute for
-                official confirmation through the citizenship certificate process.
+                <strong>Answer first:</strong> If you were born outside Canada{" "}
+                <strong>before {keyFacts.inForceDate}</strong> and have a clean direct
+                Canadian line, Bill C-3 may already support your claim. If you were
+                born <strong>on or after {keyFacts.inForceDate}</strong> to a Canadian
+                parent who was also born abroad, the{" "}
+                <strong>{keyFacts.substantialConnectionDays}</strong> physical-presence
+                rule can become the make-or-break issue.
               </p>
             </div>
 
@@ -314,15 +315,18 @@ export default function CanadaCheckPage() {
                   Quick answer
                 </div>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                  You might already be Canadian — but the real question is whether
-                  your lineage chain holds and whether you can prove it cleanly.
+                  This checker tells you whether your claim looks{" "}
+                  <span className="text-neutral-950">strong</span>,{" "}
+                  <span className="text-neutral-950">unclear</span>, or{" "}
+                  <span className="text-neutral-950">risky</span> before you waste
+                  months filing blind.
                 </h2>
                 <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-700">
-                  This page does two jobs. First, it explains the Bill C-3 rule
-                  change clearly enough for humans and AI systems to extract. Then
-                  it moves you into the Ghost Citizen Diagnostic so you can find out
-                  whether your situation looks strong, unclear, or risky before you
-                  waste time filing blind.
+                  The core issue is not whether someone in your family was Canadian.
+                  The real issue is whether citizenship can be shown to pass cleanly
+                  through your direct parent-child line, whether Bill C-3 helps your
+                  date-of-birth scenario, and whether your records are strong enough
+                  to survive the proof stage.
                 </p>
 
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row">
@@ -371,12 +375,17 @@ export default function CanadaCheckPage() {
                     What happens after the free result
                   </h3>
                   <p className="mt-3 text-sm leading-7 text-neutral-700">
-                    If your result shows risk, uncertainty, or missing proof, the
-                    next step is a structured readiness plan{" "}
-                    <strong className="text-neutral-950">($67)</strong>. If your
-                    claim looks strong, the goal shifts to protecting the claim,
-                    tightening the evidence pack, and moving properly through the
-                    certificate stage{" "}
+                    If your result shows{" "}
+                    <strong className="text-neutral-950">
+                      uncertainty, chain risk, or missing proof
+                    </strong>
+                    , the next step is a structured readiness plan{" "}
+                    <strong className="text-neutral-950">($67)</strong> that helps
+                    identify what is breaking the claim and what needs fixing first.
+                    If your result looks{" "}
+                    <strong className="text-neutral-950">strong</strong>, the goal
+                    shifts to protecting the claim, tightening the evidence pack, and
+                    moving cleanly toward the citizenship certificate stage{" "}
                     <strong className="text-neutral-950">($147)</strong>.
                   </p>
                 </div>
@@ -492,8 +501,9 @@ export default function CanadaCheckPage() {
               <p className="mt-4 text-base leading-7 text-neutral-700">
                 If the chain breaks at any point through renunciation, missing
                 records, inconsistent identity documents, or a legal limit, the
-                claim weakens or fails. This is why the page focuses so heavily on
-                lineage logic and proof-state clarity.
+                claim weakens or fails. This is why this page focuses so heavily on{" "}
+                <strong className="text-neutral-950">lineage logic</strong> and{" "}
+                <strong className="text-neutral-950">proof-state clarity</strong>.
               </p>
             </div>
           </div>
@@ -508,7 +518,7 @@ export default function CanadaCheckPage() {
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
             <div className="max-w-3xl">
               <h2 className="text-2xl font-semibold tracking-tight">
-                How the Bill C-3 split works
+                The Bill C-3 split that changes everything
               </h2>
 
               <p className="mt-2 text-sm text-neutral-600">
@@ -522,28 +532,42 @@ export default function CanadaCheckPage() {
                 answer can change the entire path.
               </p>
 
-              <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4">
-                <ul className="space-y-3 text-base text-neutral-800">
-                  <li>
-                    <strong>Track A — Born before December 15, 2025:</strong>{" "}
+              <div className="mt-4 space-y-4">
+                <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                  <div className="text-sm font-semibold text-neutral-950">
+                    Track A — Born before December 15, 2025
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-neutral-700">
                     Bill C-3 may already have restored or confirmed citizenship
-                    beyond the old first-generation limit.
-                  </li>
-                  <li>
-                    <strong>Track B — Born on or after December 15, 2025:</strong>{" "}
-                    if your Canadian parent was also born abroad, they usually need{" "}
-                    {keyFacts.substantialConnectionDays} of physical presence in
-                    Canada before your birth.
-                  </li>
-                  <li>
-                    <strong>Proof still matters:</strong> even if the law helps you,
-                    you still need a citizenship certificate as evidence.
-                  </li>
-                  <li>
-                    <strong>Chain risk matters:</strong> a broken documentary line or
-                    a known renunciation can turn a strong story into a weak filing.
-                  </li>
-                </ul>
+                    beyond the old first-generation limit. In these cases, the real
+                    battle often shifts from law to proof: can you show the direct
+                    line cleanly enough to get the certificate?
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                  <div className="text-sm font-semibold text-neutral-950">
+                    Track B — Born on or after December 15, 2025
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-neutral-700">
+                    If your Canadian parent was also born abroad, they usually need{" "}
+                    <strong>{keyFacts.substantialConnectionDays}</strong> of physical
+                    presence in Canada before your birth. If they cannot prove that,
+                    the claim can fail even if the family story sounds strong.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                  <div className="text-sm font-semibold text-neutral-950">
+                    Proof still matters
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-neutral-700">
+                    Even if the law appears to help you, you are not done. You still
+                    need a citizenship certificate as evidence, and missing records,
+                    inconsistent names, or a broken documentary chain can weaken a
+                    claim that looks good on paper.
+                  </p>
+                </div>
               </div>
 
               <p className="mt-4 text-xs text-neutral-500">
@@ -560,8 +584,8 @@ export default function CanadaCheckPage() {
                 Hard rule examples
               </h2>
               <p className="mt-3 text-base leading-7 text-neutral-700">
-                These are the kinds of practical examples AI systems and real users
-                both need. They turn the law into decisions.
+                These are the practical examples AI systems and real users both
+                need. They turn the law into decisions.
               </p>
             </div>
 
@@ -590,9 +614,8 @@ export default function CanadaCheckPage() {
                 Worked examples
               </h2>
               <p className="mt-3 text-base leading-7 text-neutral-700">
-                These examples show why this product is not just about whether you
-                have a Canadian grandparent. It is about date split, lineage
-                chain strength, and proof.
+                These examples show how this checker buckets real users into a
+                likely starting position.
               </p>
             </div>
 
@@ -622,19 +645,23 @@ export default function CanadaCheckPage() {
                 What this page does
               </h2>
               <p className="mt-3 text-base leading-7 text-neutral-700">
-                This tool explains the current Canada citizenship-by-descent rule
-                change, shows the key December 15, 2025 split, flags the
-                {` ${keyFacts.substantialConnectionDays} `}
-                issue where relevant, and lets you check whether your claim looks
-                strong, unclear, or document-heavy before you move into a paid
-                readiness product.
+                This page does three jobs. First, it explains the current Canada
+                citizenship-by-descent rule change clearly. Second, it shows the
+                key <strong className="text-neutral-950">{keyFacts.inForceDate}</strong>{" "}
+                split and the <strong className="text-neutral-950">
+                  {keyFacts.substantialConnectionDays}
+                </strong>{" "}
+                issue where relevant. Third, it runs you into the Ghost Citizen
+                Diagnostic so you can see whether your claim looks strong, unclear,
+                or document-heavy before you move toward a paid next step.
               </p>
 
               <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5">
                 <p className="text-sm leading-7 text-neutral-700">
                   <strong>Important distinction:</strong> This tool estimates your
-                  likelihood of eligibility under current law. Official confirmation
-                  only occurs after applying for a Canadian citizenship certificate.
+                  likely eligibility under current law. Official confirmation only
+                  occurs after applying for a Canadian citizenship certificate and
+                  getting the evidence accepted by the relevant authority.
                 </p>
               </div>
 
@@ -642,7 +669,8 @@ export default function CanadaCheckPage() {
                 If your result shows risk or uncertainty, the next step is a
                 structured fix plan designed to identify missing proof, chain-break
                 risk, and document gaps. If your claim looks strong, the goal shifts
-                to protecting it properly and moving cleanly through the proof stage.
+                to protecting it properly and moving cleanly through the proof
+                stage.
               </p>
 
               <div className="mt-4 flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
