@@ -857,18 +857,14 @@ export default function SpainEligibilityCalculator() {
 
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-2xl border border-neutral-200 p-4">
-                      <div className="text-sm text-neutral-500">
-                        {gapLabel}
-                      </div>
+                      <div className="text-sm text-neutral-500">{gapLabel}</div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
                         {formatCurrency(gapMagnitude, "EUR")}
                       </div>
                     </div>
 
                     <div className="rounded-2xl border border-neutral-200 p-4">
-                      <div className="text-sm text-neutral-500">
-                        {gapDirectionLabel}
-                      </div>
+                      <div className="text-sm text-neutral-500">{gapDirectionLabel}</div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
                         {gapPercent}%
                       </div>
