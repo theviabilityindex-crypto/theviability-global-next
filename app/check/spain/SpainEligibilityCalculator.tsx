@@ -118,9 +118,9 @@ function getFixTime(gapMagnitude: number) {
   return "3–6 months";
 }
 
-function getGapPercent(requirement: number, gap: number) {
+function getGapPercent(requirement: number, gapMagnitude: number) {
   if (requirement <= 0) return 0;
-  return round2((Math.abs(gap) / requirement) * 100);
+  return round2((gapMagnitude / requirement) * 100);
 }
 
 function getPrimaryCta(status: string) {
@@ -159,7 +159,11 @@ function getVerdictHeadline(status: string) {
   return "You are currently below the Spain visa requirement.";
 }
 
-function getDecisionMessage(status: string, gap: number) {
+function getDecisionMessage(
+  status: string,
+  gapMagnitude: number,
+  meetsThreshold: boolean
+) {
   if (status === "Eligible now") {
     return {
       headline: "You meet the income threshold — but approval is not guaranteed.",
@@ -175,12 +179,13 @@ function getDecisionMessage(status: string, gap: number) {
     return {
       headline: "You are currently within the rejection range if this is not corrected.",
       body: `You are ${formatCurrency(
-        Math.abs(gap),
+        gapMagnitude,
         "EUR"
       )} below the current threshold. Small adjustments may still move you into a safer approval position.`,
-      applyToday: "High rejection risk",
-      verdict:
-        "If you applied today, your application would likely be rejected unless you first close the shortfall and tighten the evidence behind the case.",
+      applyToday: meetsThreshold ? "Approval needs protecting" : "High rejection risk",
+      verdict: meetsThreshold
+        ? "If you applied today, your application may still be exposed to preventable rejection risk unless the supporting evidence and structure are tightened first."
+        : "If you applied today, your application would likely be rejected unless you first close the shortfall and tighten the evidence behind the case.",
     };
   }
 
@@ -194,7 +199,7 @@ function getDecisionMessage(status: string, gap: number) {
   };
 }
 
-function getNextStepContent(status: string, gap: number) {
+function getNextStepContent(status: string, gapMagnitude: number) {
   if (status === "Eligible now") {
     return {
       label: "Protect the approval",
@@ -210,7 +215,7 @@ function getNextStepContent(status: string, gap: number) {
     return {
       label: "Fix the weak point",
       headline: `You are still ${formatCurrency(
-        Math.abs(gap),
+        gapMagnitude,
         "EUR"
       )} short of a safer position.`,
       body:
@@ -321,39 +326,43 @@ export default function SpainEligibilityCalculator() {
       ? `≈ ${formatCurrency(incomeInEur, "EUR")} at approximate rate`
       : "";
 
+  const meetsThreshold =
+    result !== null ? incomeInEur >= result.requirement : false;
+
+  const displayGapAmount =
+    result !== null ? round2(Math.abs(incomeInEur - result.requirement)) : 0;
+
+  const gapPercent =
+    result !== null ? getGapPercent(result.requirement, displayGapAmount) : 0;
+
+  const gapLabel =
+    result !== null
+      ? meetsThreshold
+        ? "Amount above threshold"
+        : "Income shortfall"
+      : "";
+
+  const gapDirectionLabel =
+    result !== null
+      ? meetsThreshold
+        ? "Above requirement"
+        : "Below requirement"
+      : "";
+
   const decisionMessage =
     result && displayScore
-      ? getDecisionMessage(displayScore.status, result.gap)
+      ? getDecisionMessage(displayScore.status, displayGapAmount, meetsThreshold)
       : null;
 
   const nextStepContent =
     result && displayScore
-      ? getNextStepContent(displayScore.status, result.gap)
+      ? getNextStepContent(displayScore.status, displayGapAmount)
       : null;
 
   const progressWidth =
     result && incomeInEur > 0
       ? getProgressWidth(result.requirement, incomeInEur)
       : 0;
-
-  const gapPercent =
-    result && result.requirement > 0
-      ? getGapPercent(result.requirement, result.gap)
-      : 0;
-
-  const gapMagnitude = result ? Math.abs(result.gap) : 0;
-
-  const gapLabel = result
-    ? result.gap < 0
-      ? "Income shortfall"
-      : "Amount above threshold"
-    : "";
-
-  const gapDirectionLabel = result
-    ? result.gap < 0
-      ? "Below requirement"
-      : "Above requirement"
-    : "";
 
   const applyTodayTone =
     displayScore?.status === "Eligible now"
@@ -859,7 +868,7 @@ export default function SpainEligibilityCalculator() {
                     <div className="rounded-2xl border border-neutral-200 p-4">
                       <div className="text-sm text-neutral-500">{gapLabel}</div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                        {formatCurrency(gapMagnitude, "EUR")}
+                        {formatCurrency(displayGapAmount, "EUR")}
                       </div>
                     </div>
 
@@ -875,7 +884,7 @@ export default function SpainEligibilityCalculator() {
                         Estimated fix time
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                        {getFixTime(gapMagnitude)}
+                        {getFixTime(displayGapAmount)}
                       </div>
                     </div>
                   </div>
