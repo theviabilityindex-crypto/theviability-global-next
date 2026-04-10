@@ -75,7 +75,6 @@ type TemplateProps = {
 };
 
 type StoryTone = "ready" | "borderline" | "not_ready";
-type ProductStoryModel = "threshold_visa" | "citizenship_descent";
 
 type StorySection = {
   id: string;
@@ -122,21 +121,8 @@ const cardStyle: CSSProperties = {
   borderRadius: "2px",
 };
 
-function getProductStoryModel(countryKey: string): ProductStoryModel {
-  switch (countryKey.toLowerCase()) {
-    case "canada":
-      return "citizenship_descent";
-    default:
-      return "threshold_visa";
-  }
-}
-
-function getCanadaLegacyStorageKeys(countryKey: string) {
-  return {
-    resultKey: `${countryKey}_dnv_result`,
-    incomeKey: `${countryKey}_dnv_income`,
-    currencyKey: `${countryKey}_dnv_currency`,
-  };
+function isCanadaProduct(countryKey: string) {
+  return countryKey.toLowerCase() === "canada";
 }
 
 function restoreCachedPlan(
@@ -144,23 +130,26 @@ function restoreCachedPlan(
   setResult: (value: CachedResult | null) => void,
   setIncomeInEur: (value: number) => void
 ) {
-  const storyModel = getProductStoryModel(countryKey);
-
-  const storageKeys =
-    storyModel === "threshold_visa" && countryKey.toLowerCase() === "spain"
-      ? [
-          {
-            resultKey: `${countryKey}_dnv_result`,
-            incomeKey: `${countryKey}_dnv_income`,
-            currencyKey: `${countryKey}_dnv_currency`,
-          },
-          {
-            resultKey: "dnv_result",
-            incomeKey: "dnv_income",
-            currencyKey: "dnv_currency",
-          },
-        ]
-      : [getCanadaLegacyStorageKeys(countryKey)];
+  const storageKeys = isCanadaProduct(countryKey)
+    ? [
+        {
+          resultKey: `${countryKey}_dnv_result`,
+          incomeKey: `${countryKey}_dnv_income`,
+          currencyKey: `${countryKey}_dnv_currency`,
+        },
+      ]
+    : [
+        {
+          resultKey: `${countryKey}_dnv_result`,
+          incomeKey: `${countryKey}_dnv_income`,
+          currencyKey: `${countryKey}_dnv_currency`,
+        },
+        {
+          resultKey: "dnv_result",
+          incomeKey: "dnv_income",
+          currencyKey: "dnv_currency",
+        },
+      ];
 
   for (const keys of storageKeys) {
     try {
@@ -195,55 +184,42 @@ function getStoryTone(actualGap: number) {
   return "not_ready" as StoryTone;
 }
 
-function getCanadaStoryTone(result: CachedResult | null): StoryTone {
+function getCanadaTone(result: CachedResult | null) {
   const score = Number(result?.score) || 0;
-  const status = (result?.status || "").toLowerCase();
-  const risk = (result?.risk || "").toLowerCase();
+  const risk = String(result?.risk || "").toLowerCase();
+  const status = String(result?.status || "").toLowerCase();
 
   if (
-    status.includes("ready") ||
-    status.includes("strong") ||
-    risk.includes("low") ||
-    score >= 75
+    risk.includes("high") ||
+    status.includes("weak") ||
+    status.includes("not ready") ||
+    score < 55
   ) {
-    return "ready";
+    return "not_ready" as StoryTone;
   }
 
   if (
-    status.includes("promising") ||
-    status.includes("partial") ||
-    status.includes("moderate") ||
     risk.includes("medium") ||
     risk.includes("borderline") ||
-    score >= 55
+    status.includes("partial") ||
+    status.includes("promising") ||
+    score < 75
   ) {
-    return "borderline";
+    return "borderline" as StoryTone;
   }
 
-  return "not_ready";
-}
-
-function getActiveTone(
-  storyModel: ProductStoryModel,
-  result: CachedResult | null,
-  actualGap: number
-): StoryTone {
-  if (storyModel === "citizenship_descent") {
-    return getCanadaStoryTone(result);
-  }
-
-  return getStoryTone(actualGap);
+  return "ready" as StoryTone;
 }
 
 function getStorySections(
-  storyModel: ProductStoryModel,
   tone: StoryTone,
   actualGap: number,
   requirementAmount: number,
   incomeInEur: number,
-  tier: 67 | 147
+  tier: 67 | 147,
+  countryKey: string
 ): StorySection[] {
-  if (storyModel === "citizenship_descent") {
+  if (isCanadaProduct(countryKey)) {
     if (tier === 67) {
       if (tone === "ready") {
         return [
@@ -251,7 +227,7 @@ function getStorySections(
             id: "meaning",
             label: "What this means",
             title:
-              "Your claim looks promising — the real job now is making it provable on paper.",
+              "Your claim looks promising — now the real job is making it provable on paper.",
             body:
               "A Canadian citizenship claim is not won by ancestry alone. It is won by whether the lineage, identity trail, and supporting records are clean enough to stand up as a complete documentary chain. This plan helps you tighten that proof before you file too early.",
             fileNums: ["01", "02", "05", "06"],
@@ -314,7 +290,7 @@ function getStorySections(
           id: "meaning",
           label: "What this means",
           title:
-            "Your claim appears strong enough to move toward execution — now protect the filing.",
+            "Your claim looks strong enough to move toward filing — now the real job is protecting the submission.",
           body:
             "At this stage, the risk is less about discovering a claim and more about making sure the record chain, file order, and submission pack stay clean all the way through the citizenship certificate process.",
           fileNums: ["01", "02", "05", "06", "07", "08"],
@@ -324,8 +300,29 @@ function getStorySections(
           label: "Your path to filing",
           title: "Move from claim strength to submission control.",
           body:
-            "The full system helps you tighten the chain, organise the evidence, and control the practical submission stage so the application is easier to assemble and harder to derail with avoidable document errors.",
+            "The full system helps you tighten the chain, organise the evidence, and control the practical filing stage so the application is easier to assemble and harder to derail with avoidable document mistakes.",
           fileNums: ["07", "08", "09", "10"],
+        },
+      ];
+    }
+
+    if (tone === "borderline") {
+      return [
+        {
+          id: "meaning",
+          label: "What this means",
+          title: "Your claim still needs correction before filing.",
+          body:
+            "The full system is built for this exact situation: strengthen the documentary chain first, then move into a cleaner filing process. The aim is to reduce avoidable friction before the application reaches the formal certificate stage.",
+          fileNums: ["03", "04", "05", "06"],
+        },
+        {
+          id: "path",
+          label: "Your path to filing",
+          title: "Strengthen the claim, then control the submission.",
+          body:
+            "Work in order: map the line, repair the evidence gaps, remove identity confusion, test for chain-break risk, then use the advanced files to build a more controlled final submission.",
+          fileNums: ["01", "02", "03", "04", "05", "06", "07", "08"],
         },
       ];
     }
@@ -334,18 +331,18 @@ function getStorySections(
       {
         id: "meaning",
         label: "What this means",
-        title: "Your claim still needs correction before filing.",
+        title: "You should not file yet.",
         body:
-          "The full system is built for this exact situation: fix the chain weakness first, then move into a cleaner submission process. The aim is to reduce avoidable friction before the application reaches the formal certificate stage.",
+          "Your claim still needs correction before filing. The full system is designed to help you strengthen the weak point first, then move toward a cleaner, lower-friction citizenship certificate application.",
         fileNums: ["03", "04", "05", "06"],
       },
       {
         id: "path",
         label: "Your path to filing",
-        title: "Strengthen the claim, then control the submission.",
+        title: "Fix the chain first. Then control the submission.",
         body:
-          "Work in order: map the line, repair the evidence gaps, remove identity confusion, test for chain-break risk, then use the advanced files to build a more controlled final submission.",
-        fileNums: ["01", "02", "03", "04", "05", "06", "07", "08"],
+          "Your path is to map the line properly, strengthen the evidence, remove identity confusion, pressure-test the chain, and only then use the advanced filing files to move forward with more control.",
+        fileNums: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"],
       },
     ];
   }
@@ -454,18 +451,23 @@ function inferFileType(file: DeliverableItem) {
 }
 
 function getOrientationHeading(
-  storyModel: ProductStoryModel,
   tone: StoryTone,
   tier: 67 | 147,
-  countryLabel: string
+  countryLabel: string,
+  countryKey: string
 ) {
-  if (storyModel === "citizenship_descent") {
+  if (isCanadaProduct(countryKey)) {
     if (tier === 147) {
-      if (tone === "ready") return `Your ${countryLabel} Citizenship Submission System Is Ready`;
+      if (tone === "ready") {
+        return `Your ${countryLabel} Citizenship Submission System Is Ready`;
+      }
       return `Your ${countryLabel} Citizenship Submission System Is Ready — But You Should Not File Yet`;
     }
 
-    if (tone === "ready") return `Your ${countryLabel} Citizenship Fix Plan Is Ready`;
+    if (tone === "ready") {
+      return `Your ${countryLabel} Citizenship Fix Plan Is Ready`;
+    }
+
     return `Your ${countryLabel} Citizenship Fix Plan Is Ready — Here Is Why You Should Not File Yet`;
   }
 
@@ -479,14 +481,14 @@ function getOrientationHeading(
 }
 
 function getOrientationBody(
-  storyModel: ProductStoryModel,
   tone: StoryTone,
   tier: 67 | 147,
   actualGap: number,
   requirementAmount: number,
-  countryLabel: string
+  countryLabel: string,
+  countryKey: string
 ) {
-  if (storyModel === "citizenship_descent") {
+  if (isCanadaProduct(countryKey)) {
     if (tier === 147) {
       if (tone === "ready") {
         return `You purchased the full ${countryLabel} citizenship submission system because a strong claim still needs clean execution. This page shows what you bought, why it matters, and how to move from a promising claim to a tighter filing pack.`;
@@ -526,12 +528,12 @@ function getOrientationBody(
 }
 
 function getStepSections(
-  storyModel: ProductStoryModel,
   tone: StoryTone,
   tier: 67 | 147,
-  actualGap: number
+  actualGap: number,
+  countryKey: string
 ): StepSection[] {
-  if (storyModel === "citizenship_descent") {
+  if (isCanadaProduct(countryKey)) {
     const base67: StepSection[] = [
       {
         id: "step-1",
@@ -684,144 +686,6 @@ function getStepSections(
       fileNums: ["09", "10"],
     },
   ];
-}
-
-function getRiskContent(
-  storyModel: ProductStoryModel,
-  tone: StoryTone
-): { label: string; body: string } {
-  if (storyModel === "citizenship_descent") {
-    if (tone === "ready") {
-      return {
-        label: "Medium Filing Risk",
-        body: "Your claim may be real, but filing can still go badly if the lineage pack, identity continuity, or supporting records are not organised cleanly enough on paper.",
-      };
-    }
-
-    if (tone === "borderline") {
-      return {
-        label: "Borderline Filing Risk",
-        body: "There may be a valid citizenship path here, but the chain is still weak enough to trigger delay, document requests, or an avoidable refusal if filed too early.",
-      };
-    }
-
-    return {
-      label: "High Filing Risk",
-      body: "At this stage, the most likely outcome is filing a claim that is not yet strong enough on paper. The better move is to strengthen the chain first, then file with a cleaner record pack.",
-    };
-  }
-
-  if (tone === "ready") {
-    return {
-      label: "Medium Rejection Risk",
-      body: "You meet the threshold, but approval can still fail if the documentation, evidence order, or remote-work proof is weak.",
-    };
-  }
-
-  if (tone === "borderline") {
-    return {
-      label: "Borderline Rejection Risk",
-      body: "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan.",
-    };
-  }
-
-  return {
-    label: "High Rejection Risk",
-    body: "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.",
-  };
-}
-
-function getMetricCards(
-  storyModel: ProductStoryModel,
-  tone: StoryTone,
-  requirementAmount: number,
-  incomeInEur: number,
-  actualGap: number,
-  result: CachedResult | null
-) {
-  if (storyModel === "citizenship_descent") {
-    const score = typeof result?.score === "number" ? Math.round(result.score) : null;
-    const status =
-      result?.status ||
-      (tone === "ready"
-        ? "Promising Claim"
-        : tone === "borderline"
-          ? "Evidence Gap Detected"
-          : "Weak Claim");
-    const risk =
-      result?.risk ||
-      (tone === "ready"
-        ? "Medium Filing Risk"
-        : tone === "borderline"
-          ? "Borderline Filing Risk"
-          : "High Filing Risk");
-
-    return [
-      {
-        label: "Claim Status",
-        value: status,
-        subValue: "",
-        highlight: false,
-      },
-      {
-        label: "Current Risk",
-        value: risk,
-        subValue: "",
-        highlight: false,
-      },
-      {
-        label: "Claim Score",
-        value: score !== null ? `${score}/100` : tone === "ready" ? "Strong" : tone === "borderline" ? "Mixed" : "At Risk",
-        subValue: "",
-        highlight: true,
-      },
-    ];
-  }
-
-  return [
-    {
-      label: "Required Income",
-      value: fmtEur(requirementAmount),
-      subValue: "/mo",
-      highlight: false,
-    },
-    {
-      label: "Your Income",
-      value: fmtEur(incomeInEur),
-      subValue: "/mo",
-      highlight: false,
-    },
-    {
-      label: "Your Gap",
-      value: `${tone === "ready" ? "+" : "-"}${fmtEurAbs(actualGap)}`,
-      subValue: "",
-      highlight: true,
-    },
-  ];
-}
-
-function getPathHeading(storyModel: ProductStoryModel) {
-  return storyModel === "citizenship_descent"
-    ? "Your Fastest Path To A Stronger Claim"
-    : "Your Fastest Path To Approval";
-}
-
-function getAdvancedFilesHeading(storyModel: ProductStoryModel) {
-  return storyModel === "citizenship_descent"
-    ? "Submission Control Files"
-    : "Submission Control Files";
-}
-
-function getAdvancedFilesBody(storyModel: ProductStoryModel) {
-  return storyModel === "citizenship_descent"
-    ? "These advanced files continue the same citizenship story through the final filing stage. They are here to help you move from “I think I have a claim” to “I know how to prepare the file properly.”"
-    : "These advanced files continue the same approval story through the final submission stage. They are here to help you move from “I know the gap” to “I know how to prepare the case properly.”";
-}
-
-function getUpsellBody(storyModel: ProductStoryModel) {
-  return storyModel === "citizenship_descent"
-    ? "The Fix Plan helps you understand where the citizenship claim is weak and the fastest path to strengthen it. The full submission system is for the next stage — when you want more control over record structure, file order, and final filing quality."
-    : "The Fix Plan helps you understand the gap and the fastest correction path. The full approval system is for the next stage — when you want more control over the evidence structure, file order, and final submission quality.";
 }
 
 function ToolCard({
@@ -1221,11 +1085,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       });
   }, [config.countryKey, config.tier, config.verificationEndpoint]);
 
-  const storyModel = useMemo(
-    () => getProductStoryModel(config.countryKey),
-    [config.countryKey]
-  );
-
   const requirementAmount = useMemo(() => {
     if (!result) return 0;
     return Number(result.requirement) || 0;
@@ -1236,7 +1095,10 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     return incomeInEur - requirementAmount;
   }, [incomeInEur, requirementAmount, result]);
 
-  const tone = getActiveTone(storyModel, result, actualGap);
+  const tone = isCanadaProduct(config.countryKey)
+    ? getCanadaTone(result)
+    : getStoryTone(actualGap);
+
   const isReady = tone === "ready";
   const gapColor =
     tone === "ready" ? "#166534" : tone === "borderline" ? "#92400E" : "#B91C1C";
@@ -1252,44 +1114,61 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
   const storySections = useMemo(
     () =>
       getStorySections(
-        storyModel,
         tone,
         actualGap,
         requirementAmount,
         incomeInEur,
-        config.tier
+        config.tier,
+        config.countryKey
       ),
-    [storyModel, tone, actualGap, requirementAmount, incomeInEur, config.tier]
+    [tone, actualGap, requirementAmount, incomeInEur, config.tier, config.countryKey]
   );
 
   const stepSections = useMemo(
-    () => getStepSections(storyModel, tone, config.tier, actualGap),
-    [storyModel, tone, config.tier, actualGap]
+    () => getStepSections(tone, config.tier, actualGap, config.countryKey),
+    [tone, config.tier, actualGap, config.countryKey]
   );
 
   const nextAction = isReady ? config.nextActionReady : config.nextActionNotReady;
-  const { label: riskLabel, body: riskBody } = getRiskContent(storyModel, tone);
+
+  const riskLabel = isCanadaProduct(config.countryKey)
+    ? isReady
+      ? "Medium Filing Risk"
+      : tone === "borderline"
+        ? "Borderline Filing Risk"
+        : "High Filing Risk"
+    : isReady
+      ? "Medium Rejection Risk"
+      : tone === "borderline"
+        ? "Borderline Rejection Risk"
+        : "High Rejection Risk";
+
+  const riskBody = isCanadaProduct(config.countryKey)
+    ? isReady
+      ? "Your claim may be real, but filing can still go badly if the lineage pack, identity continuity, or supporting records are not organised cleanly enough on paper."
+      : tone === "borderline"
+        ? "There may be a valid citizenship path here, but the chain is still weak enough to trigger delay, document requests, or an avoidable refusal if filed too early."
+        : "At this stage, the most likely outcome is filing a claim that is not yet strong enough on paper. The better move is to strengthen the chain first, then file with a cleaner record pack."
+    : isReady
+      ? "You meet the threshold, but approval can still fail if the documentation, evidence order, or remote-work proof is weak."
+      : tone === "borderline"
+        ? "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan."
+        : "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.";
+
   const orientationHeading = getOrientationHeading(
-    storyModel,
     tone,
     config.tier,
-    config.countryLabel
+    config.countryLabel,
+    config.countryKey
   );
+
   const orientationBody = getOrientationBody(
-    storyModel,
     tone,
     config.tier,
     actualGap,
     requirementAmount,
-    config.countryLabel
-  );
-  const metricCards = getMetricCards(
-    storyModel,
-    tone,
-    requirementAmount,
-    incomeInEur,
-    actualGap,
-    result
+    config.countryLabel,
+    config.countryKey
   );
 
   if (verifying) {
@@ -1400,7 +1279,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             style={{ fontSize: "11px", color: gapColor }}
           >
             {config.tier === 147
-              ? storyModel === "citizenship_descent"
+              ? isCanadaProduct(config.countryKey)
                 ? "Citizenship Submission System"
                 : "Full Approval System"
               : "Fix Plan Delivery"}
@@ -1484,7 +1363,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: gapColor }}
           >
-            If You {storyModel === "citizenship_descent" ? "File" : "Apply"} Today
+            {isCanadaProduct(config.countryKey) ? "If You File Today" : "If You Apply Today"}
           </p>
 
           <h2
@@ -1522,37 +1401,127 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         })}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {metricCards.map((card, index) => (
-            <div
-              key={`${card.label}-${index}`}
-              style={{
-                ...cardStyle,
-                ...(card.highlight
-                  ? {
-                      backgroundColor:
-                        isReady ? "#F0FDF4" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
-                      borderColor:
-                        isReady ? "#BBF7D0" : tone === "borderline" ? "#FDE68A" : "#FECACA",
-                    }
-                  : {}),
-              }}
-            >
-              <p
-                className="text-[10px] font-data uppercase tracking-widest mb-1"
-                style={{ color: "#64748B" }}
+          {isCanadaProduct(config.countryKey) ? (
+            <>
+              <div style={cardStyle}>
+                <p
+                  className="text-[10px] font-data uppercase tracking-widest mb-1"
+                  style={{ color: "#64748B" }}
+                >
+                  Claim Status
+                </p>
+                <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
+                  {result.status || (isReady ? "Promising Claim" : tone === "borderline" ? "Evidence Gap" : "Weak Claim")}
+                </p>
+              </div>
+
+              <div style={cardStyle}>
+                <p
+                  className="text-[10px] font-data uppercase tracking-widest mb-1"
+                  style={{ color: "#64748B" }}
+                >
+                  Current Risk
+                </p>
+                <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
+                  {result.risk || riskLabel}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  ...cardStyle,
+                  backgroundColor:
+                    tone === "ready"
+                      ? "#F0FDF4"
+                      : tone === "borderline"
+                        ? "#FFFBEB"
+                        : "#FEF2F2",
+                  borderColor:
+                    tone === "ready"
+                      ? "#BBF7D0"
+                      : tone === "borderline"
+                        ? "#FDE68A"
+                        : "#FECACA",
+                }}
               >
-                {card.label}
-              </p>
-              <p className="font-data font-bold" style={{ fontSize: "24px", color: card.highlight ? gapColor : "#0F172A" }}>
-                {card.value}
-                {card.subValue ? (
+                <p
+                  className="text-[10px] font-data uppercase tracking-widest mb-1"
+                  style={{ color: "#64748B" }}
+                >
+                  Claim Score
+                </p>
+                <p className="font-data font-bold" style={{ fontSize: "24px", color: gapColor }}>
+                  {typeof result.score === "number"
+                    ? `${Math.round(result.score)}/100`
+                    : isReady
+                      ? "Strong"
+                      : tone === "borderline"
+                        ? "Mixed"
+                        : "At Risk"}
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={cardStyle}>
+                <p
+                  className="text-[10px] font-data uppercase tracking-widest mb-1"
+                  style={{ color: "#64748B" }}
+                >
+                  Required Income
+                </p>
+                <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
+                  {fmtEur(requirementAmount)}
                   <span className="text-xs font-normal" style={{ color: "#64748B" }}>
-                    {card.subValue}
+                    /mo
                   </span>
-                ) : null}
-              </p>
-            </div>
-          ))}
+                </p>
+              </div>
+
+              <div style={cardStyle}>
+                <p
+                  className="text-[10px] font-data uppercase tracking-widest mb-1"
+                  style={{ color: "#64748B" }}
+                >
+                  Your Income
+                </p>
+                <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
+                  {fmtEur(incomeInEur)}
+                  <span className="text-xs font-normal" style={{ color: "#64748B" }}>
+                    /mo
+                  </span>
+                </p>
+              </div>
+
+              <div
+                style={{
+                  ...cardStyle,
+                  backgroundColor:
+                    tone === "ready"
+                      ? "#F0FDF4"
+                      : tone === "borderline"
+                        ? "#FFFBEB"
+                        : "#FEF2F2",
+                  borderColor:
+                    tone === "ready"
+                      ? "#BBF7D0"
+                      : tone === "borderline"
+                        ? "#FDE68A"
+                        : "#FECACA",
+                }}
+              >
+                <p
+                  className="text-[10px] font-data uppercase tracking-widest mb-1"
+                  style={{ color: "#64748B" }}
+                >
+                  Your Gap
+                </p>
+                <p className="font-data font-bold" style={{ fontSize: "24px", color: gapColor }}>
+                  {`${tone === "ready" ? "+" : "-"}${fmtEurAbs(actualGap)}`}
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         <div style={cardStyle}>
@@ -1560,7 +1529,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: "#64748B" }}
           >
-            {getPathHeading(storyModel)}
+            {isCanadaProduct(config.countryKey)
+              ? "Your Fastest Path To A Stronger Claim"
+              : "Your Fastest Path To Approval"}
           </p>
 
           <p
@@ -1614,7 +1585,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               className="font-data font-bold uppercase tracking-widest mb-3"
               style={{ fontSize: "14px", color: "#0F172A" }}
             >
-              {getAdvancedFilesHeading(storyModel)}
+              Submission Control Files
             </p>
 
             <p
@@ -1625,7 +1596,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 marginBottom: "8px",
               }}
             >
-              {getAdvancedFilesBody(storyModel)}
+              {isCanadaProduct(config.countryKey)
+                ? "These advanced files continue the same citizenship story through the final filing stage. They are here to help you move from “I think I have a claim” to “I know how to prepare the file properly.”"
+                : "These advanced files continue the same approval story through the final submission stage. They are here to help you move from “I know the gap” to “I know how to prepare the case properly.”"}
             </p>
 
             {advancedFiles.map((file) => (
@@ -1651,7 +1624,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 marginBottom: "14px",
               }}
             >
-              {getUpsellBody(storyModel)}
+              {isCanadaProduct(config.countryKey)
+                ? "The Fix Plan helps you understand where the citizenship claim is weak and the fastest path to strengthen it. The full submission system is for the next stage — when you want more control over record structure, file order, and final filing quality."
+                : "The Fix Plan helps you understand the gap and the fastest correction path. The full approval system is for the next stage — when you want more control over the evidence structure, file order, and final submission quality."}
             </p>
 
             {config.upsellItems?.length ? (
