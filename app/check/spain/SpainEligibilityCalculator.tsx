@@ -127,11 +127,17 @@ function getGapPercent(requirement: number, gap: number) {
   return round2((Math.abs(gap) / requirement) * 100);
 }
 
+function getGapPercentLabel(gap: number, requirement: number) {
+  const pct = getGapPercent(requirement, gap);
+  if (gap >= 0) return `${pct}% above requirement`;
+  return `${pct}% below requirement`;
+}
+
 function getPrimaryCta(status: string) {
   if (status === "Eligible now") {
-    return "Get My Approval Plan — $147";
+    return "Secure My Approval — $147";
   }
-  return "Get My Fix Plan — $67";
+  return "Fix My Approval Gap — $67";
 }
 
 function getModalCta(status: string) {
@@ -153,6 +159,18 @@ function getPriceLine(status: string) {
     return "One-time payment — $147 (no subscription)";
   }
   return "One-time payment — $67 (no subscription)";
+}
+
+function getVerdictHeadline(status: string) {
+  if (status === "Eligible now") {
+    return "You currently meet the Spain visa income requirement.";
+  }
+
+  if (status === "Borderline") {
+    return "You are currently below the Spain visa requirement.";
+  }
+
+  return "You are currently below the Spain visa requirement.";
 }
 
 function getDecisionMessage(status: string, gap: number) {
@@ -332,8 +350,8 @@ export default function SpainEligibilityCalculator() {
       ? getProgressWidth(result.requirement, incomeInEur)
       : 0;
 
-  const gapPercent =
-    result && result.requirement > 0 ? getGapPercent(result.requirement, result.gap) : 0;
+  const gapPercentLabel =
+    result && result.requirement > 0 ? getGapPercentLabel(result.gap, result.requirement) : "";
 
   const applyTodayTone =
     displayScore?.status === "Eligible now"
@@ -776,6 +794,15 @@ export default function SpainEligibilityCalculator() {
                 </div>
               ) : (
                 <div className="mt-4 space-y-4">
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      Verdict
+                    </div>
+                    <h3 className="mt-2 text-lg font-semibold text-neutral-950">
+                      {getVerdictHeadline(displayScore.status)}
+                    </h3>
+                  </div>
+
                   <div>
                     <div className="text-sm text-neutral-500">
                       Visa Approval Score™
@@ -838,10 +865,10 @@ export default function SpainEligibilityCalculator() {
 
                     <div className="rounded-2xl border border-neutral-200 p-4">
                       <div className="text-sm text-neutral-500">
-                        Gap as % of requirement
+                        Gap position
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                        {gapPercent}%
+                        {gapPercentLabel}
                       </div>
                     </div>
 
