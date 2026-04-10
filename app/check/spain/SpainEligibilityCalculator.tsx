@@ -127,12 +127,6 @@ function getGapPercent(requirement: number, gap: number) {
   return round2((Math.abs(gap) / requirement) * 100);
 }
 
-function getGapPercentLabel(gap: number, requirement: number) {
-  const pct = getGapPercent(requirement, gap);
-  if (gap >= 0) return `${pct}% above requirement`;
-  return `${pct}% below requirement`;
-}
-
 function getPrimaryCta(status: string) {
   if (status === "Eligible now") {
     return "Secure My Approval — $147";
@@ -164,10 +158,6 @@ function getPriceLine(status: string) {
 function getVerdictHeadline(status: string) {
   if (status === "Eligible now") {
     return "You currently meet the Spain visa income requirement.";
-  }
-
-  if (status === "Borderline") {
-    return "You are currently below the Spain visa requirement.";
   }
 
   return "You are currently below the Spain visa requirement.";
@@ -350,8 +340,9 @@ export default function SpainEligibilityCalculator() {
       ? getProgressWidth(result.requirement, incomeInEur)
       : 0;
 
-  const gapPercentLabel =
-    result && result.requirement > 0 ? getGapPercentLabel(result.gap, result.requirement) : "";
+  const gapPercent = result && result.requirement > 0
+    ? getGapPercent(result.requirement, result.gap)
+    : 0;
 
   const applyTodayTone =
     displayScore?.status === "Eligible now"
@@ -856,7 +847,7 @@ export default function SpainEligibilityCalculator() {
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-2xl border border-neutral-200 p-4">
                       <div className="text-sm text-neutral-500">
-                        {getGapLabel(result.gap)}
+                        {result.gap < 0 ? "Income shortfall" : "Amount above threshold"}
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
                         {formatCurrency(Math.abs(result.gap), "EUR")}
@@ -865,10 +856,10 @@ export default function SpainEligibilityCalculator() {
 
                     <div className="rounded-2xl border border-neutral-200 p-4">
                       <div className="text-sm text-neutral-500">
-                        Gap position
+                        {result.gap < 0 ? "Below requirement" : "Above requirement"}
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-neutral-950">
-                        {gapPercentLabel}
+                        {gapPercent}%
                       </div>
                     </div>
 
