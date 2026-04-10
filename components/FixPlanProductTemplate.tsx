@@ -68,6 +68,10 @@ export interface FixPlanTemplateConfig {
 type VerifyResponse = {
   verified?: boolean;
   error?: string;
+  session_id?: string;
+  tier?: number;
+  amount_total?: number;
+  country?: string;
 };
 
 type TemplateProps = {
@@ -121,23 +125,42 @@ const cardStyle: CSSProperties = {
   borderRadius: "2px",
 };
 
+const smallCardStyle: CSSProperties = {
+  padding: "20px",
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #E2E8F0",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+  borderRadius: "2px",
+};
+
+function getStorageKeys(countryKey: string) {
+  const safeCountryKey = countryKey.trim().toLowerCase();
+
+  return {
+    resultKey: `${safeCountryKey}_dnv_result`,
+    incomeKey: `${safeCountryKey}_dnv_income`,
+    currencyKey: `${safeCountryKey}_dnv_currency`,
+  };
+}
+
 function restoreCachedPlan(
   countryKey: string,
   setResult: (value: CachedResult | null) => void,
   setIncomeInEur: (value: number) => void
 ) {
-  const storageKeys = [
-    {
-      resultKey: `${countryKey}_dnv_result`,
-      incomeKey: `${countryKey}_dnv_income`,
-      currencyKey: `${countryKey}_dnv_currency`,
-    },
-    {
-      resultKey: "dnv_result",
-      incomeKey: "dnv_income",
-      currencyKey: "dnv_currency",
-    },
-  ];
+  const countryKeys = getStorageKeys(countryKey);
+
+  const storageKeys =
+    countryKey.trim().toLowerCase() === "spain"
+      ? [
+          countryKeys,
+          {
+            resultKey: "dnv_result",
+            incomeKey: "dnv_income",
+            currencyKey: "dnv_currency",
+          },
+        ]
+      : [countryKeys];
 
   for (const keys of storageKeys) {
     try {
@@ -233,7 +256,8 @@ function getStorySections(
           tier === 147
             ? "The fastest path is to close the shortfall, strengthen the evidence, and then use the advanced system to control the submission stage properly."
             : "The fastest path is usually a combination of clearer income presentation, a savings bridge where available, and stronger submission control before filing.",
-        fileNums: tier === 147 ? ["03", "04", "01", "05", "07"] : ["03", "04", "01"],
+        fileNums:
+          tier === 147 ? ["03", "04", "01", "05", "07"] : ["03", "04", "01"],
       },
     ];
   }
@@ -261,9 +285,10 @@ function getStorySections(
         tier === 147
           ? "Your plan is to close the financial gap, strengthen the evidence, secure the remote-work proof, and then use the advanced files to prepare a cleaner final submission."
           : "Your plan is to close the financial gap, strengthen how income is evidenced, secure the remote-work proof, and only then move toward submission.",
-      fileNums: tier === 147
-        ? ["03", "04", "02", "01", "05", "07"]
-        : ["03", "04", "02", "01"],
+      fileNums:
+        tier === 147
+          ? ["03", "04", "02", "01", "05", "07"]
+          : ["03", "04", "02", "01"],
     },
   ];
 }
@@ -282,28 +307,33 @@ function inferFileType(file: DeliverableItem) {
   return "Strategy";
 }
 
-function getOrientationHeading(tone: StoryTone, tier: 67 | 147) {
+function getOrientationHeading(
+  tone: StoryTone,
+  tier: 67 | 147,
+  countryLabel: string
+) {
   if (tier === 147) {
-    if (tone === "ready") return "Your Spain Approval System Is Ready";
-    return "Your Spain Approval System Is Ready — But You Should Not Apply Yet";
+    if (tone === "ready") return `Your ${countryLabel} Approval System Is Ready`;
+    return `Your ${countryLabel} Approval System Is Ready — But You Should Not Apply Yet`;
   }
 
-  if (tone === "ready") return "Your Spain Fix Plan Is Ready";
-  return "Your Spain Fix Plan Is Ready — Here Is Why You Should Not Apply Yet";
+  if (tone === "ready") return `Your ${countryLabel} Fix Plan Is Ready`;
+  return `Your ${countryLabel} Fix Plan Is Ready — Here Is Why You Should Not Apply Yet`;
 }
 
 function getOrientationBody(
   tone: StoryTone,
   tier: 67 | 147,
   actualGap: number,
-  requirementAmount: number
+  requirementAmount: number,
+  countryLabel: string
 ) {
   if (tier === 147) {
     if (tone === "ready") {
-      return `You purchased the full approval system because passing the threshold alone is not enough. This page shows what you bought, why it matters, and how to move from eligibility to a cleaner submission.`;
+      return "You purchased the full approval system because passing the threshold alone is not enough. This page shows what you bought, why it matters, and how to move from eligibility to a cleaner submission.";
     }
 
-    return `Based on your Spain 2026 viability result, you are currently ${fmtEurAbs(
+    return `Based on your ${countryLabel} 2026 viability result, you are currently ${fmtEurAbs(
       actualGap
     )} below the estimated threshold of ${fmtEur(
       requirementAmount
@@ -314,7 +344,7 @@ function getOrientationBody(
     return "You purchased the Fix Plan to reduce preventable rejection risk before you apply. This page explains what your result means, what to do first, and which files help you tighten the case.";
   }
 
-  return `Based on your Spain 2026 viability result, you are currently ${fmtEurAbs(
+  return `Based on your ${countryLabel} 2026 viability result, you are currently ${fmtEurAbs(
     actualGap
   )} below the estimated threshold of ${fmtEur(
     requirementAmount
@@ -728,9 +758,9 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
     const payment = params.get("payment");
     const tier = params.get("tier");
-    const sessionId = params.get("session_id");
 
     if (payment !== "success" || tier !== String(config.tier)) {
       setVerifyError("This page is only available after a verified purchase.");
@@ -738,26 +768,24 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       return;
     }
 
-    const restored = restoreCachedPlan(config.countryKey, setResult, setIncomeInEur);
-
     if (!sessionId) {
-      if (restored) {
-        setVerified(true);
-        setVerifying(false);
-        return;
-      }
-
       setVerifyError("No payment session found. If you completed payment, please contact support.");
       setVerifying(false);
       return;
     }
+
+    const restored = restoreCachedPlan(config.countryKey, setResult, setIncomeInEur);
 
     fetch(config.verificationEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ session_id: sessionId, expected_tier: config.tier }),
+      body: JSON.stringify({
+        session_id: sessionId,
+        expected_tier: config.tier,
+        expected_country: config.countryKey,
+      }),
     })
       .then(async (res) => {
         const data = (await res.json()) as VerifyResponse;
@@ -812,6 +840,247 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     return incomeInEur - requirementAmount;
   }, [incomeInEur, requirementAmount, result]);
 
+  const gapPct = useMemo(() => {
+    if (!result || Number(result.requirement) === 0) return 0;
+    return actualGap / Number(result.requirement);
+  }, [result, actualGap]);
+
+  const path = useMemo(() => {
+    if (actualGap >= 0) {
+      return {
+        title: "Apply Now",
+        method:
+          "Your income meets the threshold. Focus on structuring your documentation correctly and submitting a clean application.",
+        time: "Ready now",
+        probability: "High (85–95%)",
+      };
+    }
+
+    if (gapPct >= -0.1) {
+      return {
+        title: "Close Income Gap",
+        method:
+          "Increase your verifiable monthly income by adding a client, adjusting contract terms, or restructuring payment frequency to cross the threshold.",
+        time: "4–8 weeks",
+        probability: "Moderate–High (65–80%)",
+      };
+    }
+
+    return {
+      title: "Income Expansion Strategy",
+      method:
+        "You need a material income increase before applying. Consider adding revenue streams, renegotiating contracts, or delaying until your income consistently exceeds the threshold.",
+      time: "2–4 months",
+      probability: "Moderate (40–65%)",
+    };
+  }, [actualGap, gapPct]);
+
+  const riskFlags = useMemo(() => {
+    if (actualGap >= 0) {
+      return [
+        {
+          title: "Documentation Risk",
+          description:
+            "Weak or unclear documentation is one of the most common reasons applications are rejected — even when income qualifies.",
+          action:
+            "Ensure every document is translated, apostilled, and matches your declared income exactly.",
+        },
+        {
+          title: "Income Classification Risk",
+          description:
+            "If your income is classified incorrectly, consulates frequently request additional evidence or delay processing.",
+          action:
+            "Verify your employment status matches the documentation you submit.",
+        },
+      ];
+    }
+
+    if (gapPct >= -0.1) {
+      return [
+        {
+          title: "Threshold Proximity Risk",
+          description:
+            "You are within striking distance but still below the required amount. Consulates apply strict thresholds.",
+          action:
+            "Even a small shortfall is grounds for rejection. Close the gap before submitting.",
+        },
+        {
+          title: "Income Consistency Risk",
+          description:
+            "Income that has recently changed or varies month to month is frequently flagged during review.",
+          action:
+            "Show at least 3–6 months of consistent income at or above the threshold.",
+        },
+        {
+          title: "Documentation Sensitivity",
+          description:
+            "Borderline applications receive heightened scrutiny. Every supporting document must be complete and accurate.",
+          action:
+            "Incomplete or inconsistent documents in borderline cases almost always lead to rejection.",
+        },
+      ];
+    }
+
+    return [
+      {
+        title: "Income Insufficiency",
+        description:
+          "Your income is materially below the required threshold. Applications at this level are typically rejected.",
+        action:
+          "Do not apply until your income consistently meets or exceeds the requirement.",
+      },
+      {
+        title: "Application Timing Risk",
+        description:
+          "Submitting too early wastes fees and uses your strongest application window.",
+        action:
+          "Wait until your financial position is strong enough to present a clean case.",
+      },
+      {
+        title: "Financial Evidence Risk",
+        description:
+          "Insufficient bank statements or unclear income sources make an already weak application harder to approve.",
+        action:
+          "Prepare at least 6 months of clean, well-documented bank statements.",
+      },
+      {
+        title: "Strategy Misalignment",
+        description:
+          "Applying without restructuring your income or timing significantly lowers your success probability.",
+        action:
+          "Follow the path outlined above before beginning your application.",
+      },
+    ];
+  }, [actualGap, gapPct]);
+
+  const timelineSteps = useMemo(() => {
+    if (actualGap >= 0) {
+      return [
+        {
+          step: "01",
+          title: "Gather documents",
+          time: "Week 1–2",
+          desc: "Collect all required documents and begin apostille preparation where required.",
+        },
+        {
+          step: "02",
+          title: "Secure compliant insurance",
+          time: "Week 2",
+          desc: "Obtain private health coverage that meets the visa standard.",
+        },
+        {
+          step: "03",
+          title: "Prepare financial evidence",
+          time: "Week 2–3",
+          desc: "Compile bank statements and proof of income that cleanly match your declared figures.",
+        },
+        {
+          step: "04",
+          title: "Submit application",
+          time: "Week 3–4",
+          desc: "File through the correct channel with a complete, consistent package.",
+        },
+        {
+          step: "05",
+          title: "Processing period",
+          time: "Week 4–12",
+          desc: "Processing time varies by route and authority, but a clean file reduces avoidable delay.",
+        },
+      ];
+    }
+
+    if (gapPct >= -0.1) {
+      return [
+        {
+          step: "01",
+          title: "Close income gap",
+          time: "Week 1–6",
+          desc: "Increase verifiable monthly income to meet or exceed the threshold.",
+        },
+        {
+          step: "02",
+          title: "Stabilise evidence",
+          time: "Week 6–10",
+          desc: "Maintain the new income level long enough to create a strong evidence base.",
+        },
+        {
+          step: "03",
+          title: "Gather documents",
+          time: "Week 10–12",
+          desc: "Collect supporting documents once income is clearly over the line.",
+        },
+        {
+          step: "04",
+          title: "Submit application",
+          time: "Week 12–14",
+          desc: "File only when the numbers and documents work together.",
+        },
+        {
+          step: "05",
+          title: "Processing period",
+          time: "Week 14–24",
+          desc: "A stronger file reduces the chance of delays, requests, or rejection.",
+        },
+      ];
+    }
+
+    return [
+      {
+        step: "01",
+        title: "Restructure income",
+        time: "Month 1–3",
+        desc: "Increase monthly income through new contracts, clients, or a better payment structure.",
+      },
+      {
+        step: "02",
+        title: "Build consistency",
+        time: "Month 3–5",
+        desc: "Maintain the new level for long enough to create convincing financial evidence.",
+      },
+      {
+        step: "03",
+        title: "Gather documents",
+        time: "Month 5–6",
+        desc: "Start document collection only when the income position is strong enough.",
+      },
+      {
+        step: "04",
+        title: "Submit application",
+        time: "Month 6–7",
+        desc: "Submit with a materially stronger position and clean evidence trail.",
+      },
+      {
+        step: "05",
+        title: "Processing period",
+        time: "Month 7–9",
+        desc: "A delayed application is better than a weak one that burns your best shot.",
+      },
+    ];
+  }, [actualGap, gapPct]);
+
+  const mistakes = [
+    {
+      mistake: "Submitting untranslated or non-apostilled documents",
+      consequence: "Application can be returned or rejected without meaningful review.",
+    },
+    {
+      mistake: "Showing inconsistent income across bank statements and contracts",
+      consequence: "Creates doubt about legitimacy and triggers additional scrutiny.",
+    },
+    {
+      mistake: "Applying below threshold hoping for leniency",
+      consequence: "Strict numerical thresholds usually mean below is simply below.",
+    },
+    {
+      mistake: "Using non-compliant health insurance",
+      consequence: "A technically weak application can fail even if your income is strong.",
+    },
+    {
+      mistake: "Submitting through the wrong route or channel",
+      consequence: "This can delay or invalidate the application entirely.",
+    },
+  ];
+
   const tone = getStoryTone(actualGap);
   const isReady = tone === "ready";
   const gapColor =
@@ -848,12 +1117,18 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       ? "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan."
       : "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.";
 
-  const orientationHeading = getOrientationHeading(tone, config.tier);
+  const orientationHeading = getOrientationHeading(
+    tone,
+    config.tier,
+    config.countryLabel
+  );
+
   const orientationBody = getOrientationBody(
     tone,
     config.tier,
     actualGap,
-    requirementAmount
+    requirementAmount,
+    config.countryLabel
   );
 
   if (verifying) {
@@ -1091,9 +1366,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             </p>
             <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
               {fmtEur(requirementAmount)}
-              <span className="text-xs font-normal" style={{ color: "#64748B" }}>
-                /mo
-              </span>
             </p>
           </div>
 
@@ -1106,167 +1378,289 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             </p>
             <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
               {fmtEur(incomeInEur)}
-              <span className="text-xs font-normal" style={{ color: "#64748B" }}>
-                /mo
-              </span>
             </p>
           </div>
 
-          <div
-            style={{
-              ...cardStyle,
-              backgroundColor:
-                isReady ? "#F0FDF4" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
-              borderColor:
-                isReady ? "#BBF7D0" : tone === "borderline" ? "#FDE68A" : "#FECACA",
-            }}
-          >
+          <div style={cardStyle}>
             <p
               className="text-[10px] font-data uppercase tracking-widest mb-1"
               style={{ color: "#64748B" }}
             >
-              Your Gap
+              Current Position
             </p>
-            <p className="font-data font-bold" style={{ fontSize: "24px", color: gapColor }}>
-              {isReady ? "+" : "-"}
-              {fmtEurAbs(actualGap)}
+            <p
+              className="font-data font-bold"
+              style={{ fontSize: "24px", color: gapColor }}
+            >
+              {actualGap >= 0 ? `+${fmtEur(actualGap)}` : `-${fmtEurAbs(actualGap)}`}
             </p>
           </div>
         </div>
 
         <div style={cardStyle}>
           <p
-            className="font-data font-bold uppercase tracking-widest mb-2"
-            style={{ fontSize: "11px", color: "#64748B" }}
+            className="font-data text-xs uppercase tracking-widest mb-3"
+            style={{ color: "#64748B" }}
           >
-            Your Fastest Path To Approval
+            Your best current path
           </p>
 
-          <p
+          <h2
             style={{
-              fontSize: "20px",
-              lineHeight: "1.55",
+              fontSize: "24px",
+              lineHeight: "1.3",
               fontWeight: 700,
               color: "#0F172A",
-              margin: 0,
+              margin: "0 0 10px 0",
             }}
           >
-            {nextAction}
+            {path.title}
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+            <div style={smallCardStyle}>
+              <p
+                className="text-[10px] font-data uppercase tracking-widest mb-1"
+                style={{ color: "#64748B" }}
+              >
+                Method
+              </p>
+              <p style={{ fontSize: "14px", color: "#334155", lineHeight: "1.7", margin: 0 }}>
+                {path.method}
+              </p>
+            </div>
+
+            <div style={smallCardStyle}>
+              <p
+                className="text-[10px] font-data uppercase tracking-widest mb-1"
+                style={{ color: "#64748B" }}
+              >
+                Estimated time
+              </p>
+              <p className="font-bold" style={{ fontSize: "16px", color: "#0F172A", margin: 0 }}>
+                {path.time}
+              </p>
+            </div>
+
+            <div style={smallCardStyle}>
+              <p
+                className="text-[10px] font-data uppercase tracking-widest mb-1"
+                style={{ color: "#64748B" }}
+              >
+                Success probability
+              </p>
+              <p className="font-bold" style={{ fontSize: "16px", color: "#0F172A", margin: 0 }}>
+                {path.probability}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={cardStyle}>
+          <p
+            className="font-data text-xs uppercase tracking-widest mb-3"
+            style={{ color: "#64748B" }}
+          >
+            Risk flags
           </p>
+
+          <div className="space-y-4">
+            {riskFlags.map((flag) => (
+              <div
+                key={flag.title}
+                style={{
+                  border: "1px solid #E2E8F0",
+                  borderLeft: "3px solid #0F172A",
+                  padding: "18px 20px",
+                  borderRadius: "2px",
+                  backgroundColor: "#FFFFFF",
+                }}
+              >
+                <p className="font-bold" style={{ fontSize: "16px", color: "#0F172A", margin: "0 0 6px 0" }}>
+                  {flag.title}
+                </p>
+                <p style={{ fontSize: "14px", color: "#334155", lineHeight: "1.7", margin: "0 0 8px 0" }}>
+                  {flag.description}
+                </p>
+                <p style={{ fontSize: "13px", color: "#475569", lineHeight: "1.7", margin: 0 }}>
+                  <strong>Action:</strong> {flag.action}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {stepSections.map((step) => {
-          const files = step.fileNums
-            .map((num) => fileMap.get(num))
-            .filter((file): file is DeliverableItem => Boolean(file));
+          const files =
+            step.fileNums
+              .map((num) => fileMap.get(num))
+              .filter((file): file is DeliverableItem => Boolean(file));
 
           return <StepCard key={step.id} step={step} files={files} />;
         })}
 
         <div style={cardStyle}>
           <p
-            className="font-data font-bold uppercase tracking-widest mb-3"
-            style={{ fontSize: "14px", color: "#0F172A" }}
+            className="font-data text-xs uppercase tracking-widest mb-3"
+            style={{ color: "#64748B" }}
+          >
+            Approval timeline
+          </p>
+
+          <div className="space-y-4">
+            {timelineSteps.map((item) => (
+              <div
+                key={`${item.step}-${item.title}`}
+                style={{
+                  border: "1px solid #E2E8F0",
+                  padding: "18px 20px",
+                  borderRadius: "2px",
+                  backgroundColor: "#FFFFFF",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                    flexWrap: "wrap",
+                    marginBottom: "6px",
+                  }}
+                >
+                  <p className="font-bold" style={{ fontSize: "16px", color: "#0F172A", margin: 0 }}>
+                    Step {item.step} — {item.title}
+                  </p>
+                  <p
+                    className="font-data text-xs uppercase tracking-widest"
+                    style={{ color: "#64748B", margin: 0 }}
+                  >
+                    {item.time}
+                  </p>
+                </div>
+                <p style={{ fontSize: "14px", color: "#334155", lineHeight: "1.7", margin: 0 }}>
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={cardStyle}>
+          <p
+            className="font-data text-xs uppercase tracking-widest mb-3"
+            style={{ color: "#64748B" }}
+          >
+            Common mistakes
+          </p>
+
+          <div className="space-y-4">
+            {mistakes.map((item) => (
+              <div
+                key={item.mistake}
+                style={{
+                  border: "1px solid #E2E8F0",
+                  padding: "18px 20px",
+                  borderRadius: "2px",
+                  backgroundColor: "#FFFFFF",
+                }}
+              >
+                <p className="font-bold" style={{ fontSize: "15px", color: "#0F172A", margin: "0 0 6px 0" }}>
+                  {item.mistake}
+                </p>
+                <p style={{ fontSize: "14px", color: "#334155", lineHeight: "1.7", margin: 0 }}>
+                  {item.consequence}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={cardStyle}>
+          <p
+            className="font-data text-xs uppercase tracking-widest mb-3"
+            style={{ color: "#64748B" }}
           >
             {config.includedSystemLabel}
           </p>
 
-          <p
-            style={{
-              fontSize: "15px",
-              color: "#334155",
-              lineHeight: "1.75",
-              marginBottom: "8px",
-            }}
-          >
+          <p style={{ fontSize: "15px", color: "#334155", lineHeight: "1.8", margin: "0 0 16px 0" }}>
             {config.includedSystemIntro}
           </p>
 
-          {coreFiles.map((file) => (
-            <ToolCard key={file.num} file={file} />
-          ))}
+          <div className="space-y-2">
+            {coreFiles.map((file) => (
+              <ToolCard key={`core-${file.num}`} file={file} />
+            ))}
+          </div>
         </div>
 
-        {config.tier === 147 && advancedFiles.length > 0 ? (
+        {advancedFiles.length > 0 ? (
           <div style={cardStyle}>
             <p
-              className="font-data font-bold uppercase tracking-widest mb-3"
-              style={{ fontSize: "14px", color: "#0F172A" }}
+              className="font-data text-xs uppercase tracking-widest mb-3"
+              style={{ color: "#64748B" }}
             >
-              Submission Control Files
+              Advanced files
             </p>
+
+            <div className="space-y-2">
+              {advancedFiles.map((file) => (
+                <ToolCard key={`advanced-${file.num}`} file={file} />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {config.tier === 67 &&
+        config.upsellTitle &&
+        config.upsellDescription &&
+        config.upsellCtaLabel &&
+        config.upsellHref ? (
+          <div
+            style={{
+              ...cardStyle,
+              backgroundColor: "#F8FAFC",
+              borderColor: "#CBD5E1",
+            }}
+          >
+            <p
+              className="font-data text-xs uppercase tracking-widest mb-2"
+              style={{ color: "#64748B" }}
+            >
+              Optional next step
+            </p>
+
+            <h2
+              style={{
+                fontSize: "24px",
+                lineHeight: "1.3",
+                fontWeight: 700,
+                color: "#0F172A",
+                margin: "0 0 10px 0",
+              }}
+            >
+              {config.upsellTitle}
+            </h2>
 
             <p
               style={{
                 fontSize: "15px",
                 color: "#334155",
-                lineHeight: "1.75",
-                marginBottom: "8px",
-              }}
-            >
-              These advanced files continue the same approval story through the final
-              submission stage. They are here to help you move from “I know the gap”
-              to “I know how to prepare the case properly.”
-            </p>
-
-            {advancedFiles.map((file) => (
-              <ToolCard key={file.num} file={file} />
-            ))}
-          </div>
-        ) : null}
-
-        {config.tier === 67 && config.upsellTitle && config.upsellDescription ? (
-          <div style={cardStyle}>
-            <p
-              className="font-data font-bold uppercase tracking-widest mb-2"
-              style={{ fontSize: "14px", color: "#0F172A" }}
-            >
-              When You’re Ready For Full Submission Control
-            </p>
-
-            <p
-              style={{
-                fontSize: "14px",
-                color: "#475569",
                 lineHeight: "1.8",
-                marginBottom: "14px",
+                margin: "0 0 16px 0",
               }}
             >
-              The Fix Plan helps you understand the gap and the fastest correction path.
-              The full approval system is for the next stage — when you want more control
-              over the evidence structure, file order, and final submission quality.
+              {config.upsellDescription}
             </p>
 
             {config.upsellItems?.length ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                 {config.upsellItems.map((item) => (
-                  <div
-                    key={item.title}
-                    style={{
-                      padding: "14px 16px",
-                      backgroundColor: "#F8FAFC",
-                      border: "1px solid #E2E8F0",
-                      borderRadius: "2px",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color: "#0F172A",
-                        marginBottom: "4px",
-                      }}
-                    >
+                  <div key={item.title} style={smallCardStyle}>
+                    <p className="font-bold" style={{ fontSize: "15px", color: "#0F172A", margin: "0 0 6px 0" }}>
                       {item.title}
                     </p>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "#475569",
-                        lineHeight: "1.55",
-                        margin: 0,
-                      }}
-                    >
+                    <p style={{ fontSize: "14px", color: "#334155", lineHeight: "1.7", margin: 0 }}>
                       {item.desc}
                     </p>
                   </div>
@@ -1274,39 +1668,34 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               </div>
             ) : null}
 
-            {config.upsellHref && config.upsellCtaLabel ? (
-              <a
-                href={config.upsellHref}
-                className="inline-block bg-primary text-primary-foreground py-3 px-6 font-data font-bold text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.98] rounded-sm"
-              >
-                {config.upsellCtaLabel}
-              </a>
-            ) : null}
+            <a
+              href={config.upsellHref}
+              className="inline-block bg-black text-white py-3 px-6 font-data font-bold text-xs uppercase tracking-widest rounded-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
+            >
+              {config.upsellCtaLabel}
+            </a>
           </div>
         ) : null}
 
-        <DownloadCard
-          label={config.primaryDownloadLabel}
-          supportText="Keep a saved copy of this plan so your checklist, file access, and action path stay in one place."
-        />
-
-        <div className="text-center space-y-2">
-          <p style={{ fontSize: "13px", color: "#64748B", lineHeight: "1.6" }}>
-            {config.disclaimer}
+        <div style={cardStyle}>
+          <p
+            className="font-data text-xs uppercase tracking-widest mb-2"
+            style={{ color: "#64748B" }}
+          >
+            Disclaimer
           </p>
-          <p style={{ fontSize: "11px", color: "#94A3B8", lineHeight: "1.5" }}>
-            {config.footerLegal}
+          <p style={{ fontSize: "13px", color: "#475569", lineHeight: "1.8", margin: 0 }}>
+            {config.disclaimer}
           </p>
         </div>
 
-        <div className="text-center pt-4 print:hidden">
-          <a
-            href={config.returnPath}
-            className="text-xs font-data uppercase tracking-widest transition-colors duration-150 hover:opacity-70"
-            style={{ color: "#64748B" }}
+        <div className="pb-10">
+          <p
+            className="font-data text-xs uppercase tracking-widest"
+            style={{ color: "#64748B", textAlign: "center" }}
           >
-            ← Run Another Diagnostic
-          </a>
+            {config.footerLegal}
+          </p>
         </div>
       </motion.div>
     </PageShell>
