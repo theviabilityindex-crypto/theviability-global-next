@@ -75,6 +75,7 @@ type TemplateProps = {
 };
 
 type StoryTone = "ready" | "borderline" | "not_ready";
+type ProductStoryModel = "threshold_visa" | "citizenship_descent";
 
 type StorySection = {
   id: string;
@@ -121,23 +122,45 @@ const cardStyle: CSSProperties = {
   borderRadius: "2px",
 };
 
+function getProductStoryModel(countryKey: string): ProductStoryModel {
+  switch (countryKey.toLowerCase()) {
+    case "canada":
+      return "citizenship_descent";
+    default:
+      return "threshold_visa";
+  }
+}
+
+function getCanadaLegacyStorageKeys(countryKey: string) {
+  return {
+    resultKey: `${countryKey}_dnv_result`,
+    incomeKey: `${countryKey}_dnv_income`,
+    currencyKey: `${countryKey}_dnv_currency`,
+  };
+}
+
 function restoreCachedPlan(
   countryKey: string,
   setResult: (value: CachedResult | null) => void,
   setIncomeInEur: (value: number) => void
 ) {
-  const storageKeys = [
-    {
-      resultKey: `${countryKey}_dnv_result`,
-      incomeKey: `${countryKey}_dnv_income`,
-      currencyKey: `${countryKey}_dnv_currency`,
-    },
-    {
-      resultKey: "dnv_result",
-      incomeKey: "dnv_income",
-      currencyKey: "dnv_currency",
-    },
-  ];
+  const storyModel = getProductStoryModel(countryKey);
+
+  const storageKeys =
+    storyModel === "threshold_visa" && countryKey.toLowerCase() === "spain"
+      ? [
+          {
+            resultKey: `${countryKey}_dnv_result`,
+            incomeKey: `${countryKey}_dnv_income`,
+            currencyKey: `${countryKey}_dnv_currency`,
+          },
+          {
+            resultKey: "dnv_result",
+            incomeKey: "dnv_income",
+            currencyKey: "dnv_currency",
+          },
+        ]
+      : [getCanadaLegacyStorageKeys(countryKey)];
 
   for (const keys of storageKeys) {
     try {
@@ -172,13 +195,161 @@ function getStoryTone(actualGap: number) {
   return "not_ready" as StoryTone;
 }
 
+function getCanadaStoryTone(result: CachedResult | null): StoryTone {
+  const score = Number(result?.score) || 0;
+  const status = (result?.status || "").toLowerCase();
+  const risk = (result?.risk || "").toLowerCase();
+
+  if (
+    status.includes("ready") ||
+    status.includes("strong") ||
+    risk.includes("low") ||
+    score >= 75
+  ) {
+    return "ready";
+  }
+
+  if (
+    status.includes("promising") ||
+    status.includes("partial") ||
+    status.includes("moderate") ||
+    risk.includes("medium") ||
+    risk.includes("borderline") ||
+    score >= 55
+  ) {
+    return "borderline";
+  }
+
+  return "not_ready";
+}
+
+function getActiveTone(
+  storyModel: ProductStoryModel,
+  result: CachedResult | null,
+  actualGap: number
+): StoryTone {
+  if (storyModel === "citizenship_descent") {
+    return getCanadaStoryTone(result);
+  }
+
+  return getStoryTone(actualGap);
+}
+
 function getStorySections(
+  storyModel: ProductStoryModel,
   tone: StoryTone,
   actualGap: number,
   requirementAmount: number,
   incomeInEur: number,
   tier: 67 | 147
 ): StorySection[] {
+  if (storyModel === "citizenship_descent") {
+    if (tier === 67) {
+      if (tone === "ready") {
+        return [
+          {
+            id: "meaning",
+            label: "What this means",
+            title:
+              "Your claim looks promising — the real job now is making it provable on paper.",
+            body:
+              "A Canadian citizenship claim is not won by ancestry alone. It is won by whether the lineage, identity trail, and supporting records are clean enough to stand up as a complete documentary chain. This plan helps you tighten that proof before you file too early.",
+            fileNums: ["01", "02", "05", "06"],
+          },
+          {
+            id: "path",
+            label: "Your path to filing",
+            title: "Turn a promising claim into a cleaner certificate application.",
+            body:
+              "Your strongest next move is to map the line, pressure-test the weak points, and make sure the record pack is organised before filing. The goal is not just to feel eligible. The goal is to make the claim easy to understand and harder to challenge.",
+            fileNums: ["01", "02", "03", "04", "05", "06"],
+          },
+        ];
+      }
+
+      if (tone === "borderline") {
+        return [
+          {
+            id: "meaning",
+            label: "What this means",
+            title: "Your claim may be real — but the paper trail is not strong enough yet.",
+            body:
+              "This is the dangerous middle zone. There may be a valid path, but right now the claim still carries enough uncertainty to create delay, document requests, or a preventable refusal if filed too early. The weakness is usually in the chain, the proof pack, identity consistency, or an unresolved legal checkpoint.",
+            fileNums: ["03", "04"],
+          },
+          {
+            id: "path",
+            label: "Your path to filing",
+            title: "Strengthen the chain first, then move toward filing.",
+            body:
+              "The fastest path is not rushing the application. It is building the paper trail properly, checking for identity breaks, and pressure-testing whether the claim stands up as a complete citizenship case before you file.",
+            fileNums: ["01", "02", "03", "04", "05", "06"],
+          },
+        ];
+      }
+
+      return [
+        {
+          id: "meaning",
+          label: "What this means",
+          title: "You should not file yet.",
+          body:
+            "Right now the claim is not strong enough on paper to file with confidence. The likely problem is not whether Canadian ancestry exists, but whether the documentary chain is complete, consistent, and strong enough to support the claim without avoidable friction.",
+          fileNums: ["03", "04"],
+        },
+        {
+          id: "path",
+          label: "Your path to filing",
+          title: "Fix the weak chain first. Then prepare the application properly.",
+          body:
+            "Your plan is to identify the exact break point, strengthen the proof pack, clean up identity inconsistencies, and use the final audit files to decide whether the claim is strong enough to move forward.",
+          fileNums: ["01", "02", "03", "04", "05", "06"],
+        },
+      ];
+    }
+
+    if (tone === "ready") {
+      return [
+        {
+          id: "meaning",
+          label: "What this means",
+          title:
+            "Your claim appears strong enough to move toward execution — now protect the filing.",
+          body:
+            "At this stage, the risk is less about discovering a claim and more about making sure the record chain, file order, and submission pack stay clean all the way through the citizenship certificate process.",
+          fileNums: ["01", "02", "05", "06", "07", "08"],
+        },
+        {
+          id: "path",
+          label: "Your path to filing",
+          title: "Move from claim strength to submission control.",
+          body:
+            "The full system helps you tighten the chain, organise the evidence, and control the practical submission stage so the application is easier to assemble and harder to derail with avoidable document errors.",
+          fileNums: ["07", "08", "09", "10"],
+        },
+      ];
+    }
+
+    return [
+      {
+        id: "meaning",
+        label: "What this means",
+        title: "Your claim still needs correction before filing.",
+        body:
+          "The full system is built for this exact situation: fix the chain weakness first, then move into a cleaner submission process. The aim is to reduce avoidable friction before the application reaches the formal certificate stage.",
+        fileNums: ["03", "04", "05", "06"],
+      },
+      {
+        id: "path",
+        label: "Your path to filing",
+        title: "Strengthen the claim, then control the submission.",
+        body:
+          "Work in order: map the line, repair the evidence gaps, remove identity confusion, test for chain-break risk, then use the advanced files to build a more controlled final submission.",
+        fileNums: ["01", "02", "03", "04", "05", "06", "07", "08"],
+      },
+    ];
+  }
+
   if (tone === "ready") {
     return [
       {
@@ -283,10 +454,21 @@ function inferFileType(file: DeliverableItem) {
 }
 
 function getOrientationHeading(
+  storyModel: ProductStoryModel,
   tone: StoryTone,
   tier: 67 | 147,
   countryLabel: string
 ) {
+  if (storyModel === "citizenship_descent") {
+    if (tier === 147) {
+      if (tone === "ready") return `Your ${countryLabel} Citizenship Submission System Is Ready`;
+      return `Your ${countryLabel} Citizenship Submission System Is Ready — But You Should Not File Yet`;
+    }
+
+    if (tone === "ready") return `Your ${countryLabel} Citizenship Fix Plan Is Ready`;
+    return `Your ${countryLabel} Citizenship Fix Plan Is Ready — Here Is Why You Should Not File Yet`;
+  }
+
   if (tier === 147) {
     if (tone === "ready") return `Your ${countryLabel} Approval System Is Ready`;
     return `Your ${countryLabel} Approval System Is Ready — But You Should Not Apply Yet`;
@@ -297,12 +479,29 @@ function getOrientationHeading(
 }
 
 function getOrientationBody(
+  storyModel: ProductStoryModel,
   tone: StoryTone,
   tier: 67 | 147,
   actualGap: number,
   requirementAmount: number,
   countryLabel: string
 ) {
+  if (storyModel === "citizenship_descent") {
+    if (tier === 147) {
+      if (tone === "ready") {
+        return `You purchased the full ${countryLabel} citizenship submission system because a strong claim still needs clean execution. This page shows what you bought, why it matters, and how to move from a promising claim to a tighter filing pack.`;
+      }
+
+      return `Based on your ${countryLabel} 2026 claim result, your case still needs work before filing. This page is your full correction and submission system: strengthen the documentary chain first, then move toward a cleaner citizenship certificate application.`;
+    }
+
+    if (tone === "ready") {
+      return `You purchased the ${countryLabel} Fix Plan to reduce preventable filing risk before moving ahead with a citizenship claim. This page explains what your result means, what to do first, and which files help you strengthen the case on paper.`;
+    }
+
+    return `Based on your ${countryLabel} 2026 claim result, your case is not yet strong enough to file with confidence. This page is your correction plan: why you should not file yet, what needs strengthening first, and the exact files that help you do it.`;
+  }
+
   if (tier === 147) {
     if (tone === "ready") {
       return `You purchased the full approval system because passing the threshold alone is not enough. This page shows what you bought, why it matters, and how to move from eligibility to a cleaner submission.`;
@@ -327,10 +526,87 @@ function getOrientationBody(
 }
 
 function getStepSections(
+  storyModel: ProductStoryModel,
   tone: StoryTone,
   tier: 67 | 147,
   actualGap: number
 ): StepSection[] {
+  if (storyModel === "citizenship_descent") {
+    const base67: StepSection[] = [
+      {
+        id: "step-1",
+        step: "Step 1",
+        title:
+          tone === "ready"
+            ? "Lock in the strongest part of your claim"
+            : "Find the weak point in the claim first",
+        body:
+          tone === "ready"
+            ? "Start by confirming the Canadian line clearly on paper. Your first job is to map the ancestry chain, identify the citizenship path being relied on, and make sure the claim is being built around the right records from the beginning."
+            : "Your first job is to identify why the claim is weak right now. In most cases, the problem is not the family story itself. It is that the documentary chain is incomplete, unclear, or not yet organised well enough to support a confident filing.",
+        fileNums: ["01", "02"],
+      },
+      {
+        id: "step-2",
+        step: "Step 2",
+        title: "Strengthen the proof pack behind the claim",
+        body:
+          "This is where preventable problems usually show up. Names may not match perfectly, records may be missing, dates may conflict, or the pack may be too thin to carry the claim cleanly. These files help you organise the evidence and remove obvious credibility gaps before filing.",
+        fileNums: ["03", "04"],
+      },
+      {
+        id: "step-3",
+        step: "Step 3",
+        title: "Pressure-test the chain before you file",
+        body:
+          "Before moving toward application, use the final audit files to check whether the claim is actually strong enough on paper. This is where you look for chain-break risk, unresolved legal uncertainty, and whether the file feels ready rather than hopeful.",
+        fileNums: ["05", "06"],
+      },
+    ];
+
+    if (tier === 67) return base67;
+
+    return [
+      {
+        id: "step-1",
+        step: "Step 1",
+        title:
+          tone === "ready"
+            ? "Protect the strongest version of the claim"
+            : "Fix the biggest claim blocker first",
+        body:
+          tone === "ready"
+            ? "You already have a potentially strong case. The first job now is protecting that advantage by keeping the documentary chain clean, consistent, and easy to follow."
+            : "Before anything else, identify the exact break point in the claim. The submission system only works properly after the weak chain, identity mismatch, or evidence gap has been handled.",
+        fileNums: ["01", "02", "03", "04"],
+      },
+      {
+        id: "step-2",
+        step: "Step 2",
+        title: "Strengthen the evidence and structure",
+        body:
+          "This stage turns a fragile claim into a more defensible one. These files help tighten the lineage proof, identity continuity, and record flow before the case is assembled for filing.",
+        fileNums: ["01", "02", "05", "06"],
+      },
+      {
+        id: "step-3",
+        step: "Step 3",
+        title: "Prepare for filing like a serious applicant",
+        body:
+          "This is where the full citizenship submission system starts to matter. You move from understanding the problem to controlling the file order, naming, timeline, and practical submission quality.",
+        fileNums: ["07", "08"],
+      },
+      {
+        id: "step-4",
+        step: "Step 4",
+        title: "Control the final submission stage",
+        body:
+          "The final red-zone risk is avoidable filing error. These advanced files help reduce preventable mistakes and bring the case together in a cleaner, lower-friction way before the citizenship certificate application is sent.",
+        fileNums: ["09", "10"],
+      },
+    ];
+  }
+
   const base67: StepSection[] = [
     {
       id: "step-1",
@@ -408,6 +684,144 @@ function getStepSections(
       fileNums: ["09", "10"],
     },
   ];
+}
+
+function getRiskContent(
+  storyModel: ProductStoryModel,
+  tone: StoryTone
+): { label: string; body: string } {
+  if (storyModel === "citizenship_descent") {
+    if (tone === "ready") {
+      return {
+        label: "Medium Filing Risk",
+        body: "Your claim may be real, but filing can still go badly if the lineage pack, identity continuity, or supporting records are not organised cleanly enough on paper.",
+      };
+    }
+
+    if (tone === "borderline") {
+      return {
+        label: "Borderline Filing Risk",
+        body: "There may be a valid citizenship path here, but the chain is still weak enough to trigger delay, document requests, or an avoidable refusal if filed too early.",
+      };
+    }
+
+    return {
+      label: "High Filing Risk",
+      body: "At this stage, the most likely outcome is filing a claim that is not yet strong enough on paper. The better move is to strengthen the chain first, then file with a cleaner record pack.",
+    };
+  }
+
+  if (tone === "ready") {
+    return {
+      label: "Medium Rejection Risk",
+      body: "You meet the threshold, but approval can still fail if the documentation, evidence order, or remote-work proof is weak.",
+    };
+  }
+
+  if (tone === "borderline") {
+    return {
+      label: "Borderline Rejection Risk",
+      body: "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan.",
+    };
+  }
+
+  return {
+    label: "High Rejection Risk",
+    body: "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.",
+  };
+}
+
+function getMetricCards(
+  storyModel: ProductStoryModel,
+  tone: StoryTone,
+  requirementAmount: number,
+  incomeInEur: number,
+  actualGap: number,
+  result: CachedResult | null
+) {
+  if (storyModel === "citizenship_descent") {
+    const score = typeof result?.score === "number" ? Math.round(result.score) : null;
+    const status =
+      result?.status ||
+      (tone === "ready"
+        ? "Promising Claim"
+        : tone === "borderline"
+          ? "Evidence Gap Detected"
+          : "Weak Claim");
+    const risk =
+      result?.risk ||
+      (tone === "ready"
+        ? "Medium Filing Risk"
+        : tone === "borderline"
+          ? "Borderline Filing Risk"
+          : "High Filing Risk");
+
+    return [
+      {
+        label: "Claim Status",
+        value: status,
+        subValue: "",
+        highlight: false,
+      },
+      {
+        label: "Current Risk",
+        value: risk,
+        subValue: "",
+        highlight: false,
+      },
+      {
+        label: "Claim Score",
+        value: score !== null ? `${score}/100` : tone === "ready" ? "Strong" : tone === "borderline" ? "Mixed" : "At Risk",
+        subValue: "",
+        highlight: true,
+      },
+    ];
+  }
+
+  return [
+    {
+      label: "Required Income",
+      value: fmtEur(requirementAmount),
+      subValue: "/mo",
+      highlight: false,
+    },
+    {
+      label: "Your Income",
+      value: fmtEur(incomeInEur),
+      subValue: "/mo",
+      highlight: false,
+    },
+    {
+      label: "Your Gap",
+      value: `${tone === "ready" ? "+" : "-"}${fmtEurAbs(actualGap)}`,
+      subValue: "",
+      highlight: true,
+    },
+  ];
+}
+
+function getPathHeading(storyModel: ProductStoryModel) {
+  return storyModel === "citizenship_descent"
+    ? "Your Fastest Path To A Stronger Claim"
+    : "Your Fastest Path To Approval";
+}
+
+function getAdvancedFilesHeading(storyModel: ProductStoryModel) {
+  return storyModel === "citizenship_descent"
+    ? "Submission Control Files"
+    : "Submission Control Files";
+}
+
+function getAdvancedFilesBody(storyModel: ProductStoryModel) {
+  return storyModel === "citizenship_descent"
+    ? "These advanced files continue the same citizenship story through the final filing stage. They are here to help you move from “I think I have a claim” to “I know how to prepare the file properly.”"
+    : "These advanced files continue the same approval story through the final submission stage. They are here to help you move from “I know the gap” to “I know how to prepare the case properly.”";
+}
+
+function getUpsellBody(storyModel: ProductStoryModel) {
+  return storyModel === "citizenship_descent"
+    ? "The Fix Plan helps you understand where the citizenship claim is weak and the fastest path to strengthen it. The full submission system is for the next stage — when you want more control over record structure, file order, and final filing quality."
+    : "The Fix Plan helps you understand the gap and the fastest correction path. The full approval system is for the next stage — when you want more control over the evidence structure, file order, and final submission quality.";
 }
 
 function ToolCard({
@@ -807,6 +1221,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
       });
   }, [config.countryKey, config.tier, config.verificationEndpoint]);
 
+  const storyModel = useMemo(
+    () => getProductStoryModel(config.countryKey),
+    [config.countryKey]
+  );
+
   const requirementAmount = useMemo(() => {
     if (!result) return 0;
     return Number(result.requirement) || 0;
@@ -817,7 +1236,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     return incomeInEur - requirementAmount;
   }, [incomeInEur, requirementAmount, result]);
 
-  const tone = getStoryTone(actualGap);
+  const tone = getActiveTone(storyModel, result, actualGap);
   const isReady = tone === "ready";
   const gapColor =
     tone === "ready" ? "#166534" : tone === "borderline" ? "#92400E" : "#B91C1C";
@@ -831,39 +1250,46 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
   }, [allDeliverables]);
 
   const storySections = useMemo(
-    () => getStorySections(tone, actualGap, requirementAmount, incomeInEur, config.tier),
-    [tone, actualGap, requirementAmount, incomeInEur, config.tier]
+    () =>
+      getStorySections(
+        storyModel,
+        tone,
+        actualGap,
+        requirementAmount,
+        incomeInEur,
+        config.tier
+      ),
+    [storyModel, tone, actualGap, requirementAmount, incomeInEur, config.tier]
   );
 
   const stepSections = useMemo(
-    () => getStepSections(tone, config.tier, actualGap),
-    [tone, config.tier, actualGap]
+    () => getStepSections(storyModel, tone, config.tier, actualGap),
+    [storyModel, tone, config.tier, actualGap]
   );
 
   const nextAction = isReady ? config.nextActionReady : config.nextActionNotReady;
-  const riskLabel = isReady
-    ? "Medium Rejection Risk"
-    : tone === "borderline"
-    ? "Borderline Rejection Risk"
-    : "High Rejection Risk";
-
-  const riskBody = isReady
-    ? "You meet the threshold, but approval can still fail if the documentation, evidence order, or remote-work proof is weak."
-    : tone === "borderline"
-      ? "You are close enough to feel possible, but still weak enough to get rejected without a structured correction plan."
-      : "At this level, the most likely outcome is wasting time and money on an application that is not ready yet.";
-
+  const { label: riskLabel, body: riskBody } = getRiskContent(storyModel, tone);
   const orientationHeading = getOrientationHeading(
+    storyModel,
     tone,
     config.tier,
     config.countryLabel
   );
   const orientationBody = getOrientationBody(
+    storyModel,
     tone,
     config.tier,
     actualGap,
     requirementAmount,
     config.countryLabel
+  );
+  const metricCards = getMetricCards(
+    storyModel,
+    tone,
+    requirementAmount,
+    incomeInEur,
+    actualGap,
+    result
   );
 
   if (verifying) {
@@ -973,7 +1399,11 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: gapColor }}
           >
-            {config.tier === 147 ? "Full Approval System" : "Fix Plan Delivery"}
+            {config.tier === 147
+              ? storyModel === "citizenship_descent"
+                ? "Citizenship Submission System"
+                : "Full Approval System"
+              : "Fix Plan Delivery"}
           </p>
 
           <h1
@@ -1054,7 +1484,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: gapColor }}
           >
-            If You Apply Today
+            If You {storyModel === "citizenship_descent" ? "File" : "Apply"} Today
           </p>
 
           <h2
@@ -1092,56 +1522,37 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         })}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div style={cardStyle}>
-            <p
-              className="text-[10px] font-data uppercase tracking-widest mb-1"
-              style={{ color: "#64748B" }}
+          {metricCards.map((card, index) => (
+            <div
+              key={`${card.label}-${index}`}
+              style={{
+                ...cardStyle,
+                ...(card.highlight
+                  ? {
+                      backgroundColor:
+                        isReady ? "#F0FDF4" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
+                      borderColor:
+                        isReady ? "#BBF7D0" : tone === "borderline" ? "#FDE68A" : "#FECACA",
+                    }
+                  : {}),
+              }}
             >
-              Required Income
-            </p>
-            <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
-              {fmtEur(requirementAmount)}
-              <span className="text-xs font-normal" style={{ color: "#64748B" }}>
-                /mo
-              </span>
-            </p>
-          </div>
-
-          <div style={cardStyle}>
-            <p
-              className="text-[10px] font-data uppercase tracking-widest mb-1"
-              style={{ color: "#64748B" }}
-            >
-              Your Income
-            </p>
-            <p className="font-data font-bold" style={{ fontSize: "24px", color: "#0F172A" }}>
-              {fmtEur(incomeInEur)}
-              <span className="text-xs font-normal" style={{ color: "#64748B" }}>
-                /mo
-              </span>
-            </p>
-          </div>
-
-          <div
-            style={{
-              ...cardStyle,
-              backgroundColor:
-                isReady ? "#F0FDF4" : tone === "borderline" ? "#FFFBEB" : "#FEF2F2",
-              borderColor:
-                isReady ? "#BBF7D0" : tone === "borderline" ? "#FDE68A" : "#FECACA",
-            }}
-          >
-            <p
-              className="text-[10px] font-data uppercase tracking-widest mb-1"
-              style={{ color: "#64748B" }}
-            >
-              Your Gap
-            </p>
-            <p className="font-data font-bold" style={{ fontSize: "24px", color: gapColor }}>
-              {isReady ? "+" : "-"}
-              {fmtEurAbs(actualGap)}
-            </p>
-          </div>
+              <p
+                className="text-[10px] font-data uppercase tracking-widest mb-1"
+                style={{ color: "#64748B" }}
+              >
+                {card.label}
+              </p>
+              <p className="font-data font-bold" style={{ fontSize: "24px", color: card.highlight ? gapColor : "#0F172A" }}>
+                {card.value}
+                {card.subValue ? (
+                  <span className="text-xs font-normal" style={{ color: "#64748B" }}>
+                    {card.subValue}
+                  </span>
+                ) : null}
+              </p>
+            </div>
+          ))}
         </div>
 
         <div style={cardStyle}>
@@ -1149,7 +1560,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: "#64748B" }}
           >
-            Your Fastest Path To Approval
+            {getPathHeading(storyModel)}
           </p>
 
           <p
@@ -1203,7 +1614,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
               className="font-data font-bold uppercase tracking-widest mb-3"
               style={{ fontSize: "14px", color: "#0F172A" }}
             >
-              Submission Control Files
+              {getAdvancedFilesHeading(storyModel)}
             </p>
 
             <p
@@ -1214,9 +1625,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 marginBottom: "8px",
               }}
             >
-              These advanced files continue the same approval story through the final
-              submission stage. They are here to help you move from “I know the gap”
-              to “I know how to prepare the case properly.”
+              {getAdvancedFilesBody(storyModel)}
             </p>
 
             {advancedFiles.map((file) => (
@@ -1242,9 +1651,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
                 marginBottom: "14px",
               }}
             >
-              The Fix Plan helps you understand the gap and the fastest correction path.
-              The full approval system is for the next stage — when you want more control
-              over the evidence structure, file order, and final submission quality.
+              {getUpsellBody(storyModel)}
             </p>
 
             {config.upsellItems?.length ? (
