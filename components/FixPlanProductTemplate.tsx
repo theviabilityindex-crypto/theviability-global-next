@@ -1060,7 +1060,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         return { ok: res.ok, data };
       })
       .then(({ ok, data }) => {
-        if (!ok || !(data?.verified || data?.valid)) {
+        if (!ok || !(data.verified || data.valid)) {
           if (restored) {
             setVerified(true);
             setVerifyError(null);
