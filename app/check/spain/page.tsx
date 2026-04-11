@@ -488,6 +488,10 @@ export default function SpainCheckPage() {
           </div>
         </section>
 
+       // ONLY CHANGE: FAQ SECTION UPDATED (scroll down to FAQ section)
+
+...
+
         <section className="border-b border-neutral-200 bg-white">
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
             <div className="max-w-3xl">
@@ -496,10 +500,13 @@ export default function SpainCheckPage() {
 
             <div className="mt-5 divide-y divide-neutral-200 rounded-2xl border border-neutral-200 bg-white">
               {faqs.map((faq) => (
-                <details key={faq.question} className="group p-4 open:bg-neutral-50">
-                  <summary className="cursor-pointer list-none text-base font-medium text-neutral-950">
-                    {faq.question}
+                <details key={faq.question} className="group p-5 open:bg-neutral-50">
+                  <summary className="cursor-pointer list-none">
+                    <span className="block text-base font-semibold text-neutral-950">
+                      {faq.question}
+                    </span>
                   </summary>
+
                   <p className="mt-3 text-sm leading-7 text-neutral-700">
                     {faq.answer}
                   </p>
