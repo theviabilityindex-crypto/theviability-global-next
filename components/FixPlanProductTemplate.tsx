@@ -119,6 +119,18 @@ const cardStyle: CSSProperties = {
   border: "1px solid #E2E8F0",
   boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
   borderRadius: "2px",
+  breakInside: "avoid",
+  pageBreakInside: "avoid",
+};
+
+const printSectionStyle: CSSProperties = {
+  breakInside: "avoid",
+  pageBreakInside: "avoid",
+};
+
+const printPageBreakBeforeStyle: CSSProperties = {
+  breakBefore: "page",
+  pageBreakBefore: "always",
 };
 
 function isCanadaProduct(countryKey: string) {
@@ -709,6 +721,8 @@ function ToolCard({
         border: isHighlight ? "1px solid #CBD5E1" : "1px solid #E2E8F0",
         borderLeft: isHighlight ? "3px solid #0F172A" : "1px solid #E2E8F0",
         borderRadius: "2px",
+        breakInside: "avoid",
+        pageBreakInside: "avoid",
       }}
     >
       <div
@@ -796,10 +810,22 @@ function ToolCard({
               lineHeight: "1.5",
               color: "#2563EB",
               textDecoration: "underline",
+              wordBreak: "break-all",
             }}
           >
             Open {file.title}
           </a>
+          <div
+            style={{
+              marginTop: "6px",
+              fontSize: "10px",
+              lineHeight: "1.5",
+              color: "#475569",
+              wordBreak: "break-all",
+            }}
+          >
+            {file.url}
+          </div>
         </div>
       </div>
     </div>
@@ -814,7 +840,7 @@ function StorySectionCard({
   files: DeliverableItem[];
 }) {
   return (
-    <div style={cardStyle}>
+    <div style={{ ...cardStyle, ...printSectionStyle }}>
       <div
         style={{
           display: "flex",
@@ -873,7 +899,7 @@ function StepCard({
   files: DeliverableItem[];
 }) {
   return (
-    <div style={cardStyle}>
+    <div style={{ ...cardStyle, ...printSectionStyle }}>
       <div
         style={{
           display: "flex",
@@ -931,6 +957,7 @@ function DownloadCard({
     <div
       style={{
         ...cardStyle,
+        ...printSectionStyle,
         textAlign: "center",
         padding: "30px",
         borderColor: "#CBD5E1",
@@ -995,7 +1022,7 @@ function DownloadCard({
             margin: 0,
           }}
         >
-          Save this page as PDF in your browser print dialog. Your file links are shown below as clean, clickable document links.
+          Save this page as PDF in your browser print dialog. Some browsers preserve clickable links in PDF and some do not, so each file link is also shown below as a full raw URL for copy and paste.
         </p>
       </div>
     </div>
@@ -1258,6 +1285,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         <div
           style={{
             ...cardStyle,
+            ...printSectionStyle,
             padding: "30px",
             borderColor:
               tone === "ready"
@@ -1344,6 +1372,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         <div
           style={{
             ...cardStyle,
+            ...printSectionStyle,
             padding: "26px",
             borderColor:
               tone === "ready"
@@ -1524,7 +1553,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           )}
         </div>
 
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, ...printSectionStyle }}>
           <p
             className="font-data font-bold uppercase tracking-widest mb-2"
             style={{ fontSize: "11px", color: "#64748B" }}
@@ -1555,7 +1584,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
           return <StepCard key={step.id} step={step} files={files} />;
         })}
 
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, ...printSectionStyle, ...printPageBreakBeforeStyle }}>
           <p
             className="font-data font-bold uppercase tracking-widest mb-3"
             style={{ fontSize: "14px", color: "#0F172A" }}
@@ -1580,7 +1609,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         </div>
 
         {config.tier === 147 && advancedFiles.length > 0 ? (
-          <div style={cardStyle}>
+          <div style={{ ...cardStyle, ...printSectionStyle, ...printPageBreakBeforeStyle }}>
             <p
               className="font-data font-bold uppercase tracking-widest mb-3"
               style={{ fontSize: "14px", color: "#0F172A" }}
@@ -1608,7 +1637,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         ) : null}
 
         {config.tier === 67 && config.upsellTitle && config.upsellDescription ? (
-          <div style={cardStyle}>
+          <div style={{ ...cardStyle, ...printSectionStyle, ...printPageBreakBeforeStyle }}>
             <p
               className="font-data font-bold uppercase tracking-widest mb-2"
               style={{ fontSize: "14px", color: "#0F172A" }}
