@@ -23,7 +23,9 @@ type CalcResponse = {
   score: number;
   confidence: "High" | "Medium" | "Low";
   risk: "Low risk" | "Medium risk" | "High risk";
-  track: "Track A" | "Track B";
+  track:
+    | "Pre–Dec 15, 2025 (Bill C-3 pathway)"
+    | "Post–Dec 15, 2025 (1,095-day pathway)";
   headline: string;
   body: string;
   applyToday: string;
@@ -57,7 +59,15 @@ const INITIAL_FIX_PLAN_ANSWERS: FixPlanAnswers = {
 };
 
 function getTrackLabel(track: BirthTrack) {
-  return track === "before_cutoff" ? "Track A" : "Track B";
+  return track === "before_cutoff"
+    ? "Pre–Dec 15, 2025 (Bill C-3 pathway)"
+    : "Post–Dec 15, 2025 (1,095-day pathway)";
+}
+
+function getTrackSupport(track: CalcResponse["track"]) {
+  return track.includes("Pre–Dec")
+    ? "Your claim is being assessed under the Bill C-3 restoration framework, not the newer substantial connection test."
+    : "Your claim depends on the 1,095-day substantial connection rule, which is a critical approval factor.";
 }
 
 function getTimeline(status: CalcResponse["status"], documents: DocumentsState) {
@@ -151,7 +161,7 @@ function getDecisionMessage(status: CalcResponse["status"], track: CalcResponse[
     return {
       headline: "You may already qualify — but proof is still the real hurdle.",
       body:
-        track === "Track A"
+        track.includes("Pre–Dec")
           ? "If this result is correct, your biggest risk is not the law. It is weak proof, missing records, or poor sequencing when you apply for your citizenship certificate."
           : "Your claim looks strong only if the substantial connection issue is actually covered. The law may support you, but the evidence still has to hold.",
       applyToday: "Medium risk",
@@ -162,7 +172,7 @@ function getDecisionMessage(status: CalcResponse["status"], track: CalcResponse[
     return {
       headline: "Your claim looks possible, but it is still in the danger zone.",
       body:
-        track === "Track B"
+        track.includes("Post–Dec")
           ? "This is where people get false confidence. If the 1,095-day issue is weak or unclear, the claim can fail even if the family story sounds good."
           : "Your lineage may work, but the proof chain is not yet strong enough to treat this as filing-ready.",
       applyToday: "High risk",
@@ -809,7 +819,7 @@ export default function CanadaEligibilityCalculator() {
                 <div className="mt-4 space-y-4">
                   <p className="text-sm leading-6 text-neutral-700">
                     Complete the diagnostic to receive your Ghost Citizen Score™,
-                    your likely track, your chain-risk level, and the next move
+                    your likely legal pathway, your chain-risk level, and the next move
                     you should make before you spend time chasing records blindly.
                   </p>
 
@@ -819,7 +829,7 @@ export default function CanadaEligibilityCalculator() {
                         You will see
                       </div>
                       <div className="mt-3 space-y-2 text-sm font-medium text-neutral-900">
-                        <div>Track A vs Track B</div>
+                        <div>Pre-cutoff vs post-cutoff pathway</div>
                         <div>Chain risk level</div>
                         <div>Document readiness</div>
                       </div>
@@ -870,10 +880,13 @@ export default function CanadaEligibilityCalculator() {
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                      <div className="text-sm text-neutral-500">Your current track</div>
+                      <div className="text-sm text-neutral-500">Your pathway</div>
                       <div className="mt-1 text-xl font-semibold text-neutral-950">
                         {displayScore.track}
                       </div>
+                      <p className="mt-2 text-sm leading-6 text-neutral-600">
+                        {getTrackSupport(displayScore.track)}
+                      </p>
                     </div>
 
                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
@@ -951,335 +964,351 @@ export default function CanadaEligibilityCalculator() {
                     <p className="mt-3 text-xs leading-5 text-neutral-400">
                       {displayScore.status === "Eligible now"
                         ? "One-time payment • Premium claim-protection plan • No subscription"
-                        : "One-time payment • Personalised readiness plan • No subscription"}
+                        : "One-time payment • Document-readiness plan • No subscription"}
                     </p>
                   </div>
 
-                  {modalState === "fix-plan" ? (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
-                      <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
-                        <div className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-                          Before you continue
-                        </div>
-
-                        <h3 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950">
-                          {displayScore.status === "Eligible now"
-                            ? "You may already qualify — but proof is still the hurdle."
-                            : displayScore.status === "Likely eligible"
-                            ? "Your claim looks possible, but it is not filing-ready yet."
-                            : "You are currently in the high-risk range."}
-                        </h3>
-
-                        <p className="mt-4 text-sm leading-7 text-neutral-700">
-                          {displayScore.status === "Eligible now"
-                            ? "This plan is designed to help you protect a strong claim, tighten your evidence pack, and avoid preventable delay at the citizenship certificate stage."
-                            : displayScore.status === "Likely eligible"
-                            ? "This Fix Plan is designed to help you strengthen the chain, close proof gaps, and avoid wasting time or money on a weak application."
-                            : "This Fix Plan is designed to help you investigate the chain, identify the real break points, and avoid filing too early."}
-                        </p>
-
-                        <p className="mt-4 text-sm text-neutral-900">
-                          {getPriceLine(displayScore.status)}
-                        </p>
-
-                        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                          <button
-                            type="button"
-                            onClick={() => setModalState(null)}
-                            className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-6 py-4 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
-                          >
-                            Not now
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleOpenQuestions}
-                            className="inline-flex items-center justify-center rounded-xl bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
-                          >
-                            {getModalCta(displayScore.status)}
-                          </button>
-                        </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                        Chain integrity
+                      </div>
+                      <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                        {displayScore.readinessBreakdown.chainIntegrity}/40
                       </div>
                     </div>
-                  ) : null}
 
-                  {showQuestions ? (
-                    <div
-                      ref={questionRef}
-                      className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6"
-                    >
-                      <h3 className="text-2xl font-semibold text-neutral-950">
-                        Personalise Your Claim Plan
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-neutral-600">
-                        Answer 4 quick questions to generate your personalised
-                        next-step plan.
-                      </p>
-
-                      <div className="mt-6 space-y-6">
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-900">
-                            Do you know who the first Canadian in your line is?
-                          </label>
-                          <div className="mt-3 space-y-2">
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="ancestor-known"
-                                checked={fixPlanAnswers.ancestorKnown === "yes"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("ancestorKnown", "yes")
-                                }
-                              />
-                              <span>Yes</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="ancestor-known"
-                                checked={fixPlanAnswers.ancestorKnown === "no"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("ancestorKnown", "no")
-                                }
-                              />
-                              <span>No / still unsure</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-900">
-                            What is your current renunciation check status?
-                          </label>
-                          <div className="mt-3 space-y-2">
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="renunciation-check"
-                                checked={fixPlanAnswers.renunciationCheck === "no"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("renunciationCheck", "no")
-                                }
-                              />
-                              <span>No renunciation known</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="renunciation-check"
-                                checked={
-                                  fixPlanAnswers.renunciationCheck === "not_sure"
-                                }
-                                onChange={() =>
-                                  updateFixPlanAnswers(
-                                    "renunciationCheck",
-                                    "not_sure"
-                                  )
-                                }
-                              />
-                              <span>Not sure / need records checked</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="renunciation-check"
-                                checked={fixPlanAnswers.renunciationCheck === "yes"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("renunciationCheck", "yes")
-                                }
-                              />
-                              <span>A renunciation may have happened</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-900">
-                            How complete is your current document file?
-                          </label>
-                          <div className="mt-3 space-y-2">
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="documents-state"
-                                checked={
-                                  fixPlanAnswers.documentsState === "full_chain"
-                                }
-                                onChange={() =>
-                                  updateFixPlanAnswers(
-                                    "documentsState",
-                                    "full_chain"
-                                  )
-                                }
-                              />
-                              <span>Most or all of the direct chain</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="documents-state"
-                                checked={fixPlanAnswers.documentsState === "partial"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("documentsState", "partial")
-                                }
-                              />
-                              <span>Partial only</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="documents-state"
-                                checked={fixPlanAnswers.documentsState === "none"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("documentsState", "none")
-                                }
-                              />
-                              <span>Very little or none yet</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-neutral-900">
-                            Do you know the province or territory your Canadian
-                            ancestor came from?
-                          </label>
-                          <div className="mt-3 space-y-2">
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="province-known"
-                                checked={fixPlanAnswers.provinceKnown === "yes"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("provinceKnown", "yes")
-                                }
-                              />
-                              <span>Yes</span>
-                            </label>
-                            <label className="flex cursor-pointer items-center gap-3 rounded-none border border-neutral-300 bg-white px-4 py-3 text-sm">
-                              <input
-                                type="radio"
-                                name="province-known"
-                                checked={fixPlanAnswers.provinceKnown === "no"}
-                                onChange={() =>
-                                  updateFixPlanAnswers("provinceKnown", "no")
-                                }
-                              />
-                              <span>No / not yet</span>
-                            </label>
-                          </div>
-                        </div>
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                        Documentation readiness
                       </div>
-
-                      <button
-                        type="button"
-                        disabled={!canPurchase(fixPlanAnswers) || checkoutLoading}
-                        onClick={handleContinueToPayment}
-                        className="mt-8 inline-flex w-full items-center justify-center rounded-none bg-neutral-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500 disabled:hover:bg-neutral-300"
-                      >
-                        {checkoutLoading
-                          ? "REDIRECTING TO SECURE CHECKOUT..."
-                          : getQuestionnaireCta(displayScore.status)}
-                      </button>
-
-                      {error ? (
-                        <p className="mt-4 text-center text-sm text-red-700">
-                          {error}
-                        </p>
-                      ) : null}
-
-                      <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
-                        Secure checkout • Instant access after payment
-                      </p>
+                      <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                        {displayScore.readinessBreakdown.documentationReadiness}/35
+                      </div>
                     </div>
-                  ) : null}
 
-                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      How your score is calculated
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                        Generation complexity
+                      </div>
+                      <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                        {displayScore.readinessBreakdown.generationComplexity}/15
+                      </div>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-neutral-700">
-                      Your Ghost Citizen Score is derived from chain integrity,
-                      documentation readiness, generation complexity, and the legal
-                      strength of your current track.
-                    </p>
 
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Chain integrity
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.readinessBreakdown.chainIntegrity}/40
-                        </div>
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                      <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                        Track strength
                       </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Documentation readiness
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.readinessBreakdown.documentationReadiness}/35
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Generation complexity
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.readinessBreakdown.generationComplexity}/15
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                          Track strength
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-neutral-950">
-                          {displayScore.readinessBreakdown.trackStrength}/10
-                        </div>
+                      <div className="mt-1 text-2xl font-semibold text-neutral-950">
+                        {displayScore.readinessBreakdown.trackStrength}/10
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                     <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-                      Save this result
+                      What this means
                     </div>
+                    <h3 className="mt-2 text-lg font-semibold text-neutral-950">
+                      {displayScore.headline}
+                    </h3>
                     <p className="mt-2 text-sm leading-6 text-neutral-700">
-                      Enter your email if you want to save your current result to
-                      this browser session.
+                      {displayScore.body}
                     </p>
-
-                    <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                      <input
-                        type="email"
-                        inputMode="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        className="min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSendEmailCapture}
-                        className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-3 text-sm font-medium text-neutral-950 transition hover:bg-neutral-100"
-                      >
-                        Save my result
-                      </button>
-                    </div>
-
-                    {emailSent ? (
-                      <p className="mt-3 text-sm text-green-700">
-                        Result saved to your browser for this session.
-                      </p>
-                    ) : null}
                   </div>
                 </div>
               )}
             </div>
           </div>
+
+          {modalState === "fix-plan" && displayScore ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+              <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+                <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
+                  {displayScore.status === "Eligible now"
+                    ? "Protect the claim"
+                    : "Fix the weak point"}
+                </div>
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
+                  {displayScore.status === "Eligible now"
+                    ? "Protect your citizenship claim before it turns messy."
+                    : "Avoid delay by fixing the chain before you file."}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-neutral-700">
+                  {getFixPlanStatusLine(displayScore.status)}
+                </p>
+
+                <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                  <div className="text-sm font-medium text-neutral-900">
+                    {getModalCta(displayScore.status)}
+                  </div>
+                  <div className="mt-1 text-xs text-neutral-600">
+                    {getPriceLine(displayScore.status)}
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={handleOpenQuestions}
+                    className="inline-flex flex-1 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  >
+                    {displayScore.status === "Eligible now"
+                      ? "Protect My Claim Now"
+                      : "Show My Fix Plan Questions"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalState(null)}
+                    className="inline-flex flex-1 items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+                  >
+                    Go back
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {showQuestions && displayScore ? (
+            <div
+              ref={questionRef}
+              className="mt-6 rounded-3xl border border-neutral-200 bg-neutral-50 p-4 sm:p-5"
+            >
+              <div className="max-w-2xl">
+                <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
+                  Personalise Your Approval Plan
+                </div>
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
+                  Answer 4 quick questions to generate your personalised fix plan.
+                </h3>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-sm font-medium text-neutral-900">
+                      Do you know exactly who the Canadian ancestor is in the direct line?
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { value: "yes", label: "Yes — I know the direct Canadian ancestor" },
+                        { value: "no", label: "No — I still need to confirm that" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 px-4 py-3 text-sm text-neutral-900 transition hover:border-neutral-400"
+                        >
+                          <input
+                            type="radio"
+                            name="ancestorKnown"
+                            value={option.value}
+                            checked={fixPlanAnswers.ancestorKnown === option.value}
+                            onChange={() =>
+                              updateFixPlanAnswers(
+                                "ancestorKnown",
+                                option.value as FixPlanAnswers["ancestorKnown"]
+                              )
+                            }
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-sm font-medium text-neutral-900">
+                      Have you confirmed whether anyone in the direct line renounced citizenship?
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { value: "no", label: "No known renunciation in the direct line" },
+                        { value: "yes", label: "Yes — I suspect or know there was one" },
+                        { value: "not_sure", label: "Not sure yet" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 px-4 py-3 text-sm text-neutral-900 transition hover:border-neutral-400"
+                        >
+                          <input
+                            type="radio"
+                            name="renunciationCheck"
+                            value={option.value}
+                            checked={fixPlanAnswers.renunciationCheck === option.value}
+                            onChange={() =>
+                              updateFixPlanAnswers(
+                                "renunciationCheck",
+                                option.value as FixPlanAnswers["renunciationCheck"]
+                              )
+                            }
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-sm font-medium text-neutral-900">
+                      How complete is your document chain right now?
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { value: "full_chain", label: "Most or all direct-line records are in hand" },
+                        { value: "partial", label: "Some key records are missing" },
+                        { value: "none", label: "Very little or none yet" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 px-4 py-3 text-sm text-neutral-900 transition hover:border-neutral-400"
+                        >
+                          <input
+                            type="radio"
+                            name="documentsState"
+                            value={option.value}
+                            checked={fixPlanAnswers.documentsState === option.value}
+                            onChange={() =>
+                              updateFixPlanAnswers(
+                                "documentsState",
+                                option.value as FixPlanAnswers["documentsState"]
+                              )
+                            }
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-sm font-medium text-neutral-900">
+                      Do you know which province or archive holds the core records you need?
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { value: "yes", label: "Yes — I already know where to request them" },
+                        { value: "no", label: "No — I still need to work that out" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 px-4 py-3 text-sm text-neutral-900 transition hover:border-neutral-400"
+                        >
+                          <input
+                            type="radio"
+                            name="provinceKnown"
+                            value={option.value}
+                            checked={fixPlanAnswers.provinceKnown === option.value}
+                            onChange={() =>
+                              updateFixPlanAnswers(
+                                "provinceKnown",
+                                option.value as FixPlanAnswers["provinceKnown"]
+                              )
+                            }
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      Your next move
+                    </div>
+                    <h4 className="mt-2 text-lg font-semibold text-neutral-950">
+                      {displayScore.status === "Eligible now"
+                        ? "Protect the claim before filing"
+                        : "Fix the chain before you file"}
+                    </h4>
+                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                      {displayScore.status === "Eligible now"
+                        ? "This plan is for applicants who may already qualify but still need stronger proof control, better record sequencing, and a cleaner certificate pathway."
+                        : "This plan is for applicants who need to tighten the lineage chain, remove uncertainty, and stop weak records from derailing the claim."}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      What you will get
+                    </div>
+                    <ul className="mt-3 space-y-2 text-sm text-neutral-800">
+                      {displayScore.status === "Eligible now" ? (
+                        <>
+                          <li>• Stronger claim protection structure</li>
+                          <li>• Better evidence sequencing</li>
+                          <li>• Reduced certificate-stage friction</li>
+                          <li>• Clearer submission pathway</li>
+                        </>
+                      ) : (
+                        <>
+                          <li>• Direct-line proof roadmap</li>
+                          <li>• Chain-break investigation focus</li>
+                          <li>• Record sourcing priorities</li>
+                          <li>• Cleaner path before filing</li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-950 p-4 text-white">
+                    <button
+                      type="button"
+                      onClick={handleContinueToPayment}
+                      disabled={!canPurchase(fixPlanAnswers) || checkoutLoading}
+                      className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {checkoutLoading
+                        ? "Opening secure checkout..."
+                        : getQuestionnaireCta(displayScore.status)}
+                    </button>
+
+                    <p className="mt-3 text-xs leading-5 text-neutral-400">
+                      {getPriceLine(displayScore.status)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      Claim summary
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-neutral-700">
+                      {displayScore.track} → {displayScore.status} → {displayScore.proofGapLabel}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                      Want this result saved for follow-up?
+                    </div>
+                    <div className="mt-3 flex flex-col gap-3">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        placeholder="Your email"
+                        className="rounded-xl border border-neutral-300 px-4 py-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSendEmailCapture}
+                        className="inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+                      >
+                        Save my result
+                      </button>
+                      {emailSent ? (
+                        <p className="text-sm text-emerald-700">
+                          Result saved locally for your follow-up workflow.
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
     </>
