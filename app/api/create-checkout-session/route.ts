@@ -55,7 +55,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 NEW: dynamic country-based pricing
     const countryKey = getCountryKeyFromProductKey(product_key);
 
     const envKey = `STRIPE_${countryKey.toUpperCase()}_${normalizedTier}`;
@@ -86,13 +85,20 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
+
+      // ✅ FIXED SUCCESS URL (ensures session_id always present)
       success_url: `${basePath}/success?payment=success&tier=${normalizedTier}&session_id={CHECKOUT_SESSION_ID}`,
+
       cancel_url: `${basePath}`,
+
       metadata: {
         decision_session_id: String(decision_session_id),
         tier: String(normalizedTier),
         product_key: product_key ? String(product_key) : "",
         country_key: countryKey,
+
+        // 🔥 NEW: verification flag (CRITICAL)
+        verification_source: "stripe_checkout",
       },
     });
 
