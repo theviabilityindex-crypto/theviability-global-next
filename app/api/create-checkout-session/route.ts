@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-const stripePriceId67 = process.env.STRIPE_PRICE_ID_67;
-const stripePriceId147 = process.env.STRIPE_PRICE_ID_147;
 
 if (!stripeSecretKey) {
   throw new Error("Missing STRIPE_SECRET_KEY");
@@ -13,7 +11,7 @@ const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2024-06-20",
 });
 
-function getCountryKeyFromProductKey(productKey?: string): "spain" | "canada" {
+function getCountryKeyFromProductKey(productKey?: string): string {
   if (!productKey) {
     console.warn("No product_key provided — defaulting to spain");
     return "spain";
@@ -21,13 +19,12 @@ function getCountryKeyFromProductKey(productKey?: string): "spain" | "canada" {
 
   const key = productKey.toLowerCase();
 
-  // ✅ robust detection
   if (key.includes("canada")) return "canada";
   if (key.includes("spain")) return "spain";
 
   console.warn("Unknown product_key format:", productKey);
 
-  return "spain"; // safe fallback
+  return "spain";
 }
 
 export async function POST(req: Request) {
@@ -49,18 +46,6 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!stripePriceId67 || !stripePriceId147) {
-      console.error("Missing Stripe price IDs", {
-        stripePriceId67,
-        stripePriceId147,
-      });
-
-      return NextResponse.json(
-        { error: "Missing Stripe price configuration" },
-        { status: 500 }
-      );
-    }
-
     const normalizedTier = Number(tier);
 
     if (![67, 147].includes(normalizedTier)) {
@@ -70,14 +55,26 @@ export async function POST(req: Request) {
       );
     }
 
-    const priceId =
-      normalizedTier === 147 ? stripePriceId147 : stripePriceId67;
-
+    // 🔥 NEW: dynamic country-based pricing
     const countryKey = getCountryKeyFromProductKey(product_key);
+
+    const envKey = `STRIPE_${countryKey.toUpperCase()}_${normalizedTier}`;
+
+    const priceId = process.env[envKey];
+
+    if (!priceId) {
+      console.error("Missing Stripe price ID for:", envKey);
+
+      return NextResponse.json(
+        { error: `Missing Stripe price configuration for ${envKey}` },
+        { status: 500 }
+      );
+    }
 
     const basePath = `https://theviabilityindex.com/check/${countryKey}`;
 
     console.log("Resolved countryKey:", countryKey);
+    console.log("Using envKey:", envKey);
     console.log("Using checkout base path:", basePath);
 
     const session = await stripe.checkout.sessions.create({
