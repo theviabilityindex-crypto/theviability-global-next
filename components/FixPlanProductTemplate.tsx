@@ -365,12 +365,12 @@ function getStorySections(
         id: "meaning",
         label: "What this means",
         title:
-          "You clear the income threshold — now the real job is protecting the approval.",
+          "You are ready to move toward submission — but this is where mistakes happen.",
         body: `Your current income of ${fmtEur(
           incomeInEur
         )} is above the estimated threshold of ${fmtEur(
           requirementAmount
-        )}. That gets you through the income gate, but approval still depends on documentation quality, remote-work proof, consistency of earnings, and how the application is assembled.`,
+        )}. Passing the income threshold gets you through the first gate. Approval depends on what happens next. At this stage, the risk is no longer whether you qualify — it is whether your application is structured correctly, your documents are consistent, and your case is easy for a case officer to assess. This system exists to remove those failure points before they appear.`,
         fileNums: ["01", "02", "05", "06"],
       },
       {
@@ -378,11 +378,11 @@ function getStorySections(
         label: "Your path to approval",
         title:
           tier === 147
-            ? "Move from qualifying on paper to submission control."
+            ? "This is now about control — not qualification."
             : "Build a cleaner submission before you file.",
         body:
           tier === 147
-            ? "At this stage, the risk shifts from basic qualification to how well the case is organised, evidenced, and submitted. The full system helps reduce preventable errors before filing."
+            ? "Start here. Structure your application before you assemble it. Standardise your documents so they are consistent. Then control how the file is presented at submission. This is what separates applications that get approved cleanly from those that create friction, delay, or unnecessary questions."
             : "The strongest path now is not chasing more income. It is tightening the application package so the case is easy to approve, consistent on paper, and free of preventable friction.",
         fileNums: tier === 147 ? ["07", "08", "09", "10"] : ["01", "05"],
       },
@@ -408,11 +408,11 @@ function getStorySections(
         title:
           tier === 147
             ? "Close the shortfall, then take control of the submission."
-            : "Close the shortfall, then tighten the file.",
+            : "Start here. Close the shortfall, then tighten the file.",
         body:
           tier === 147
-            ? "The fastest path is to close the shortfall, strengthen the evidence, and then use the advanced system to control the submission stage properly."
-            : "The fastest path is usually a combination of clearer income presentation, a savings bridge where available, and stronger submission control before filing.",
+            ? "Start here. Close the shortfall first. Then strengthen the evidence. Then move into the advanced system to control the submission stage properly."
+            : "Start here. Close the shortfall first. Then strengthen how your income is presented and tighten the file before submission.",
         fileNums: tier === 147 ? ["03", "04", "01", "05", "07"] : ["03", "04", "01"],
       },
     ];
@@ -435,12 +435,12 @@ function getStorySections(
       label: "Your path to approval",
       title:
         tier === 147
-          ? "Fix the gap first. Then prepare the case like a serious applicant."
-          : "Fix the gap first. Then prepare the application properly.",
+          ? "Fix the gap first. Then move into submission control."
+          : "Start here. Fix the gap first. Then prepare the application properly.",
       body:
         tier === 147
-          ? "Your plan is to close the financial gap, strengthen the evidence, secure the remote-work proof, and then use the advanced files to prepare a cleaner final submission."
-          : "Your plan is to close the financial gap, strengthen how income is evidenced, secure the remote-work proof, and only then move toward submission.",
+          ? "Start here. Close the financial gap first. Then strengthen the evidence. Then secure the remote-work proof. Then use the advanced files to prepare a cleaner final submission."
+          : "Start here. Close the financial gap first. Then strengthen how your income is evidenced. Then secure the remote-work proof before you move toward submission.",
       fileNums: tier === 147
         ? ["03", "04", "02", "01", "05", "07"]
         : ["03", "04", "02", "01"],
@@ -518,14 +518,14 @@ function getOrientationBody(
 
   if (tier === 147) {
     if (tone === "ready") {
-      return `You purchased the full approval system because passing the threshold alone is not enough. This page shows what you bought, why it matters, and how to move from eligibility to a cleaner submission.`;
+      return `You are no longer trying to “qualify”. You are now preparing a submission that needs to be clear, structured, and easy to approve. Most applicants who meet the threshold still fail at this stage — not because they are ineligible, but because the file is inconsistent, unclear, or poorly structured. This system exists to remove that risk. You now have everything required to control how your application is presented, reviewed, and assessed.`;
     }
 
     return `Based on your ${countryLabel} 2026 viability result, you are currently ${fmtEurAbs(
       actualGap
     )} below the estimated threshold of ${fmtEur(
       requirementAmount
-    )}. This page is your full correction and submission system: first fix the gap, then build the application properly.`;
+    )}. You are not ready to submit yet. This full approval system exists to help you fix the gap first, then take control of how the final application is structured, reviewed, and submitted.`;
   }
 
   if (tone === "ready") {
@@ -597,7 +597,7 @@ function getStepSections(
       {
         id: "step-2",
         step: "Step 2",
-        title: "Strengthen the evidence and structure",
+        title: "Standardise your documents",
         body:
           "This stage turns a fragile claim into a more defensible one. These files help tighten the lineage proof, identity continuity, and record flow before the case is assembled for filing.",
         fileNums: ["01", "02", "05", "06"],
@@ -613,7 +613,7 @@ function getStepSections(
       {
         id: "step-4",
         step: "Step 4",
-        title: "Control the final submission stage",
+        title: "Control the submission timeline",
         body:
           "The final red-zone risk is avoidable filing error. These advanced files help reduce preventable mistakes and bring the case together in a cleaner, lower-friction way before the citizenship certificate application is sent.",
         fileNums: ["09", "10"],
@@ -663,11 +663,11 @@ function getStepSections(
       step: "Step 1",
       title:
         tone === "ready"
-          ? "Protect the income case you already have"
+          ? "Lock in a clean application structure"
           : "Fix the biggest approval blocker first",
       body:
         tone === "ready"
-          ? "You already clear the threshold, so the first job is protecting that advantage with stronger evidence, consistency, and cleaner structure."
+          ? "Before adding documents, define the structure. Most applicants build their file as they go. That creates confusion. File 07 gives you the exact structure your application should follow so it is easy to review and easy to approve. This step removes ambiguity before it starts."
           : `Before anything else, you need to address the financial weakness currently sitting at ${fmtEurAbs(
               actualGap
             )}. The submission system only works properly after the core gap is handled.`,
@@ -676,25 +676,25 @@ function getStepSections(
     {
       id: "step-2",
       step: "Step 2",
-      title: "Strengthen the evidence and structure",
+      title: "Standardise your documents",
       body:
-        "This stage is about turning a fragile case into a defensible one. These files help tighten your proof, document flow, and income presentation before the case is assembled.",
+        "Even strong applications fail when documents are inconsistent. Names, formats, ordering, and clarity all matter. File 08 ensures your documents are clean, consistent, and easy for a case officer to navigate. This step reduces avoidable friction during review.",
       fileNums: ["01", "02", "05", "06"],
     },
     {
       id: "step-3",
       step: "Step 3",
-      title: "Prepare for submission like a serious applicant",
+      title: "Remove hidden rejection triggers",
       body:
-        "This is where the full approval system starts to matter. You move from understanding the problem to controlling the final structure, naming, sequencing, and submission quality.",
+        "Most rejections are not obvious. They come from small inconsistencies, unclear income proof, or avoidable structural issues. File 09 shows you exactly what triggers rejection and how to remove those risks before submission.",
       fileNums: ["07", "08"],
     },
     {
       id: "step-4",
       step: "Step 4",
-      title: "Control the final submission stage",
+      title: "Control the submission timeline",
       body:
-        "The final red-zone risk is preventable submission error. These advanced files help reduce avoidable mistakes and bring the case together in a more professional, lower-friction way.",
+        "Timing matters. Submitting too early or without full readiness creates unnecessary risk. File 10 gives you a clear approval timeline so you know exactly when your application is ready and how to move forward with confidence.",
       fileNums: ["09", "10"],
     },
   ];
@@ -1406,10 +1406,14 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         </div>
 
         {storySections.map((section) => {
-          const files =
-            section.fileNums
-              ?.map((num) => fileMap.get(num))
-              .filter((file): file is DeliverableItem => Boolean(file)) || [];
+          const showStoryFiles =
+            isCanadaProduct(config.countryKey) || config.tier === 147;
+
+          const files = showStoryFiles
+            ? section.fileNums
+                ?.map((num) => fileMap.get(num))
+                .filter((file): file is DeliverableItem => Boolean(file)) || []
+            : [];
 
           return <StorySectionCard key={section.id} section={section} files={files} />;
         })}
@@ -1718,4 +1722,6 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     </PageShell>
   );
 }
+
+
 
