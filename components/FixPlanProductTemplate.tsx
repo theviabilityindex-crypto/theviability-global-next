@@ -67,6 +67,7 @@ export interface FixPlanTemplateConfig {
 
 type VerifyResponse = {
   verified?: boolean;
+  valid?: boolean;
   error?: string;
 };
 
@@ -1059,7 +1060,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
         return { ok: res.ok, data };
       })
       .then(({ ok, data }) => {
-        if (!ok || !data.verified) {
+        if (!ok || !(data?.verified || data?.valid)) {
           if (restored) {
             setVerified(true);
             setVerifyError(null);
@@ -1722,6 +1723,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     </PageShell>
   );
 }
+
 
 
 
