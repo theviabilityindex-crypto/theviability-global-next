@@ -286,27 +286,45 @@ export default function CanadaCheckPage() {
               </h1>
 
               <p className="mt-4 text-lg leading-8 text-neutral-700">
-                You may already be Canadian — but the real question is whether your{" "}
-                <strong className="text-neutral-950">direct lineage chain holds</strong>,
-                whether the{" "}
+                <strong className="text-neutral-950">
+                  You may already be Canadian without knowing it.
+                </strong>{" "}
+                Bill C-3 fundamentally changed citizenship-by-descent rules on{" "}
                 <strong className="text-neutral-950">
                   {keyFacts.inForceDate}
-                </strong>{" "}
-                Bill C-3 split helps you, and whether you can actually{" "}
-                <strong className="text-neutral-950">prove the claim cleanly</strong>.
+                </strong>
+                . The real question is whether your{" "}
+                <strong className="text-neutral-950">direct lineage chain holds</strong>,
+                whether the law applies to your birth scenario, and whether you can{" "}
+                <strong className="text-neutral-950">prove it cleanly</strong>.
               </p>
             </div>
 
             <div className="mt-5 max-w-4xl rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
               <p className="text-sm leading-7 text-blue-950">
-                <strong>Answer first:</strong> If you were born outside Canada{" "}
-                <strong>before {keyFacts.inForceDate}</strong> and have a clean direct
-                Canadian line, Bill C-3 may already support your claim. If you were
-                born <strong>on or after {keyFacts.inForceDate}</strong> to a Canadian
-                parent who was also born abroad, the{" "}
-                <strong>{keyFacts.substantialConnectionDays}</strong> physical-presence
-                rule can become the make-or-break issue.
+                <strong>Answer first:</strong> Canada expanded citizenship-by-descent
+                rules under Bill C-3 on{" "}
+                <strong>{keyFacts.inForceDate}</strong>. If you were born outside
+                Canada before this date and have a clean direct Canadian line, you
+                may already qualify. If you were born on or after this date to a
+                Canadian parent who was also born abroad, the{" "}
+                <strong>{keyFacts.substantialConnectionDays}</strong>{" "}
+                physical-presence rule can become the make-or-break issue.
               </p>
+            </div>
+
+            <div className="mt-4 max-w-4xl rounded-2xl border border-green-200 bg-green-50 p-4 sm:p-5">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-green-800">
+                Identity classification
+              </div>
+              <div className="mt-2 text-base font-semibold text-green-950">
+                This system will place you into one of three likely positions:
+              </div>
+              <ul className="mt-3 space-y-1 text-sm leading-7 text-green-900">
+                <li>• Likely already Canadian</li>
+                <li>• Eligible by descent (proof required)</li>
+                <li>• Not eligible yet — alternative pathway needed</li>
+              </ul>
             </div>
 
             <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
@@ -648,7 +666,8 @@ export default function CanadaCheckPage() {
                 This page does three jobs. First, it explains the current Canada
                 citizenship-by-descent rule change clearly. Second, it shows the
                 key <strong className="text-neutral-950">{keyFacts.inForceDate}</strong>{" "}
-                split and the <strong className="text-neutral-950">
+                split and the{" "}
+                <strong className="text-neutral-950">
                   {keyFacts.substantialConnectionDays}
                 </strong>{" "}
                 issue where relevant. Third, it runs you into the Ghost Citizen
@@ -700,9 +719,11 @@ export default function CanadaCheckPage() {
 
             <div className="mt-5 divide-y divide-neutral-200 rounded-2xl border border-neutral-200 bg-white">
               {faqs.map((faq) => (
-                <details key={faq.question} className="group p-4 open:bg-neutral-50">
-                  <summary className="cursor-pointer list-none text-base font-medium text-neutral-950">
-                    {faq.question}
+                <details key={faq.question} className="group p-5 open:bg-neutral-50">
+                  <summary className="cursor-pointer list-none">
+                    <span className="block text-base font-semibold text-neutral-950">
+                      {faq.question}
+                    </span>
                   </summary>
                   <p className="mt-3 text-sm leading-7 text-neutral-700">
                     {faq.answer}
