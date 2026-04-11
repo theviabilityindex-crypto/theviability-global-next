@@ -799,28 +799,13 @@ function ToolCard({
               marginBottom: "4px",
             }}
           >
-            PDF access
+            Access link
           </div>
-          <a
-            href={file.url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <div
             style={{
               fontSize: "11px",
               lineHeight: "1.5",
-              color: "#2563EB",
-              textDecoration: "underline",
-              wordBreak: "break-all",
-            }}
-          >
-            Open {file.title}
-          </a>
-          <div
-            style={{
-              marginTop: "6px",
-              fontSize: "10px",
-              lineHeight: "1.5",
-              color: "#475569",
+              color: "#0F172A",
               wordBreak: "break-all",
             }}
           >
@@ -1733,3 +1718,4 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     </PageShell>
   );
 }
+
