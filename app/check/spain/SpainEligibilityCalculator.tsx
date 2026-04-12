@@ -286,7 +286,7 @@ function isFixPlanComplete(answers: FixPlanAnswers) {
 }
 
 function canPurchase(answers: FixPlanAnswers) {
-  return isFixPlanComplete(answers) && answers.qualification === "yes";
+  return isFixPlanComplete(answers);
 }
 
 export default function SpainEligibilityCalculator() {
@@ -1230,3 +1230,4 @@ export default function SpainEligibilityCalculator() {
     </>
   );
 }
+
