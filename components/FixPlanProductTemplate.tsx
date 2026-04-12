@@ -242,7 +242,7 @@ function restoreCachedPlan(
         }
 
         if (inner.result && typeof inner.result === "object" && looksLikeCachedResult(inner.result)) {
-          return normaliseCanadaResult(inner.result as Record<string, unknown>);
+          return normaliseCanadaResult(inner.result as unknown as Record<string, unknown>);
         }
       }
 
