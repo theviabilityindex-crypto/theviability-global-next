@@ -146,9 +146,16 @@ function restoreCachedPlan(
   const storageKeys = isCanadaProduct(countryKey)
     ? [
         {
+          resultKey: `${countryKey}_result`,
+          incomeKey: null,
+          currencyKey: null,
+          unwrapResult: true,
+        },
+        {
           resultKey: `${countryKey}_dnv_result`,
           incomeKey: `${countryKey}_dnv_income`,
           currencyKey: `${countryKey}_dnv_currency`,
+          unwrapResult: false,
         },
       ]
     : [
@@ -156,22 +163,34 @@ function restoreCachedPlan(
           resultKey: `${countryKey}_dnv_result`,
           incomeKey: `${countryKey}_dnv_income`,
           currencyKey: `${countryKey}_dnv_currency`,
+          unwrapResult: false,
         },
         {
           resultKey: "dnv_result",
           incomeKey: "dnv_income",
           currencyKey: "dnv_currency",
+          unwrapResult: false,
         },
       ];
 
   for (const keys of storageKeys) {
     try {
       const savedResult = localStorage.getItem(keys.resultKey);
-      const savedIncome = localStorage.getItem(keys.incomeKey);
-      const savedCurrency = localStorage.getItem(keys.currencyKey);
+      const savedIncome = keys.incomeKey ? localStorage.getItem(keys.incomeKey) : null;
+      const savedCurrency = keys.currencyKey ? localStorage.getItem(keys.currencyKey) : null;
+
+      let hasResult = false;
 
       if (savedResult) {
-        setResult(JSON.parse(savedResult) as CachedResult);
+        const parsed = JSON.parse(savedResult) as CachedResult | { result?: CachedResult };
+        const restoredResult = keys.unwrapResult && parsed && typeof parsed === "object" && "result" in parsed
+          ? parsed.result ?? null
+          : (parsed as CachedResult);
+
+        if (restoredResult) {
+          setResult(restoredResult as CachedResult);
+          hasResult = true;
+        }
       }
 
       if (savedIncome && savedCurrency) {
@@ -180,7 +199,7 @@ function restoreCachedPlan(
         setIncomeInEur(Math.round(raw * rate * 100) / 100);
       }
 
-      if (savedResult && savedIncome && savedCurrency) {
+      if (hasResult && (keys.unwrapResult || (savedIncome && savedCurrency))) {
         return true;
       }
     } catch {
@@ -1723,6 +1742,7 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     </PageShell>
   );
 }
+
 
 
 
