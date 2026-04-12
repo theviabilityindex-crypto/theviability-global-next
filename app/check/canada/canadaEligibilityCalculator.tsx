@@ -438,6 +438,102 @@ export default function CanadaEligibilityCalculator() {
     return data.id as string;
   }
 
+  function persistCanadaRestorePayload(params: {
+    result: CalcResponse;
+    birthTrack: BirthTrack;
+    generationDepth: GenerationDepth;
+    anchorType: AnchorType;
+    renunciationRisk: RenunciationRisk;
+    documentsState: DocumentsState;
+    parentDaysMet: "" | "yes" | "no" | "not_sure";
+    fixPlanAnswers?: FixPlanAnswers;
+    tier?: 67 | 147;
+    productKey?: string;
+    decisionSessionId?: string | null;
+  }) {
+    const {
+      result,
+      birthTrack,
+      generationDepth,
+      anchorType,
+      renunciationRisk,
+      documentsState,
+      parentDaysMet,
+      fixPlanAnswers,
+      tier,
+      productKey,
+      decisionSessionId,
+    } = params;
+
+    const normalisedResult = {
+      is_viable: result.is_viable,
+      score: result.score,
+      status: result.status,
+      confidence: result.confidence,
+      risk: result.risk,
+      track: result.track,
+      headline: result.headline,
+      body: result.body,
+      applyToday: result.applyToday,
+      nextStepLabel: result.nextStepLabel,
+      nextStepHeadline: result.nextStepHeadline,
+      nextStepBody: result.nextStepBody,
+      nextStepSupport: result.nextStepSupport,
+      timeline: result.timeline,
+      proofGapLabel: result.proofGapLabel,
+      proofGapDetail: result.proofGapDetail,
+      readinessBreakdown: result.readinessBreakdown,
+      income_eur: 0,
+      requirement: 0,
+      gap: 0,
+      tax_leak: 0,
+      currency: "N/A",
+    };
+
+    localStorage.setItem(
+      `${countryKey}_result`,
+      JSON.stringify({
+        birthTrack,
+        generationDepth,
+        anchorType,
+        renunciationRisk,
+        documentsState,
+        parentDaysMet,
+        result: normalisedResult,
+      })
+    );
+
+    localStorage.setItem(
+      `${countryKey}_fix_plan_answers`,
+      JSON.stringify({
+        ...(fixPlanAnswers || INITIAL_FIX_PLAN_ANSWERS),
+        birthTrack,
+        generationDepth,
+        anchorType,
+        renunciationRisk,
+        documentsState,
+        parentDaysMet,
+        result: normalisedResult,
+        tier,
+        product_key: productKey,
+        decision_session_id: decisionSessionId,
+      })
+    );
+
+    localStorage.setItem(`${countryKey}_dnv_income`, "0");
+    localStorage.setItem(`${countryKey}_dnv_currency`, "EUR");
+    localStorage.setItem(
+      `${countryKey}_dnv_result`,
+      JSON.stringify({
+        ...normalisedResult,
+        income_eur: 0,
+        requirement: 0,
+        gap: 0,
+        currency: "EUR",
+      })
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -494,18 +590,16 @@ export default function CanadaEligibilityCalculator() {
       setDecisionSessionId(newDecisionSessionId);
       localStorage.setItem(`${countryKey}_decision_session_id`, newDecisionSessionId);
 
-      localStorage.setItem(
-        `${countryKey}_result`,
-        JSON.stringify({
-          birthTrack,
-          generationDepth,
-          anchorType,
-          renunciationRisk,
-          documentsState,
-          parentDaysMet,
-          result: safeResult,
-        })
-      );
+      persistCanadaRestorePayload({
+        result: safeResult,
+        birthTrack,
+        generationDepth,
+        anchorType,
+        renunciationRisk,
+        documentsState,
+        parentDaysMet,
+        decisionSessionId: newDecisionSessionId,
+      });
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong.";
@@ -581,16 +675,19 @@ export default function CanadaEligibilityCalculator() {
         throw new Error(patchData?.error || "Failed to update decision session.");
       }
 
-      localStorage.setItem(
-        `${countryKey}_fix_plan_answers`,
-        JSON.stringify({
-          ...fixPlanAnswers,
-          result,
-          tier,
-          product_key: productKey,
-          decision_session_id: storedDecisionSessionId,
-        })
-      );
+      persistCanadaRestorePayload({
+        result,
+        birthTrack,
+        generationDepth,
+        anchorType,
+        renunciationRisk,
+        documentsState,
+        parentDaysMet,
+        fixPlanAnswers,
+        tier,
+        productKey,
+        decisionSessionId: storedDecisionSessionId,
+      });
 
       const checkoutResponse = await fetch("/api/create-checkout-session", {
         method: "POST",
