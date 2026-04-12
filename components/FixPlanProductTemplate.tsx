@@ -146,6 +146,12 @@ function restoreCachedPlan(
   const storageKeys = isCanadaProduct(countryKey)
     ? [
         {
+          resultKey: `${countryKey}_fix_plan_answers`,
+          incomeKey: null,
+          currencyKey: null,
+          unwrapResult: true,
+        },
+        {
           resultKey: `${countryKey}_result`,
           incomeKey: null,
           currencyKey: null,
@@ -182,9 +188,17 @@ function restoreCachedPlan(
       let hasResult = false;
 
       if (savedResult) {
-        const parsed = JSON.parse(savedResult) as CachedResult | { result?: CachedResult };
+        const parsed = JSON.parse(savedResult) as
+          | CachedResult
+          | { result?: CachedResult }
+          | { result?: { result?: CachedResult } };
+
         const restoredResult = keys.unwrapResult && parsed && typeof parsed === "object" && "result" in parsed
-          ? parsed.result ?? null
+          ? ((parsed as { result?: CachedResult | { result?: CachedResult } }).result &&
+              typeof (parsed as { result?: CachedResult | { result?: CachedResult } }).result === "object" &&
+              "result" in ((parsed as { result?: CachedResult | { result?: CachedResult } }).result as object)
+              ? ((parsed as { result?: { result?: CachedResult } }).result?.result ?? null)
+              : ((parsed as { result?: CachedResult }).result ?? null))
           : (parsed as CachedResult);
 
         if (restoredResult) {
@@ -1742,8 +1756,3 @@ export default function FixPlanProductTemplate({ config }: TemplateProps) {
     </PageShell>
   );
 }
-
-
-
-
-
