@@ -179,6 +179,95 @@ function restoreCachedPlan(
         },
       ];
 
+  const looksLikeCachedResult = (value: unknown): value is CachedResult => {
+    return Boolean(value) && typeof value === "object" && (
+      "score" in (value as object) ||
+      "status" in (value as object) ||
+      "risk" in (value as object) ||
+      "is_viable" in (value as object) ||
+      "gap" in (value as object) ||
+      "requirement" in (value as object)
+    );
+  };
+
+  const normaliseCanadaResult = (value: Record<string, unknown>): CachedResult => {
+    return {
+      is_viable:
+        typeof value.is_viable === "boolean"
+          ? value.is_viable
+          : typeof value.score === "number"
+            ? value.score >= 55
+            : false,
+      gap:
+        typeof value.gap === "number" || typeof value.gap === "string"
+          ? value.gap
+          : 0,
+      requirement:
+        typeof value.requirement === "number" || typeof value.requirement === "string"
+          ? value.requirement
+          : 0,
+      tax_leak:
+        typeof value.tax_leak === "number" || typeof value.tax_leak === "string"
+          ? value.tax_leak
+          : undefined,
+      currency: typeof value.currency === "string" ? value.currency : undefined,
+      status: typeof value.status === "string" ? value.status : undefined,
+      risk: typeof value.risk === "string" ? value.risk : undefined,
+      score: typeof value.score === "number" ? value.score : undefined,
+    };
+  };
+
+  const extractRestoredResult = (
+    parsed: unknown,
+    unwrapResult: boolean
+  ): CachedResult | null => {
+    if (!parsed || typeof parsed !== "object") return null;
+
+    if (!unwrapResult && looksLikeCachedResult(parsed)) {
+      return parsed as CachedResult;
+    }
+
+    const record = parsed as Record<string, unknown>;
+
+    if (unwrapResult) {
+      if (looksLikeCachedResult(record)) {
+        return normaliseCanadaResult(record);
+      }
+
+      if (record.result && typeof record.result === "object") {
+        const inner = record.result as Record<string, unknown>;
+
+        if (looksLikeCachedResult(inner)) {
+          return normaliseCanadaResult(inner);
+        }
+
+        if (inner.result && typeof inner.result === "object" && looksLikeCachedResult(inner.result)) {
+          return normaliseCanadaResult(inner.result as Record<string, unknown>);
+        }
+      }
+
+      return null;
+    }
+
+    return looksLikeCachedResult(record) ? (record as CachedResult) : null;
+  };
+
+  const extractIncomeInEur = (parsed: unknown): number | null => {
+    if (!parsed || typeof parsed !== "object") return null;
+
+    const record = parsed as Record<string, unknown>;
+
+    if (typeof record.income_eur === "number") return record.income_eur;
+    if (typeof record.incomeInEur === "number") return record.incomeInEur;
+    if (record.result && typeof record.result === "object") {
+      const inner = record.result as Record<string, unknown>;
+      if (typeof inner.income_eur === "number") return inner.income_eur;
+      if (typeof inner.incomeInEur === "number") return inner.incomeInEur;
+    }
+
+    return null;
+  };
+
   for (const keys of storageKeys) {
     try {
       const savedResult = localStorage.getItem(keys.resultKey);
@@ -186,24 +275,21 @@ function restoreCachedPlan(
       const savedCurrency = keys.currencyKey ? localStorage.getItem(keys.currencyKey) : null;
 
       let hasResult = false;
+      let restoredIncome = false;
 
       if (savedResult) {
-        const parsed = JSON.parse(savedResult) as
-          | CachedResult
-          | { result?: CachedResult }
-          | { result?: { result?: CachedResult } };
-
-        const restoredResult = keys.unwrapResult && parsed && typeof parsed === "object" && "result" in parsed
-          ? ((parsed as { result?: CachedResult | { result?: CachedResult } }).result &&
-              typeof (parsed as { result?: CachedResult | { result?: CachedResult } }).result === "object" &&
-              "result" in ((parsed as { result?: CachedResult | { result?: CachedResult } }).result as object)
-              ? ((parsed as { result?: { result?: CachedResult } }).result?.result ?? null)
-              : ((parsed as { result?: CachedResult }).result ?? null))
-          : (parsed as CachedResult);
+        const parsed = JSON.parse(savedResult) as unknown;
+        const restoredResult = extractRestoredResult(parsed, keys.unwrapResult);
 
         if (restoredResult) {
-          setResult(restoredResult as CachedResult);
+          setResult(restoredResult);
           hasResult = true;
+        }
+
+        const incomeFromPayload = extractIncomeInEur(parsed);
+        if (incomeFromPayload !== null) {
+          setIncomeInEur(incomeFromPayload);
+          restoredIncome = true;
         }
       }
 
@@ -211,9 +297,10 @@ function restoreCachedPlan(
         const raw = Number(savedIncome);
         const rate = CURRENCY_TO_EUR[savedCurrency] || 1;
         setIncomeInEur(Math.round(raw * rate * 100) / 100);
+        restoredIncome = true;
       }
 
-      if (hasResult && (keys.unwrapResult || (savedIncome && savedCurrency))) {
+      if (hasResult && (keys.unwrapResult || restoredIncome || (savedIncome && savedCurrency))) {
         return true;
       }
     } catch {
